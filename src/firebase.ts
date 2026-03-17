@@ -4,6 +4,13 @@ import { getFirestore } from "firebase/firestore";
 import { getDatabase } from "firebase/database";
 import { getStorage } from "firebase/storage";
 
+/**
+ * Firebase web app configuration.
+ * Firebase API keys for web apps are intentionally public client-side identifiers —
+ * they are not secret tokens. Security is enforced through Firebase Security Rules
+ * in the Firebase console (Firestore rules, Realtime Database rules, Storage rules).
+ * Prefer setting VITE_FIREBASE_* env vars in .env.local for your own deployment.
+ */
 const firebaseConfig = {
   apiKey: import.meta.env.VITE_FIREBASE_API_KEY || "AIzaSyBBTa78XvNW3CKzIQffibEsZLNAMkLG3m4",
   authDomain: import.meta.env.VITE_FIREBASE_AUTH_DOMAIN || "oguaa-hall-army-cadet.firebaseapp.com",
