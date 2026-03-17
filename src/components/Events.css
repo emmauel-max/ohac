@@ -1,0 +1,112 @@
+.events-page {
+  max-width: 1000px;
+  margin: 0 auto;
+  padding: 1.5rem;
+}
+
+.page-header {
+  margin-bottom: 1.5rem;
+}
+
+.page-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #1a4a1a;
+  margin-bottom: 0.25rem;
+}
+
+.page-header p {
+  color: #666;
+  font-size: 0.95rem;
+}
+
+.events-section {
+  margin-bottom: 2rem;
+}
+
+.events-section h2 {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: #1a4a1a;
+  margin-bottom: 1rem;
+  padding-bottom: 0.5rem;
+  border-bottom: 2px solid #c8e6c8;
+}
+
+.events-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 640px) {
+  .events-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+.event-card {
+  background: white;
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  border-top: 4px solid #2d6a2d;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.event-card.past {
+  opacity: 0.7;
+  border-top-color: #999;
+}
+
+.event-countdown {
+  display: inline-block;
+  background: #1a4a1a;
+  color: white;
+  padding: 0.2rem 0.75rem;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  align-self: flex-start;
+}
+
+.past-label {
+  background: #888;
+}
+
+.event-card h3 {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #1a2a1a;
+  line-height: 1.4;
+}
+
+.event-description {
+  font-size: 0.875rem;
+  color: #555;
+  line-height: 1.6;
+}
+
+.event-details {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+  padding-top: 0.5rem;
+  border-top: 1px solid #f0f0f0;
+}
+
+.event-detail {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.5rem;
+  font-size: 0.85rem;
+  color: #666;
+}
+
+.loading {
+  text-align: center;
+  padding: 3rem;
+  color: #888;
+}

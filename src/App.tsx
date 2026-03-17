@@ -1,0 +1,133 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { AuthProvider, useAuth } from "./hooks/useAuth";
+import Layout from "./components/Layout/Layout";
+import Login from "./components/Auth/Login";
+import Dashboard from "./components/Dashboard";
+import Courses from "./components/Courses/Courses";
+import Chat from "./components/Chat/Chat";
+import Admin from "./components/Admin/Admin";
+import Announcements from "./components/Announcements";
+import Events from "./components/Events";
+import "./index.css";
+
+function ProtectedRoute({ children }: { children: React.ReactNode }) {
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          flexDirection: "column",
+          gap: "1rem",
+          background: "#1a4a1a",
+          color: "white",
+        }}
+      >
+        <div style={{ fontSize: "3rem" }}>⚔️</div>
+        <p style={{ fontSize: "1.1rem", letterSpacing: "0.1em" }}>OHAC Loading...</p>
+      </div>
+    );
+  }
+
+  if (!currentUser) {
+    return <Navigate to="/login" replace />;
+  }
+
+  return <Layout>{children}</Layout>;
+}
+
+function AppRoutes() {
+  const { currentUser, loading } = useAuth();
+
+  if (loading) {
+    return (
+      <div
+        style={{
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "100vh",
+          flexDirection: "column",
+          gap: "1rem",
+          background: "#1a4a1a",
+          color: "white",
+        }}
+      >
+        <div style={{ fontSize: "3rem" }}>⚔️</div>
+        <p style={{ fontSize: "1.1rem", letterSpacing: "0.1em" }}>OHAC Loading...</p>
+      </div>
+    );
+  }
+
+  return (
+    <Routes>
+      <Route
+        path="/login"
+        element={currentUser ? <Navigate to="/" replace /> : <Login />}
+      />
+      <Route
+        path="/"
+        element={
+          <ProtectedRoute>
+            <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/courses"
+        element={
+          <ProtectedRoute>
+            <Courses />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/chat"
+        element={
+          <ProtectedRoute>
+            <Chat />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/admin"
+        element={
+          <ProtectedRoute>
+            <Admin />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/announcements"
+        element={
+          <ProtectedRoute>
+            <Announcements />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          <ProtectedRoute>
+            <Events />
+          </ProtectedRoute>
+        }
+      />
+      <Route path="*" element={<Navigate to="/" replace />} />
+    </Routes>
+  );
+}
+
+export default function App() {
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <AppRoutes />
+      </AuthProvider>
+    </BrowserRouter>
+  );
+}
