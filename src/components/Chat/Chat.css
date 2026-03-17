@@ -1,0 +1,257 @@
+.chat-page {
+  display: flex;
+  height: calc(100vh - 60px);
+  overflow: hidden;
+}
+
+/* Room List */
+.room-list {
+  width: 220px;
+  flex-shrink: 0;
+  background: #1e3a1e;
+  color: white;
+  display: flex;
+  flex-direction: column;
+  overflow-y: auto;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .room-list {
+    display: flex;
+  }
+}
+
+.room-list h3 {
+  padding: 1rem;
+  font-size: 0.75rem;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  color: rgba(255, 255, 255, 0.5);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.room-btn {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  width: 100%;
+  text-align: left;
+  padding: 0.75rem 1rem;
+  border: none;
+  background: none;
+  color: rgba(255, 255, 255, 0.7);
+  cursor: pointer;
+  transition: all 0.2s;
+}
+
+.room-btn:hover {
+  background: rgba(255, 255, 255, 0.08);
+  color: white;
+}
+
+.room-btn.active {
+  background: rgba(255, 255, 255, 0.15);
+  color: white;
+  border-left: 3px solid #90ee90;
+}
+
+.room-icon {
+  font-size: 1.2rem;
+}
+
+.room-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.room-name {
+  font-size: 0.9rem;
+  font-weight: 600;
+}
+
+.room-desc {
+  font-size: 0.7rem;
+  opacity: 0.6;
+}
+
+/* Chat Window */
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  background: #f8faf8;
+}
+
+/* Chat Header */
+.chat-header {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding: 1rem 1.25rem;
+  background: white;
+  border-bottom: 2px solid #e0ece0;
+  font-size: 1.5rem;
+}
+
+.chat-header h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: #1a4a1a;
+  margin: 0;
+}
+
+.chat-header p {
+  font-size: 0.75rem;
+  color: #888;
+  margin: 0;
+}
+
+/* Messages Area */
+.messages-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.75rem;
+}
+
+.empty-chat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  color: #aaa;
+  gap: 0.5rem;
+  font-size: 2rem;
+  text-align: center;
+  padding: 2rem;
+}
+
+.empty-chat p:last-child {
+  font-size: 0.95rem;
+}
+
+/* Messages */
+.message {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 70%;
+}
+
+.message.own {
+  align-self: flex-end;
+  flex-direction: row-reverse;
+}
+
+.message.other {
+  align-self: flex-start;
+}
+
+.msg-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+}
+
+.msg-bubble {
+  background: white;
+  border-radius: 16px;
+  padding: 0.6rem 0.875rem;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  max-width: 100%;
+}
+
+.message.own .msg-bubble {
+  background: #1a4a1a;
+  color: white;
+}
+
+.msg-author {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2d6a2d;
+  margin-bottom: 0.2rem;
+}
+
+.msg-text {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  word-break: break-word;
+  white-space: pre-wrap;
+  margin: 0;
+}
+
+.msg-time {
+  display: block;
+  font-size: 0.65rem;
+  color: rgba(0, 0, 0, 0.35);
+  margin-top: 0.25rem;
+  text-align: right;
+}
+
+.message.own .msg-time {
+  color: rgba(255, 255, 255, 0.5);
+}
+
+/* Input Area */
+.chat-input-area {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.75rem;
+  padding: 0.875rem 1rem;
+  background: white;
+  border-top: 2px solid #e0ece0;
+}
+
+.chat-input {
+  flex: 1;
+  padding: 0.6rem 0.875rem;
+  border: 2px solid #ddd;
+  border-radius: 20px;
+  font-size: 0.9rem;
+  outline: none;
+  resize: none;
+  line-height: 1.5;
+  max-height: 120px;
+  font-family: inherit;
+  transition: border-color 0.2s;
+}
+
+.chat-input:focus {
+  border-color: #2d6a2d;
+}
+
+.send-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #1a4a1a;
+  color: white;
+  border: none;
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.send-btn:hover:not(:disabled) {
+  background: #2d6a2d;
+  transform: scale(1.05);
+}
+
+.send-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
