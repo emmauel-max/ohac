@@ -41,6 +41,35 @@ The app uses the OHAC Firebase project by default. To use your own Firebase proj
 3. Enable Google Sign-In in Firebase Auth
 4. Set up Firestore and Realtime Database security rules
 
+## Promoting Users to Admin
+
+The app has three user roles: **cadet** (default), **member**, and **admin**. Only admins can access the Admin Panel, post announcements, manage courses, and change roles.
+
+### Method 1: Via the Admin Panel (recommended)
+
+If you already have at least one admin account:
+
+1. Sign in with the admin account.
+2. Navigate to the **Admin Panel** (⚙️ icon in the navigation bar).
+3. Click the **Members** tab.
+4. Find the user you want to promote in the members table.
+5. In the **Actions** column, open the role dropdown next to their name.
+6. Select **Admin** from the dropdown (`Cadet` → `Member` → `Admin`).
+7. The change is saved immediately to Firestore.
+
+### Method 2: Via Firebase Console (for the first admin)
+
+Use this method to bootstrap the very first admin when no admin account exists yet:
+
+1. Open the [Firebase Console](https://console.firebase.google.com/) and select your project.
+2. Go to **Firestore Database** → **Data**.
+3. Open the **`users`** collection.
+4. Find the document whose ID matches the UID of the user you want to promote (the UID is shown in **Authentication** → **Users**).
+5. Click the `role` field and change its value from `"cadet"` to `"admin"`.
+6. Click **Update**.
+
+The user will have admin access the next time they load the app.
+
 ## Firebase Security Rules
 
 ### Firestore
