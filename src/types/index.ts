@@ -19,6 +19,7 @@ export interface Course {
   duration: string;
   level: "Beginner" | "Intermediate" | "Advanced";
   enrolledCount?: number;
+  completedCount?: number;
   createdAt?: number;
 }
 
@@ -28,6 +29,17 @@ export interface CourseModule {
   content: string;
   videoUrl?: string;
   order: number;
+}
+
+export interface CourseEnrollment {
+  id?: string;
+  userId: string;
+  courseId: string;
+  enrolledAt: number;
+  completedModules: string[];
+  isCompleted: boolean;
+  completedAt?: number;
+  progress: number; 
 }
 
 export interface ChatMessage {

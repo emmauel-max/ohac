@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
-import type { Announcement, User, Course } from "../../types";
+import type { Announcement, User, Course, CourseModule } from "../../types";
 import "./Admin.css";
 
 type AdminTab = "overview" | "users" | "announcements" | "courses" | "events";
@@ -28,6 +28,13 @@ export default function Admin() {
   const [annTitle, setAnnTitle] = useState("");
   const [annContent, setAnnContent] = useState("");
   const [annPriority, setAnnPriority] = useState<Announcement["priority"]>("normal");
+
+  const [showCourseForm, setShowCourseForm] = useState(false);
+  const [newCourse, setNewCourse] = useState<{
+    title: string; description: string; category: string; duration: string; level: Course["level"]; modules: Omit<CourseModule, "id" | "order">[];
+  }>({
+    title: "", description: "", category: "", duration: "", level: "Beginner", modules: []
+  });
 
   if (!isAdmin) {
     return (
@@ -103,6 +110,52 @@ export default function Admin() {
   const updateUserRole = async (uid: string, role: User["role"]) => {
     await updateDoc(doc(db, "users", uid), { role });
     await fetchUsers();
+  };
+
+  const handleAddModule = () => {
+    setNewCourse(prev => ({
+      ...prev,
+      modules: [...prev.modules, { title: "", content: "" }]
+    }));
+  };
+
+  const handleModuleChange = (index: number, field: keyof CourseModule, value: string) => {
+    setNewCourse(prev => {
+      const updated = [...prev.modules];
+      updated[index] = { ...updated[index], [field]: value };
+      return { ...prev, modules: updated };
+    });
+  };
+
+  const submitCourse = async () => {
+    if (!newCourse.title || !newCourse.description || newCourse.modules.length === 0) {
+      alert("Please fill all course details and add at least one module.");
+      return;
+    }
+
+    setLoading(true);
+    // Format modules with unique IDs and order numbers
+    const formattedModules: CourseModule[] = newCourse.modules.map((m, i) => ({
+      ...m,
+      id: `m_${Date.now()}_${i}`,
+      order: i + 1
+    }));
+
+    await addDoc(collection(db, "courses"), {
+      title: newCourse.title,
+      description: newCourse.description,
+      category: newCourse.category,
+      duration: newCourse.duration,
+      level: newCourse.level,
+      modules: formattedModules,
+      enrolledCount: 0,
+      completedCount: 0,
+      createdAt: Date.now()
+    });
+
+    setShowCourseForm(false);
+    setNewCourse({ title: "", description: "", category: "", duration: "", level: "Beginner", modules: [] });
+    await fetchCourses();
   };
 
   return (
@@ -292,26 +345,125 @@ export default function Admin() {
         {/* Courses */}
         {activeTab === "courses" && (
           <div className="courses-section">
-            <h2>Course Management</h2>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2>Course Management</h2>
+              <button
+                className="post-btn"
+                onClick={() => setShowCourseForm(!showCourseForm)}
+              >
+                {showCourseForm ? "Cancel" : "➕ Add New Course"}
+              </button>
+            </div>
             <p className="hint">
               Courses are managed via the OHAC admin database. Below are the currently registered
               courses.
             </p>
+            {/* NEW COURSE FORM */}
+            {showCourseForm && (
+              <div className="post-form" style={{ marginBottom: '2rem' }}>
+                <h3>Create New Course</h3>
+                <input
+                  type="text"
+                  placeholder="Course Title"
+                  value={newCourse.title}
+                  onChange={(e) => setNewCourse({ ...newCourse, title: e.target.value })}
+                  className="form-input"
+                />
+                <textarea
+                  placeholder="Course Description"
+                  value={newCourse.description}
+                  onChange={(e) => setNewCourse({ ...newCourse, description: e.target.value })}
+                  className="form-textarea"
+                  rows={3}
+                />
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Category (e.g., Medical, Leadership)"
+                    value={newCourse.category}
+                    onChange={(e) => setNewCourse({ ...newCourse, category: e.target.value })}
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Duration (e.g., 4 weeks)"
+                    value={newCourse.duration}
+                    onChange={(e) => setNewCourse({ ...newCourse, duration: e.target.value })}
+                    className="form-input"
+                  />
+                  <select
+                    value={newCourse.level}
+                    onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value as Course["level"] })}
+                    className="form-select"
+                  >
+                    <option value="Beginner">Beginner</option>
+                    <option value="Intermediate">Intermediate</option>
+                    <option value="Advanced">Advanced</option>
+                  </select>
+                </div>
+
+                <div className="modules-section" style={{ marginTop: '1.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
+                  <h4>Modules</h4>
+                  {newCourse.modules.map((mod, idx) => (
+                    <div key={idx} className="module-input-group" style={{ background: '#f9f9f9', padding: '1rem', marginBottom: '1rem', borderRadius: '8px' }}>
+                      <h5>Module {idx + 1}</h5>
+                      <input
+                        type="text"
+                        placeholder="Module Title"
+                        value={mod.title}
+                        onChange={(e) => handleModuleChange(idx, "title", e.target.value)}
+                        className="form-input"
+                        style={{ marginBottom: '0.5rem' }}
+                      />
+                      <textarea
+                        placeholder="Module Content (Text or HTML)"
+                        value={mod.content}
+                        onChange={(e) => handleModuleChange(idx, "content", e.target.value)}
+                        className="form-textarea"
+                        rows={3}
+                      />
+                      <input
+                        type="text"
+                        placeholder="Video URL (Optional)"
+                        value={mod.videoUrl || ""}
+                        onChange={(e) => handleModuleChange(idx, "videoUrl", e.target.value)}
+                        className="form-input"
+                        style={{ marginTop: '0.5rem' }}
+                      />
+                    </div>
+                  ))}
+                  <button className="secondary-btn" onClick={handleAddModule} style={{ padding: '0.5rem 1rem', background: '#e0e0e0', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+                    + Add Module
+                  </button>
+                </div>
+
+                <button className="post-btn" onClick={submitCourse} style={{ marginTop: '1rem', width: '100%' }}>
+                  Save Course to Database
+                </button>
+              </div>
+            )}
+
             {loading ? (
               <p className="loading">Loading...</p>
             ) : courses.length === 0 ? (
               <p className="empty">
-                No custom courses in database yet. Sample courses are shown in the Courses page.
+                No custom courses in database yet. Click "Add New Course" to create one.
               </p>
             ) : (
               <div className="courses-list">
                 {courses.map((c) => (
-                  <div key={c.id} className="course-item">
-                    <h4>{c.title}</h4>
-                    <div className="course-item-meta">
-                      <span>{c.category}</span>
-                      <span>{c.level}</span>
-                      <span>{c.modules?.length || 0} modules</span>
+                  <div key={c.id} className="course-item" style={{ background: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '1rem' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+                      <h4>{c.title}</h4>
+                      <span className={`priority-tag priority-${c.level.toLowerCase()}`}>{c.level}</span>
+                    </div>
+                    <p style={{ fontSize: '0.9rem', color: '#666', margin: '0.5rem 0' }}>{c.description}</p>
+                    <div className="course-item-meta" style={{ display: 'flex', gap: '1rem', fontSize: '0.85rem', color: '#555', marginTop: '1rem', paddingTop: '1rem', borderTop: '1px solid #eee' }}>
+                      <span>📂 {c.category}</span>
+                      <span>⏱️ {c.duration}</span>
+                      <span>📑 {c.modules?.length || 0} modules</span>
+                      <strong style={{ color: '#2e7d32' }}>👥 Enrolled: {c.enrolledCount || 0}</strong>
+                      <strong style={{ color: '#1565c0' }}>🎓 Completed: {c.completedCount || 0}</strong>
                     </div>
                   </div>
                 ))}

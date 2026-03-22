@@ -1,7 +1,8 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, setDoc, doc, updateDoc, increment, arrayUnion, where } from "firebase/firestore";
 import { db } from "../../firebase";
-import type { Course } from "../../types";
+import { useAuth } from "../../hooks/useAuth";
+import type { Course, CourseEnrollment } from "../../types";
 import "./Courses.css";
 
 const SAMPLE_COURSES: Course[] = [
@@ -171,8 +172,13 @@ const SAMPLE_COURSES: Course[] = [
 ];
 
 export default function Courses() {
+  const { userProfile } = useAuth();
   const [courses, setCourses] = useState<Course[]>([]);
+  const [enrollments, setEnrollments] = useState<Record<string, CourseEnrollment>>({});
   const [loading, setLoading] = useState(true);
+  const [enrolling, setEnrolling] = useState(false);
+  const [completing, setCompleting] = useState(false);
+
   const [selectedCourse, setSelectedCourse] = useState<Course | null>(null);
   const [activeModule, setActiveModule] = useState<number>(0);
   const [searchQuery, setSearchQuery] = useState("");
@@ -195,8 +201,26 @@ export default function Courses() {
         setLoading(false);
       }
     };
+
+    const fetchEnrollments = async () => {
+      if (!userProfile?.uid) return;
+      try {
+        const q = query(collection(db, "enrollments"), where("userId", "==", userProfile.uid));
+        const snap = await getDocs(q);
+        const enrData: Record<string, CourseEnrollment> = {};
+        snap.forEach(d => {
+          const data = d.data() as CourseEnrollment;
+          enrData[data.courseId] = data;
+        });
+        setEnrollments(enrData);
+      } catch (err) {
+        console.error("Failed to fetch enrollments", err);
+      }
+    };
+
     fetchCourses();
-  }, []);
+    fetchEnrollments();
+  }, [userProfile]);
 
   const categories = ["All", ...Array.from(new Set(courses.map((c) => c.category)))];
   const levels = ["All", "Beginner", "Intermediate", "Advanced"];
@@ -216,8 +240,127 @@ export default function Courses() {
     Advanced: "#7a1a1a",
   };
 
+  const handleEnroll = async (course: Course) => {
+    if (!userProfile) {
+      alert("Please log in to enroll in courses.");
+      return;
+    }
+    setEnrolling(true);
+    try {
+      const enrollId = `${userProfile.uid}_${course.id}`;
+      const newEnrollment: CourseEnrollment = {
+        userId: userProfile.uid,
+        courseId: course.id,
+        enrolledAt: Date.now(),
+        completedModules: [],
+        isCompleted: false,
+        progress: 0
+      };
+
+      // 1. Save enrollment record to user
+      await setDoc(doc(db, "enrollments", enrollId), newEnrollment);
+
+      // 2. Increment enrolled count on the course
+      try {
+        await updateDoc(doc(db, "courses", course.id), {
+          enrolledCount: increment(1)
+        });
+      } catch (e) {
+        console.log("Could not update course count (Likely a sample course)", e);
+      }
+
+      setEnrollments(prev => ({ ...prev, [course.id]: newEnrollment }));
+    } catch (error) {
+      console.error("Error enrolling:", error);
+      alert("Failed to enroll. Please try again.");
+    }
+    setEnrolling(false);
+  };
+
+  const handleCompleteModule = async (moduleId: string) => {
+    if (!userProfile || !selectedCourse) return;
+    const currentEnr = enrollments[selectedCourse.id];
+    if (!currentEnr) return;
+
+    setCompleting(true);
+    try {
+      const enrollId = `${userProfile.uid}_${selectedCourse.id}`;
+      const newCompleted = [...currentEnr.completedModules, moduleId];
+      const isCompleted = newCompleted.length === selectedCourse.modules.length;
+      const progress = (newCompleted.length / selectedCourse.modules.length) * 100;
+
+      // 1. Update user's progress
+      await updateDoc(doc(db, "enrollments", enrollId), {
+        completedModules: arrayUnion(moduleId),
+        isCompleted,
+        progress,
+        completedAt: isCompleted ? Date.now() : null
+      });
+
+      // 2. If finished, increment the global completedCount for Admin
+      if (isCompleted) {
+        try {
+          await updateDoc(doc(db, "courses", selectedCourse.id), {
+            completedCount: increment(1)
+          });
+        } catch (e) { }
+      }
+
+      setEnrollments(prev => ({
+        ...prev,
+        [selectedCourse.id]: {
+          ...prev[selectedCourse.id],
+          completedModules: newCompleted,
+          isCompleted,
+          progress
+        }
+      }));
+    } catch (error) {
+      console.error("Error completing module", error);
+    }
+    setCompleting(false);
+  };
+
   if (selectedCourse) {
+    const isEnrolled = !!enrollments[selectedCourse.id];
+    const currentEnrollment = enrollments[selectedCourse.id];
+
+    // If they haven't enrolled yet, show them the course overview first
+    if (!isEnrolled) {
+      return (
+        <div className="course-reader">
+          <button className="back-btn" onClick={() => setSelectedCourse(null)}>
+            ← Back to Courses
+          </button>
+          <div className="enrollment-preview" style={{ padding: '3rem 1rem', maxWidth: '700px', margin: '0 auto', textAlign: 'center' }}>
+            <span className="level-badge" style={{ background: levelColors[selectedCourse.level], marginBottom: '1rem', display: 'inline-block' }}>
+              {selectedCourse.level}
+            </span>
+            <h2 style={{ fontSize: '2rem', marginBottom: '1rem' }}>{selectedCourse.title}</h2>
+            <p style={{ fontSize: '1.1rem', color: '#555', marginBottom: '2rem', lineHeight: '1.6' }}>
+              {selectedCourse.description}
+            </p>
+            <div className="course-meta" style={{ justifyContent: 'center', marginBottom: '3rem', fontSize: '1rem', gap: '2rem' }}>
+              <span>📑 {selectedCourse.modules.length} modules</span>
+              <span>⏱️ {selectedCourse.duration}</span>
+              <span>📂 {selectedCourse.category}</span>
+            </div>
+            <button
+              style={{ padding: '1rem 2.5rem', fontSize: '1.1rem', background: '#1e4620', color: 'white', border: 'none', borderRadius: '8px', cursor: 'pointer', fontWeight: 'bold' }}
+              onClick={() => handleEnroll(selectedCourse)}
+              disabled={enrolling}
+            >
+              {enrolling ? "Processing..." : "Enroll to Start Learning"}
+            </button>
+          </div>
+        </div>
+      );
+    }
+
+    // If enrolled, show the reader
     const mod = selectedCourse.modules[activeModule];
+    const isModuleCompleted = currentEnrollment?.completedModules.includes(mod.id);
+
     return (
       <div className="course-reader">
         <button className="back-btn" onClick={() => { setSelectedCourse(null); setActiveModule(0); }}>
@@ -227,14 +370,25 @@ export default function Courses() {
           {/* Module List */}
           <aside className="module-list">
             <h3>{selectedCourse.title}</h3>
+            {/* Progress Bar */}
+            <div style={{ background: '#eee', height: '8px', borderRadius: '4px', margin: '1rem 0' }}>
+              <div style={{ height: '100%', background: '#2e7d32', borderRadius: '4px', width: `${currentEnrollment?.progress || 0}%`, transition: 'width 0.3s' }}></div>
+            </div>
+            <p style={{ fontSize: '0.8rem', color: '#666', marginBottom: '1rem' }}>Progress: {Math.round(currentEnrollment?.progress || 0)}%</p>
+
             {selectedCourse.modules.map((m, i) => (
               <button
                 key={m.id}
                 className={`module-btn ${activeModule === i ? "active" : ""}`}
                 onClick={() => setActiveModule(i)}
               >
-                <span className="module-num">{i + 1}</span>
-                <span>{m.title}</span>
+                <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem', width: '100%', justifyContent: 'space-between' }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    <span className="module-num">{i + 1}</span>
+                    <span style={{ textAlign: 'left' }}>{m.title}</span>
+                  </div>
+                  {currentEnrollment?.completedModules.includes(m.id) && <span style={{ color: '#2e7d32' }}>✓</span>}
+                </div>
               </button>
             ))}
           </aside>
@@ -253,7 +407,27 @@ export default function Courses() {
                 </div>
               )}
             </div>
-            <div className="module-nav">
+
+            {/* Progress Actions */}
+            <div className="module-actions" style={{ marginTop: '2rem', paddingTop: '1.5rem', borderTop: '1px solid #eee', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <div>
+                {isModuleCompleted ? (
+                  <span style={{ color: '#2e7d32', fontWeight: 'bold', display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+                    ✅ Module Completed
+                  </span>
+                ) : (
+                  <button
+                    onClick={() => handleCompleteModule(mod.id)}
+                    disabled={completing}
+                    style={{ padding: '0.75rem 1.5rem', background: '#2e7d32', color: 'white', border: 'none', borderRadius: '6px', cursor: completing ? 'not-allowed' : 'pointer' }}
+                  >
+                    {completing ? "Saving..." : "Mark Module as Complete"}
+                  </button>
+                )}
+              </div>
+            </div>
+
+            <div className="module-nav" style={{ marginTop: '2rem' }}>
               {activeModule > 0 && (
                 <button className="nav-btn prev" onClick={() => setActiveModule(activeModule - 1)}>
                   ← Previous
@@ -307,27 +481,39 @@ export default function Courses() {
         <div className="loading-spinner">Loading courses...</div>
       ) : (
         <div className="courses-grid">
-          {filtered.map((course) => (
-            <div key={course.id} className="course-card" onClick={() => setSelectedCourse(course)}>
-              <div className="course-card-header">
-                <span
-                  className="level-badge"
-                  style={{ background: levelColors[course.level] }}
-                >
-                  {course.level}
-                </span>
-                <span className="category-badge">{course.category}</span>
+          {filtered.map((course) => {
+            const enrollment = enrollments[course.id];
+
+            return (
+              <div key={course.id} className="course-card" onClick={() => setSelectedCourse(course)}>
+                <div className="course-card-header">
+                  <span
+                    className="level-badge"
+                    style={{ background: levelColors[course.level] }}
+                  >
+                    {course.level}
+                  </span>
+                  <span className="category-badge">{course.category}</span>
+                </div>
+                <h3>{course.title}</h3>
+                <p>{course.description}</p>
+                <div className="course-meta">
+                  <span>📖 {course.modules.length} modules</span>
+                  <span>⏱️ {course.duration}</span>
+                  {enrollment ? (
+                    <span style={{ color: enrollment.isCompleted ? '#2e7d32' : '#d84315', fontWeight: 'bold' }}>
+                      {enrollment.isCompleted ? '✓ Completed' : `⏳ Progress: ${Math.round(enrollment.progress)}%`}
+                    </span>
+                  ) : (
+                    <span>👥 {course.enrolledCount || 0} enrolled</span>
+                  )}
+                </div>
+                <button className="enroll-btn" style={{ background: enrollment?.isCompleted ? '#f0f0f0' : undefined, color: enrollment?.isCompleted ? '#333' : undefined }}>
+                  {enrollment ? (enrollment.isCompleted ? "Review Course" : "Continue Learning →") : "Start Learning →"}
+                </button>
               </div>
-              <h3>{course.title}</h3>
-              <p>{course.description}</p>
-              <div className="course-meta">
-                <span>📖 {course.modules.length} modules</span>
-                <span>⏱️ {course.duration}</span>
-                <span>👥 {course.enrolledCount || 0} enrolled</span>
-              </div>
-              <button className="enroll-btn">Start Learning →</button>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
 
