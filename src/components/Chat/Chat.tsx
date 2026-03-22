@@ -18,6 +18,7 @@ export default function Chat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
+  const [showRoomMenu, setShowRoomMenu] = useState(false); // NEW: State for mobile dropdown
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -77,7 +78,7 @@ export default function Chat() {
 
   return (
     <div className="chat-page">
-      {/* Room List */}
+      {/* Room List (Sidebar for Desktop) */}
       <aside className="room-list">
         <h3>Chat Rooms</h3>
         {CHAT_ROOMS.map((room) => (
@@ -97,13 +98,69 @@ export default function Chat() {
 
       {/* Chat Window */}
       <div className="chat-window">
-        {/* Header */}
-        <div className="chat-header">
-          <span>{activeRoom.icon}</span>
-          <div>
-            <h2>{activeRoom.name}</h2>
-            <p>{activeRoom.description}</p>
+        {/* Header with Mobile Dropdown Toggle */}
+        <div className="chat-header" style={{ position: 'relative' }}>
+          <div
+            className="chat-header-content"
+            onClick={() => setShowRoomMenu(!showRoomMenu)}
+            style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', width: '100%' }}
+            title="Click to switch rooms"
+          >
+            <span style={{ fontSize: '1.8rem' }}>{activeRoom.icon}</span>
+            <div style={{ flex: 1 }}>
+              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
+                {activeRoom.name}
+                <span className="mobile-caret" style={{ fontSize: '0.8rem', color: '#666', transition: 'transform 0.3s', transform: showRoomMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+              </h2>
+              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{activeRoom.description}</p>
+            </div>
           </div>
+
+          {/* Mobile Dropdown Menu */}
+          {showRoomMenu && (
+            <div className="mobile-dropdown" style={{
+              position: 'absolute',
+              top: '100%',
+              left: 0,
+              right: 0,
+              backgroundColor: '#fff',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              zIndex: 100,
+              borderTop: '1px solid #eee',
+              borderBottomLeftRadius: '8px',
+              borderBottomRightRadius: '8px',
+              display: 'flex',
+              flexDirection: 'column'
+            }}>
+              {CHAT_ROOMS.map((room) => (
+                <button
+                  key={room.id}
+                  onClick={() => {
+                    setActiveRoom(room);
+                    setMessages([]);
+                    setShowRoomMenu(false);
+                  }}
+                  style={{
+                    display: 'flex',
+                    alignItems: 'center',
+                    gap: '1rem',
+                    padding: '1rem',
+                    border: 'none',
+                    backgroundColor: activeRoom.id === room.id ? '#f0fdf4' : '#fff',
+                    borderBottom: '1px solid #eee',
+                    cursor: 'pointer',
+                    textAlign: 'left'
+                  }}
+                >
+                  <span style={{ fontSize: '1.5rem' }}>{room.icon}</span>
+                  <div>
+                    <div style={{ fontWeight: 'bold', color: activeRoom.id === room.id ? '#1e4620' : '#333' }}>{room.name}</div>
+                    <div style={{ fontSize: '0.8rem', color: '#666' }}>{room.description}</div>
+                  </div>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         {/* Messages */}
