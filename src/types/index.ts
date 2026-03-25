@@ -5,6 +5,12 @@ export interface User {
   photoURL: string | null;
   role: "admin" | "member" | "cadet";
   rank?: string;
+  unit?: string;
+  bio?: string;
+  notificationEnabled?: boolean;
+  notifyAnnouncements?: boolean;
+  notifyChat?: boolean;
+  notifyEvents?: boolean;
   enrolledCourses?: string[];
   createdAt?: number;
 }

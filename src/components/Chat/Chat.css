@@ -256,7 +256,6 @@
   cursor: not-allowed;
 }
 
-/* Hide mobile dropdown caret on Desktop */
 @media (min-width: 769px) {
   .mobile-caret {
     display: none !important;

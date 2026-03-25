@@ -3,11 +3,15 @@ import { AuthProvider, useAuth } from "./hooks/useAuth";
 import Layout from "./components/Layout/Layout";
 import Login from "./components/Auth/Login";
 import Dashboard from "./components/Dashboard";
+import Profile from "./components/Profile";
 import Courses from "./components/Courses/Courses";
 import Chat from "./components/Chat/Chat";
 import Admin from "./components/Admin/Admin";
 import Announcements from "./components/Announcements";
 import Events from "./components/Events";
+import TourGuide from "./components/TourGuide";
+import NotificationBridge from "./components/NotificationBridge";
+import logo from "./assets/logo.png";
 import "./index.css";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
@@ -27,7 +31,11 @@ function ProtectedRoute({ children }: { children: React.ReactNode }) {
           color: "white",
         }}
       >
-        <div style={{ fontSize: "3rem" }}>⚔️</div>
+        <img
+          src={logo}
+          alt="OHAC logo"
+          style={{ width: "64px", height: "64px", objectFit: "contain" }}
+        />
         <p style={{ fontSize: "1.1rem", letterSpacing: "0.1em" }}>OHAC Loading...</p>
       </div>
     );
@@ -57,7 +65,11 @@ function AppRoutes() {
           color: "white",
         }}
       >
-        <div style={{ fontSize: "3rem" }}>⚔️</div>
+        <img
+          src={logo}
+          alt="OHAC logo"
+          style={{ width: "64px", height: "64px", objectFit: "contain" }}
+        />
         <p style={{ fontSize: "1.1rem", letterSpacing: "0.1em" }}>OHAC Loading...</p>
       </div>
     );
@@ -74,6 +86,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Dashboard />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <Profile />
           </ProtectedRoute>
         }
       />
@@ -126,6 +146,8 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
+        <TourGuide />
+        <NotificationBridge />
         <AppRoutes />
       </AuthProvider>
     </BrowserRouter>

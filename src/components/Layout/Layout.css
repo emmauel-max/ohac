@@ -60,6 +60,12 @@
   font-size: 1.5rem;
 }
 
+.brand-logo {
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+}
+
 .brand-name {
   font-size: 1.3rem;
   font-weight: 800;
@@ -166,9 +172,18 @@
 }
 
 .sidebar-logo {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
   font-size: 1rem;
   font-weight: 700;
   letter-spacing: 0.05em;
+}
+
+.sidebar-logo-img {
+  width: 22px;
+  height: 22px;
+  object-fit: contain;
 }
 
 .nav-list {

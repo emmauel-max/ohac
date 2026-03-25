@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import logo from "../../assets/logo.png";
 import "./Layout.css";
 
 interface NavItem {
@@ -12,6 +13,7 @@ interface NavItem {
 
 const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: "🏠" },
+  { path: "/profile", label: "Profile", icon: "👤" },
   { path: "/courses", label: "Courses", icon: "📚" },
   { path: "/chat", label: "Chat", icon: "💬" },
   { path: "/events", label: "Events", icon: "📅" },
@@ -24,6 +26,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
 
+  useEffect(() => {
+    const handleOpenSidebar = () => setSidebarOpen(true);
+    window.addEventListener("ohac:open-sidebar", handleOpenSidebar);
+    return () => window.removeEventListener("ohac:open-sidebar", handleOpenSidebar);
+  }, []);
+
   const visibleNavItems = navItems.filter((item) => !item.adminOnly || isAdmin);
 
   return (
@@ -35,11 +43,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             className="menu-toggle"
             onClick={() => setSidebarOpen(!sidebarOpen)}
             aria-label="Toggle menu"
+            data-tour-id="menu-toggle"
           >
             ☰
           </button>
-          <Link to="/" className="brand">
-            <span className="brand-icon">⚔️</span>
+          <Link to="/" className="brand" data-tour-id="brand-link">
+            <img src={logo} alt="OHAC logo" className="brand-logo" />
             <span className="brand-name">OHAC</span>
           </Link>
         </div>
@@ -64,9 +73,12 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       </header>
 
       {/* Sidebar */}
-      <nav className={`sidebar ${sidebarOpen ? "open" : ""}`}>
+      <nav className={`sidebar ${sidebarOpen ? "open" : ""}`} data-tour-id="sidebar-nav">
         <div className="sidebar-header">
-          <div className="sidebar-logo">⚔️ OHAC Portal</div>
+          <div className="sidebar-logo">
+            <img src={logo} alt="OHAC logo" className="sidebar-logo-img" />
+            <span>OHAC Portal</span>
+          </div>
         </div>
         <ul className="nav-list">
           {visibleNavItems.map((item) => (
@@ -75,6 +87,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                 to={item.path}
                 className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
                 onClick={() => setSidebarOpen(false)}
+                data-tour-id={item.path === "/" ? "nav-dashboard" : undefined}
               >
                 <span className="nav-icon">{item.icon}</span>
                 <span className="nav-label">{item.label}</span>

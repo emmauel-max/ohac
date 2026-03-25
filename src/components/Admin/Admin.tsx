@@ -11,7 +11,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
-import type { Announcement, User, Course, CourseModule } from "../../types";
+import type { Announcement, User, Course, CourseModule, Event } from "../../types";
 import "./Admin.css";
 
 type AdminTab = "overview" | "users" | "announcements" | "courses" | "events";
@@ -22,6 +22,7 @@ export default function Admin() {
   const [users, setUsers] = useState<User[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
+  const [events, setEvents] = useState<Event[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Announcement form
@@ -29,12 +30,21 @@ export default function Admin() {
   const [annContent, setAnnContent] = useState("");
   const [annPriority, setAnnPriority] = useState<Announcement["priority"]>("normal");
 
+  // Course form
   const [showCourseForm, setShowCourseForm] = useState(false);
   const [newCourse, setNewCourse] = useState<{
     title: string; description: string; category: string; duration: string; level: Course["level"]; modules: Omit<CourseModule, "id" | "order">[];
   }>({
     title: "", description: "", category: "", duration: "", level: "Beginner", modules: []
   });
+
+  // Event form
+  const [showEventForm, setShowEventForm] = useState(false);
+  const [evTitle, setEvTitle] = useState("");
+  const [evDesc, setEvDesc] = useState("");
+  const [evDate, setEvDate] = useState("");
+  const [evLocation, setEvLocation] = useState("");
+  const [evOrganizer, setEvOrganizer] = useState("");
 
   if (!isAdmin) {
     return (
@@ -79,10 +89,19 @@ export default function Admin() {
     setLoading(false);
   };
 
+  const fetchEvents = async () => {
+    setLoading(true);
+    const q = query(collection(db, "events"), orderBy("date"));
+    const snap = await getDocs(q);
+    setEvents(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event)));
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (activeTab === "users") fetchUsers();
     if (activeTab === "announcements") fetchAnnouncements();
     if (activeTab === "courses") fetchCourses();
+    if (activeTab === "events") fetchEvents();
   }, [activeTab]);
 
   const postAnnouncement = async () => {
@@ -134,7 +153,6 @@ export default function Admin() {
     }
 
     setLoading(true);
-    // Format modules with unique IDs and order numbers
     const formattedModules: CourseModule[] = newCourse.modules.map((m, i) => ({
       ...m,
       id: `m_${Date.now()}_${i}`,
@@ -156,6 +174,35 @@ export default function Admin() {
     setShowCourseForm(false);
     setNewCourse({ title: "", description: "", category: "", duration: "", level: "Beginner", modules: [] });
     await fetchCourses();
+  };
+
+  const postEvent = async () => {
+    if (!evTitle.trim() || !evDate || !evLocation) {
+      alert("Please fill in the title, date, and location.");
+      return;
+    }
+    setLoading(true);
+    await addDoc(collection(db, "events"), {
+      title: evTitle,
+      description: evDesc,
+      date: evDate,
+      location: evLocation,
+      organizer: evOrganizer || userProfile?.displayName || "OHAC Command",
+      createdAt: Date.now(),
+    });
+    setEvTitle("");
+    setEvDesc("");
+    setEvDate("");
+    setEvLocation("");
+    setEvOrganizer("");
+    setShowEventForm(false);
+    await fetchEvents();
+  };
+
+  const deleteEvent = async (id: string) => {
+    if (!confirm("Delete this event?")) return;
+    await deleteDoc(doc(db, "events", id));
+    await fetchEvents();
   };
 
   return (
@@ -475,8 +522,91 @@ export default function Admin() {
         {/* Events */}
         {activeTab === "events" && (
           <div className="events-section">
-            <h2>Events</h2>
-            <p>Event scheduling coming soon. Admins will be able to post parade dates, training schedules, and special events.</p>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '1rem' }}>
+              <h2>Manage Events</h2>
+              <button
+                className="post-btn"
+                onClick={() => setShowEventForm(!showEventForm)}
+              >
+                {showEventForm ? "Cancel" : "➕ Schedule New Event"}
+              </button>
+            </div>
+            
+            <p className="hint">
+              Schedule parades, training days, and special events for the cadet corps.
+            </p>
+
+            {/* Event Form */}
+            {showEventForm && (
+              <div className="post-form" style={{ marginBottom: '2rem' }}>
+                <h3>Event Details</h3>
+                <input
+                  type="text"
+                  placeholder="Event Title"
+                  value={evTitle}
+                  onChange={(e) => setEvTitle(e.target.value)}
+                  className="form-input"
+                />
+                <textarea
+                  placeholder="Event Description..."
+                  value={evDesc}
+                  onChange={(e) => setEvDesc(e.target.value)}
+                  className="form-textarea"
+                  rows={3}
+                />
+                <div className="form-row">
+                  <input
+                    type="date"
+                    value={evDate}
+                    onChange={(e) => setEvDate(e.target.value)}
+                    className="form-input"
+                  />
+                  <input
+                    type="text"
+                    placeholder="Location (e.g., Main Parade Ground)"
+                    value={evLocation}
+                    onChange={(e) => setEvLocation(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-row">
+                  <input
+                    type="text"
+                    placeholder="Organizer (Optional)"
+                    value={evOrganizer}
+                    onChange={(e) => setEvOrganizer(e.target.value)}
+                    className="form-input"
+                  />
+                  <button className="post-btn" onClick={postEvent}>
+                    Save Event
+                  </button>
+                </div>
+              </div>
+            )}
+
+            {/* Existing Events List */}
+            {loading ? (
+              <p className="loading">Loading...</p>
+            ) : (
+              <div className="ann-list">
+                {events.map((ev) => (
+                  <div key={ev.id} className="ann-item" style={{ background: '#fff', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', borderLeft: '4px solid #1e4620' }}>
+                    <div className="ann-item-header">
+                      <h4>{ev.title}</h4>
+                      <span className="priority-tag priority-normal">{ev.date}</span>
+                    </div>
+                    <p style={{ margin: '0.5rem 0' }}>{ev.description}</p>
+                    <div className="ann-item-footer">
+                      <span>📍 {ev.location} &nbsp;|&nbsp; 👤 {ev.organizer}</span>
+                      <button className="delete-btn" onClick={() => deleteEvent(ev.id)}>
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
+                {events.length === 0 && <p className="empty">No events scheduled yet.</p>}
+              </div>
+            )}
           </div>
         )}
       </div>

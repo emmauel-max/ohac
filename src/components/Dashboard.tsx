@@ -3,6 +3,7 @@ import { Link } from "react-router-dom";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
+import logo from "../assets/logo.png";
 import type { Announcement } from "../types";
 import "./Dashboard.css";
 
@@ -55,7 +56,7 @@ export default function Dashboard() {
   return (
     <div className="dashboard">
       {/* Hero */}
-      <div className="hero">
+      <div className="hero" data-tour-id="dashboard-hero">
         <div className="hero-content">
           <h1>Welcome back, {currentUser?.displayName?.split(" ")[0] || "Cadet"}</h1>
           <p>
@@ -64,7 +65,9 @@ export default function Dashboard() {
               : "Oguaa Hall Army Cadet · University of Cape Coast"}
           </p>
         </div>
-        <div className="hero-badge">⚔️</div>
+        <div className="hero-badge">
+          <img src={logo} alt="OHAC logo" className="hero-logo" />
+        </div>
       </div>
 
       {/* Stats */}
@@ -79,7 +82,7 @@ export default function Dashboard() {
       </div>
 
       {/* Quick Links */}
-      <section className="section">
+      <section className="section" data-tour-id="quick-links-section">
         <h2 className="section-title">Quick Access</h2>
         <div className="quick-links">
           {quickLinks.map((link) => (
@@ -97,7 +100,7 @@ export default function Dashboard() {
       </section>
 
       {/* Announcements */}
-      <section className="section">
+      <section className="section" data-tour-id="announcements-section">
         <div className="section-header">
           <h2 className="section-title">Latest Announcements</h2>
           <Link to="/announcements" className="view-all">View All →</Link>

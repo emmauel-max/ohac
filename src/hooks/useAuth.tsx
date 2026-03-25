@@ -34,6 +34,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         displayName: user.displayName,
         photoURL: user.photoURL,
         role: "cadet",
+        rank: "Cadet",
+        unit: "Oguaa Hall",
+        bio: "",
+        notificationEnabled: true,
+        notifyAnnouncements: true,
+        notifyChat: true,
+        notifyEvents: true,
         enrolledCourses: [],
         createdAt: serverTimestamp(),
       });
