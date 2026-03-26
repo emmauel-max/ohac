@@ -55,11 +55,14 @@
 }
 
 .stat-card {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
   text-align: center;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .stat-icon {
@@ -70,23 +73,26 @@
 .stat-value {
   font-size: 1.5rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-bottom: 0.25rem;
 }
 
 .stat-label {
   font-size: 0.75rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 500;
 }
 
 /* Sections */
 .section {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.5rem;
   margin-bottom: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .section-header {
@@ -99,7 +105,7 @@
 .section-title {
   font-size: 1.1rem;
   font-weight: 700;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-bottom: 1rem;
 }
 
@@ -109,7 +115,7 @@
 
 .view-all {
   font-size: 0.85rem;
-  color: #2d6a2d;
+  color: #90ee90;
   text-decoration: none;
   font-weight: 600;
 }
@@ -165,10 +171,11 @@
 }
 
 .announcement-card {
-  border: 1px solid #e8f0e8;
+  border: 1px solid rgba(144, 238, 144, 0.15);
   border-radius: 8px;
   padding: 1rem;
   position: relative;
+  background: rgba(15, 40, 15, 0.5);
 }
 
 .priority-badge {
@@ -186,13 +193,13 @@
 .announcement-card h3 {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #222;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0.25rem;
 }
 
 .announcement-card p {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.5;
   margin-bottom: 0.5rem;
 }
@@ -201,17 +208,17 @@
   display: flex;
   gap: 1rem;
   font-size: 0.75rem;
-  color: #999;
+  color: rgba(255, 255, 255, 0.45);
 }
 
 /* Mission */
 .mission-section {
-  background: linear-gradient(135deg, #f8fff8 0%, #f0f8f0 100%);
-  border: 1px solid #c8e6c8;
+  background: rgba(10, 30, 10, 0.72);
+  border: 1px solid rgba(144, 238, 144, 0.2);
 }
 
 .mission-text {
-  color: #444;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.8;
   font-size: 0.95rem;
 }
@@ -220,12 +227,12 @@
 .loading-spinner {
   text-align: center;
   padding: 2rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .empty-state {
   text-align: center;
   padding: 2rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 1rem;
 }

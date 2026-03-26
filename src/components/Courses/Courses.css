@@ -11,12 +11,13 @@
 .courses-header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: 0.25rem;
 }
 
 .courses-header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.95rem;
 }
 
@@ -32,30 +33,37 @@
   flex: 1;
   min-width: 200px;
   padding: 0.6rem 1rem;
-  border: 2px solid #ddd;
+  border: 1px solid rgba(144, 238, 144, 0.25);
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
   transition: border-color 0.2s;
+  background: rgba(10, 30, 10, 0.6);
+  color: rgba(255, 255, 255, 0.9);
+}
+
+.search-input::placeholder {
+  color: rgba(255, 255, 255, 0.45);
 }
 
 .search-input:focus {
-  border-color: #2d6a2d;
+  border-color: rgba(144, 238, 144, 0.55);
 }
 
 .filter-select {
   padding: 0.6rem 1rem;
-  border: 2px solid #ddd;
+  border: 1px solid rgba(144, 238, 144, 0.25);
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
-  background: white;
+  background: rgba(10, 30, 10, 0.6);
+  color: rgba(255, 255, 255, 0.9);
   cursor: pointer;
   transition: border-color 0.2s;
 }
 
 .filter-select:focus {
-  border-color: #2d6a2d;
+  border-color: rgba(144, 238, 144, 0.55);
 }
 
 /* Courses Grid */
@@ -78,22 +86,25 @@
 }
 
 .course-card {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   cursor: pointer;
   transition: all 0.2s;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  border: 2px solid transparent;
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .course-card:hover {
-  border-color: #2d6a2d;
+  border-color: rgba(144, 238, 144, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.1);
+  box-shadow: 0 8px 28px rgba(0, 0, 0, 0.4);
+  background: rgba(15, 40, 15, 0.85);
 }
 
 .course-card-header {
@@ -117,20 +128,21 @@
   border-radius: 12px;
   font-size: 0.7rem;
   font-weight: 600;
-  background: #f0f4f0;
-  color: #444;
+  background: rgba(144, 238, 144, 0.12);
+  color: rgba(255, 255, 255, 0.8);
+  border: 1px solid rgba(144, 238, 144, 0.2);
 }
 
 .course-card h3 {
   font-size: 1rem;
   font-weight: 700;
-  color: #222;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.4;
 }
 
 .course-card p {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.68);
   line-height: 1.6;
   flex: 1;
 }
@@ -139,7 +151,7 @@
   display: flex;
   gap: 0.75rem;
   font-size: 0.75rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
   flex-wrap: wrap;
 }
 
@@ -168,9 +180,9 @@
 }
 
 .back-btn {
-  background: none;
-  border: 2px solid #1a4a1a;
-  color: #1a4a1a;
+  background: rgba(10, 30, 10, 0.5);
+  border: 1px solid rgba(144, 238, 144, 0.35);
+  color: rgba(255, 255, 255, 0.85);
   padding: 0.5rem 1rem;
   border-radius: 8px;
   cursor: pointer;
@@ -181,7 +193,8 @@
 }
 
 .back-btn:hover {
-  background: #1a4a1a;
+  background: rgba(20, 60, 20, 0.8);
+  border-color: rgba(144, 238, 144, 0.6);
   color: white;
 }
 
@@ -195,10 +208,13 @@
 .module-list {
   width: 280px;
   flex-shrink: 0;
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: none;
 }
 
@@ -211,7 +227,7 @@
 .module-list h3 {
   font-size: 0.95rem;
   font-weight: 700;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-bottom: 1rem;
   line-height: 1.4;
 }
@@ -228,14 +244,14 @@
   background: none;
   cursor: pointer;
   font-size: 0.85rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
   transition: all 0.2s;
   margin-bottom: 0.25rem;
 }
 
 .module-btn:hover {
-  background: #f0f4f0;
-  color: #1a4a1a;
+  background: rgba(144, 238, 144, 0.12);
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .module-btn.active {
@@ -263,15 +279,18 @@
 /* Module Content */
 .module-content {
   flex: 1;
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .module-header {
   margin-bottom: 1.5rem;
-  border-bottom: 2px solid #f0f4f0;
+  border-bottom: 2px solid rgba(144, 238, 144, 0.15);
   padding-bottom: 1rem;
 }
 
@@ -279,30 +298,31 @@
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #2d6a2d;
+  color: #90ee90;
   font-weight: 700;
 }
 
 .module-header h2 {
   font-size: 1.4rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-top: 0.5rem;
 }
 
 .module-body p {
   font-size: 1rem;
-  color: #444;
+  color: rgba(255, 255, 255, 0.8);
   line-height: 1.8;
 }
 
 .video-placeholder {
-  background: #f0f4f0;
+  background: rgba(144, 238, 144, 0.08);
   border-radius: 8px;
   padding: 1.5rem;
   text-align: center;
-  color: #666;
+  color: rgba(255, 255, 255, 0.6);
   margin-top: 1rem;
+  border: 1px solid rgba(144, 238, 144, 0.12);
 }
 
 .module-nav {
@@ -310,41 +330,43 @@
   justify-content: space-between;
   margin-top: 2rem;
   padding-top: 1rem;
-  border-top: 2px solid #f0f4f0;
+  border-top: 2px solid rgba(144, 238, 144, 0.15);
 }
 
 .nav-btn {
   padding: 0.6rem 1.25rem;
-  border: 2px solid #1a4a1a;
+  border: 2px solid rgba(144, 238, 144, 0.5);
   border-radius: 8px;
   font-size: 0.9rem;
   font-weight: 600;
   cursor: pointer;
   transition: all 0.2s;
-  background: white;
-  color: #1a4a1a;
+  background: transparent;
+  color: rgba(255, 255, 255, 0.85);
 }
 
 .nav-btn:hover {
-  background: #1a4a1a;
+  background: rgba(144, 238, 144, 0.15);
+  border-color: #90ee90;
   color: white;
 }
 
 .nav-btn.next {
   margin-left: auto;
-  background: #1a4a1a;
+  background: rgba(45, 106, 45, 0.8);
   color: white;
+  border-color: rgba(144, 238, 144, 0.5);
 }
 
 .nav-btn.next:hover {
-  background: #2d6a2d;
-  border-color: #2d6a2d;
+  background: rgba(45, 106, 45, 1);
+  border-color: #90ee90;
 }
 
 .loading-spinner,
 .empty-state {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
   font-size: 1rem;
 }

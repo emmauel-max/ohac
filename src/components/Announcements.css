@@ -11,12 +11,13 @@
 .page-header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: 0.25rem;
 }
 
 .page-header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.95rem;
 }
 
@@ -30,24 +31,25 @@
 .filter-tab {
   padding: 0.4rem 0.875rem;
   border-radius: 20px;
-  border: 2px solid #ddd;
-  background: white;
+  border: 1px solid rgba(144, 238, 144, 0.25);
+  background: rgba(10, 30, 10, 0.5);
   cursor: pointer;
   font-size: 0.85rem;
   font-weight: 600;
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
   transition: all 0.2s;
 }
 
 .filter-tab:hover {
-  border-color: #2d6a2d;
-  color: #1a4a1a;
+  border-color: rgba(144, 238, 144, 0.5);
+  color: rgba(255, 255, 255, 0.9);
+  background: rgba(20, 50, 20, 0.7);
 }
 
 .filter-tab.active {
   color: white;
   border-color: transparent;
-  background: #1a4a1a;
+  background: rgba(45, 106, 45, 0.85);
 }
 
 .ann-grid {
@@ -57,11 +59,14 @@
 }
 
 .ann-card {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
-  border-left: 4px solid #1a4a1a;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  border-left: 4px solid #2d6a2d;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .ann-card-header {
@@ -83,27 +88,27 @@
 
 .ann-date {
   font-size: 0.8rem;
-  color: #999;
+  color: rgba(255, 255, 255, 0.5);
 }
 
 .ann-card h3 {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #1a2a1a;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0.5rem;
   line-height: 1.4;
 }
 
 .ann-card p {
   font-size: 0.9rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.72);
   line-height: 1.7;
   margin-bottom: 0.75rem;
 }
 
 .ann-author {
   font-size: 0.8rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
   font-style: italic;
 }
 
@@ -111,7 +116,7 @@
 .empty {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
 }
 
 .empty p:first-child {

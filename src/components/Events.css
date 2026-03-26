@@ -11,12 +11,13 @@
 .page-header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
   margin-bottom: 0.25rem;
 }
 
 .page-header p {
-  color: #666;
+  color: rgba(255, 255, 255, 0.75);
   font-size: 0.95rem;
 }
 
@@ -27,10 +28,11 @@
 .events-section h2 {
   font-size: 1.15rem;
   font-weight: 700;
-  color: #1a4a1a;
+  color: #f5d800;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
   margin-bottom: 1rem;
   padding-bottom: 0.5rem;
-  border-bottom: 2px solid #c8e6c8;
+  border-bottom: 2px solid rgba(144, 238, 144, 0.25);
 }
 
 .events-grid {
@@ -46,11 +48,14 @@
 }
 
 .event-card {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
   border-top: 4px solid #2d6a2d;
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
@@ -79,13 +84,13 @@
 .event-card h3 {
   font-size: 1.05rem;
   font-weight: 700;
-  color: #1a2a1a;
+  color: rgba(255, 255, 255, 0.95);
   line-height: 1.4;
 }
 
 .event-description {
   font-size: 0.875rem;
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
   line-height: 1.6;
 }
 
@@ -94,7 +99,7 @@
   flex-direction: column;
   gap: 0.4rem;
   padding-top: 0.5rem;
-  border-top: 1px solid #f0f0f0;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
 }
 
 .event-detail {
@@ -102,11 +107,11 @@
   align-items: flex-start;
   gap: 0.5rem;
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 .loading {
   text-align: center;
   padding: 3rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.6);
 }

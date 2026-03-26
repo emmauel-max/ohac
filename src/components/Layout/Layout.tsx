@@ -107,7 +107,17 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content */}
-      <main className={`main-content${location.pathname === "/chat" ? " main-content--chat" : ""}`}>{children}</main>
+      <main
+        className={[
+          "main-content",
+          location.pathname === "/chat" && "main-content--chat",
+          sidebarOpen && "main-content--blurred",
+        ]
+          .filter(Boolean)
+          .join(" ")}
+      >
+        {children}
+      </main>
     </div>
   );
 }
