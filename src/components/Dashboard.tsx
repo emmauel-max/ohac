@@ -4,6 +4,7 @@ import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo.png";
+import uccLogo from "../assets/ucc-logo.png";
 import type { Announcement } from "../types";
 import "./Dashboard.css";
 
@@ -67,6 +68,7 @@ export default function Dashboard() {
         </div>
         <div className="hero-badge">
           <img src={logo} alt="OHAC logo" className="hero-logo" />
+          <img src={uccLogo} alt="UCC logo" className="hero-logo" />
         </div>
       </div>
 

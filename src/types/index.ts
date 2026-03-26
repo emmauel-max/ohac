@@ -11,6 +11,7 @@ export interface User {
   notifyAnnouncements?: boolean;
   notifyChat?: boolean;
   notifyEvents?: boolean;
+  fcmTokens?: string[];
   enrolledCourses?: string[];
   createdAt?: number;
 }

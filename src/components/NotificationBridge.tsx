@@ -3,6 +3,7 @@ import { collection, limit, onSnapshot, orderBy, query } from "firebase/firestor
 import { onChildAdded, query as rtdbQuery, limitToLast, ref } from "firebase/database";
 import { db, rtdb } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
+import { registerPushToken, setupForegroundPushHandler } from "../push";
 import type { Announcement, Event, User } from "../types";
 
 const CHAT_ROOMS = ["general", "training", "courses", "announcements-chat"];
@@ -30,6 +31,14 @@ export default function NotificationBridge() {
 
   useEffect(() => {
     if (!currentUser) return;
+
+    registerPushToken(currentUser.uid).catch((err) => {
+      console.error("FCM registration failed", err);
+    });
+
+    setupForegroundPushHandler().catch((err) => {
+      console.error("Foreground push setup failed", err);
+    });
 
     const unsubscribes: Array<() => void> = [];
 
