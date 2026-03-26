@@ -25,7 +25,7 @@ const CHAT_ROOMS: ThemedChatRoom[] = [
 ];
 
 export default function Chat() {
-  const { currentUser } = useAuth();
+  const { currentUser, userProfile } = useAuth();
   const [activeRoom, setActiveRoom] = useState<ThemedChatRoom>(CHAT_ROOMS[0]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
@@ -64,6 +64,7 @@ export default function Chat() {
         uid: currentUser.uid,
         displayName: currentUser.displayName || "Cadet",
         photoURL: currentUser.photoURL || null,
+        rank: userProfile?.rank || null,
         text,
         timestamp: Date.now(),
         room: activeRoom.id,
@@ -192,7 +193,13 @@ export default function Chat() {
                   />
                 )}
                 <div className="msg-bubble">
-                  {!isOwn && <span className="msg-author">{msg.displayName}</span>}
+                  {/* Author name + rank shown only for other users' messages */}
+                  {!isOwn && (
+                    <span className="msg-author">
+                      {msg.displayName}
+                      {msg.rank && <span className="msg-rank">{msg.rank}</span>}
+                    </span>
+                  )}
                   <p className="msg-text">{msg.text}</p>
                   <span className="msg-time">{formatTime(msg.timestamp)}</span>
                 </div>

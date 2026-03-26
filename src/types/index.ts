@@ -54,6 +54,7 @@ export interface ChatMessage {
   uid: string;
   displayName: string;
   photoURL: string | null;
+  rank?: string | null;
   text: string;
   timestamp: number;
   room: string;

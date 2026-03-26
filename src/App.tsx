@@ -1,5 +1,6 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
+import { UnreadCountsProvider } from "./hooks/useUnreadCounts";
 import Layout from "./components/Layout/Layout";
 import Login from "./components/Auth/Login";
 import Dashboard from "./components/Dashboard";
@@ -146,9 +147,11 @@ export default function App() {
   return (
     <BrowserRouter>
       <AuthProvider>
-        <TourGuide />
-        <NotificationBridge />
-        <AppRoutes />
+        <UnreadCountsProvider>
+          <TourGuide />
+          <NotificationBridge />
+          <AppRoutes />
+        </UnreadCountsProvider>
       </AuthProvider>
     </BrowserRouter>
   );
