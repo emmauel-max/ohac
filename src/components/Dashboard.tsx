@@ -8,6 +8,9 @@ import uccLogo from "../assets/ucc-logo.png";
 import type { Announcement } from "../types";
 import "./Dashboard.css";
 
+// Import the header background image
+import headerBg from "../assets/background/header-image.jpg";
+
 export default function Dashboard() {
   const { currentUser, userProfile } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -56,17 +59,28 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Hero */}
-      <div className="hero" data-tour-id="dashboard-hero">
+      {/* Hero Section with Background Image */}
+      <div 
+        className="hero" 
+        data-tour-id="dashboard-hero"
+        style={{
+          backgroundImage: `linear-gradient(rgba(26, 74, 26, 0.7), rgba(26, 42, 26, 0.85)), url(${headerBg})`,
+          backgroundSize: 'cover',
+          backgroundPosition: 'center',
+          backgroundRepeat: 'no-repeat',
+          color: 'white' // Ensuring text stays white over the image
+        }}
+      >
         <div className="hero-content">
           <h1>Welcome back, {currentUser?.displayName?.split(" ")[0] || "Cadet"}</h1>
-          <p>
+          <p style={{ opacity: 0.9 }}>
             {userProfile?.rank
               ? `Rank: ${userProfile.rank}`
               : "Oguaa Hall Army Cadet · University of Cape Coast"}
           </p>
         </div>
         <div className="hero-badge">
+          {/* Note: Ensure these logos have transparent backgrounds for the best look! */}
           <img src={logo} alt="OHAC logo" className="hero-logo" />
           <img src={uccLogo} alt="UCC logo" className="hero-logo" />
         </div>

@@ -5,20 +5,32 @@ import { useAuth } from "../../hooks/useAuth";
 import type { ChatMessage, ChatRoom } from "../../types";
 import "./Chat.css";
 
-const CHAT_ROOMS: ChatRoom[] = [
-  { id: "general", name: "General", description: "General cadet discussions", icon: "💬" },
-  { id: "training", name: "Training", description: "PT and training talk", icon: "🏋️" },
-  { id: "courses", name: "Courses", description: "Course help and discussion", icon: "📚" },
-  { id: "announcements-chat", name: "Notices", description: "Unit notices", icon: "📢" },
+// Import Backgrounds
+import generalBg from "../../assets/background/general-chat-wallpaper.jpg";
+import trainingBg from "../../assets/background/training-chat-wallpaper.jpg";
+// Note: You didn't have a 'courses-chat-wallpaper.jpg' in the screenshot, so I am falling back to general. 
+// If you add one later, you can import it here!
+import noticesBg from "../../assets/background/notices-chat-wallpaper.jpg";
+
+// Extended ChatRoom type to include the local image path
+interface ThemedChatRoom extends ChatRoom {
+  wallpaper: string;
+}
+
+const CHAT_ROOMS: ThemedChatRoom[] = [
+  { id: "general", name: "General", description: "General cadet discussions", icon: "💬", wallpaper: generalBg },
+  { id: "training", name: "Training", description: "PT and training talk", icon: "🏋️", wallpaper: trainingBg },
+  { id: "courses", name: "Courses", description: "Course help and discussion", icon: "📚", wallpaper: generalBg }, 
+  { id: "announcements-chat", name: "Notices", description: "Unit notices", icon: "📢", wallpaper: noticesBg },
 ];
 
 export default function Chat() {
   const { currentUser } = useAuth();
-  const [activeRoom, setActiveRoom] = useState<ChatRoom>(CHAT_ROOMS[0]);
+  const [activeRoom, setActiveRoom] = useState<ThemedChatRoom>(CHAT_ROOMS[0]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [showRoomMenu, setShowRoomMenu] = useState(false); // NEW: State for mobile dropdown
+  const [showRoomMenu, setShowRoomMenu] = useState(false); 
   const messagesEndRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -99,7 +111,7 @@ export default function Chat() {
       {/* Chat Window */}
       <div className="chat-window">
         {/* Header with Mobile Dropdown Toggle */}
-        <div className="chat-header" style={{ position: 'relative' }}>
+        <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
           <div
             className="chat-header-content"
             onClick={() => setShowRoomMenu(!showRoomMenu)}
@@ -164,11 +176,20 @@ export default function Chat() {
         </div>
 
         {/* Messages */}
-        <div className="messages-area">
+        {/* Messages */}
+        <div 
+          className="messages-area" 
+          style={{ 
+            backgroundImage: `url(${activeRoom.wallpaper})`,
+            backgroundSize: 'cover',
+            backgroundPosition: 'center',
+            backgroundRepeat: 'no-repeat'
+          }}
+        >
           {messages.length === 0 && (
             <div className="empty-chat">
               <p>{activeRoom.icon}</p>
-              <p>No messages yet. Be the first to say hello!</p>
+              <p style={{background: 'rgba(255,255,255,0.7)', padding: '0.5rem 1rem', borderRadius: '12px'}}>No messages yet. Be the first to say hello!</p>
             </div>
           )}
           {messages.map((msg) => {
@@ -194,7 +215,7 @@ export default function Chat() {
         </div>
 
         {/* Input */}
-        <div className="chat-input-area">
+        <div className="chat-input-area" style={{ zIndex: 10 }}>
           <textarea
             className="chat-input"
             placeholder={`Message #${activeRoom.name.toLowerCase()}...`}

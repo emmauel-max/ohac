@@ -3,7 +3,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: linear-gradient(135deg, #1a2a1a 0%, #2d4a2d 50%, #1a3a1a 100%);
+  /* Removed the old solid background gradient from here since it's now in the tsx file */
   padding: 1rem;
 }
 

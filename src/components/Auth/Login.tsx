@@ -1,11 +1,20 @@
 import { useAuth } from "../../hooks/useAuth";
 import "./Auth.css";
+import splashBg from "../../assets/background/splash-screen-background.jpg";
 
 export default function Login() {
   const { signInWithGoogle, loading } = useAuth();
 
   return (
-    <div className="auth-container">
+    <div 
+      className="auth-container"
+      style={{ 
+        backgroundImage: `linear-gradient(rgba(26, 42, 26, 0.6), rgba(26, 58, 26, 0.8)), url(${splashBg})`,
+        backgroundSize: 'cover',
+        backgroundPosition: 'center',
+        backgroundRepeat: 'no-repeat'
+      }}
+    >
       <div className="auth-card">
         <div className="auth-logo">
           <div className="auth-emblem">⚔️</div>

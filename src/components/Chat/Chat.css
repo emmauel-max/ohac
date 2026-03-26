@@ -1,9 +1,21 @@
 .chat-page {
   display: flex;
-  height: calc(100vh - 60px);
+  /* Use dynamic viewport height if supported, fallback to 100vh */
+  height: calc(100dvh - 60px);
+  min-height: calc(100vh - 60px);
   overflow: hidden;
+  /* Prevent background bouncing on iOS */
+  position: relative; 
 }
 
+/* Ensure the input area stays glued to the bottom */
+.chat-window {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  height: 100%;
+}
 /* Room List */
 .room-list {
   width: 220px;
@@ -82,7 +94,7 @@
   display: flex;
   flex-direction: column;
   overflow: hidden;
-  background: #f8faf8;
+  /* Removed solid background here so image shows through */
 }
 
 /* Chat Header */
@@ -125,7 +137,7 @@
   flex-direction: column;
   align-items: center;
   justify-content: center;
-  color: #aaa;
+  color: #666; /* Darkened text slightly for readability */
   gap: 0.5rem;
   font-size: 2rem;
   text-align: center;
@@ -165,7 +177,7 @@
   background: white;
   border-radius: 16px;
   padding: 0.6rem 0.875rem;
-  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.08);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.15); /* Slightly stronger shadow for visibility */
   max-width: 100%;
 }
 
@@ -193,13 +205,13 @@
 .msg-time {
   display: block;
   font-size: 0.65rem;
-  color: rgba(0, 0, 0, 0.35);
+  color: rgba(0, 0, 0, 0.45); /* Darkened slightly for contrast */
   margin-top: 0.25rem;
   text-align: right;
 }
 
 .message.own .msg-time {
-  color: rgba(255, 255, 255, 0.5);
+  color: rgba(255, 255, 255, 0.6);
 }
 
 /* Input Area */
@@ -256,6 +268,7 @@
   cursor: not-allowed;
 }
 
+/* Hide mobile dropdown caret on Desktop */
 @media (min-width: 769px) {
   .mobile-caret {
     display: none !important;
