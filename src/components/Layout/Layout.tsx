@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { useAuth } from "../../hooks/useAuth";
+import { useUnreadCounts } from "../../hooks/useUnreadCounts";
 import logo from "../../assets/logo.png";
 import "./Layout.css";
 
@@ -25,6 +26,15 @@ export default function Layout({ children }: { children: React.ReactNode }) {
   const { currentUser, userProfile, logout, isAdmin } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
+  const {
+    announcementCount,
+    eventCount,
+    chatCount,
+    totalCount,
+    markAnnouncementsRead,
+    markEventsRead,
+    markChatRead,
+  } = useUnreadCounts();
 
   useEffect(() => {
     const handleOpenSidebar = () => setSidebarOpen(true);
@@ -32,7 +42,22 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     return () => window.removeEventListener("ohac:open-sidebar", handleOpenSidebar);
   }, []);
 
+  // Mark section as read when user navigates to it
+  useEffect(() => {
+    if (location.pathname === "/announcements") markAnnouncementsRead();
+    else if (location.pathname === "/events") markEventsRead();
+    else if (location.pathname === "/chat") markChatRead();
+  }, [location.pathname, markAnnouncementsRead, markEventsRead, markChatRead]);
+
   const visibleNavItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+
+  /** Returns the unread badge count for a given nav path */
+  function badgeCount(path: string): number {
+    if (path === "/chat") return chatCount;
+    if (path === "/announcements") return announcementCount;
+    if (path === "/events") return eventCount;
+    return 0;
+  }
 
   return (
     <div className="layout">
@@ -46,6 +71,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             data-tour-id="menu-toggle"
           >
             ☰
+            {totalCount > 0 && <span className="menu-badge-dot" aria-hidden="true" />}
           </button>
           <Link to="/" className="brand" data-tour-id="brand-link">
             <img src={logo} alt="OHAC logo" className="brand-logo" />
@@ -81,19 +107,27 @@ export default function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
         <ul className="nav-list">
-          {visibleNavItems.map((item) => (
-            <li key={item.path}>
-              <Link
-                to={item.path}
-                className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
-                onClick={() => setSidebarOpen(false)}
-                data-tour-id={item.path === "/" ? "nav-dashboard" : undefined}
-              >
-                <span className="nav-icon">{item.icon}</span>
-                <span className="nav-label">{item.label}</span>
-              </Link>
-            </li>
-          ))}
+          {visibleNavItems.map((item) => {
+            const count = badgeCount(item.path);
+            return (
+              <li key={item.path}>
+                <Link
+                  to={item.path}
+                  className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
+                  onClick={() => setSidebarOpen(false)}
+                  data-tour-id={item.path === "/" ? "nav-dashboard" : undefined}
+                >
+                  <span className="nav-icon">{item.icon}</span>
+                  <span className="nav-label">{item.label}</span>
+                  {count > 0 && (
+                    <span className="nav-badge" aria-label={`${count} unread`}>
+                      {count > 99 ? "99+" : count}
+                    </span>
+                  )}
+                </Link>
+              </li>
+            );
+          })}
         </ul>
         <div className="sidebar-footer">
           <p>Oguaa Hall Army Cadet</p>

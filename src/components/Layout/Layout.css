@@ -37,6 +37,7 @@
 }
 
 .menu-toggle {
+  position: relative;
   background: rgba(255, 255, 255, 0.08);
   border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
@@ -45,6 +46,19 @@
   padding: 0.3rem 0.6rem;
   border-radius: 8px;
   transition: all 0.2s;
+}
+
+/* Red dot on the menu toggle when there are unread items */
+.menu-badge-dot {
+  position: absolute;
+  top: 3px;
+  right: 3px;
+  width: 9px;
+  height: 9px;
+  background: #ef4444;
+  border-radius: 50%;
+  border: 2px solid rgba(15, 46, 15, 0.9);
+  pointer-events: none;
 }
 
 .menu-toggle:hover {
@@ -245,6 +259,24 @@
   font-size: 1.2rem;
   width: 1.5rem;
   text-align: center;
+}
+
+/* Unread count badge on sidebar nav items */
+.nav-badge {
+  margin-left: auto;
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.65rem;
+  font-weight: 700;
+  line-height: 1;
+  min-width: 18px;
+  height: 18px;
+  padding: 0 5px;
+  border-radius: 9px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
 }
 
 .sidebar-footer {
