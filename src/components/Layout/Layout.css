@@ -6,7 +6,7 @@
 
 .layout {
   min-height: 100vh;
-  background: #f0f4f0;
+  background: linear-gradient(135deg, #0f2e0f 0%, #1a4a1a 40%, #2d6a2d 100%);
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
 
@@ -17,14 +17,17 @@
   left: 0;
   right: 0;
   height: 60px;
-  background: #1a4a1a;
+  background: rgba(15, 46, 15, 0.75);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  border-bottom: 1px solid rgba(144, 238, 144, 0.18);
   color: white;
   display: flex;
   align-items: center;
   justify-content: space-between;
   padding: 0 1rem;
   z-index: 100;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  box-shadow: 0 4px 24px rgba(0, 0, 0, 0.25);
 }
 
 .navbar-left {
@@ -34,18 +37,19 @@
 }
 
 .menu-toggle {
-  background: none;
-  border: none;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   color: white;
-  font-size: 1.5rem;
+  font-size: 1.3rem;
   cursor: pointer;
-  padding: 0.25rem 0.5rem;
-  border-radius: 4px;
-  transition: background 0.2s;
+  padding: 0.3rem 0.6rem;
+  border-radius: 8px;
+  transition: all 0.2s;
 }
 
 .menu-toggle:hover {
-  background: rgba(255, 255, 255, 0.1);
+  background: rgba(255, 255, 255, 0.18);
+  border-color: rgba(144, 238, 144, 0.4);
 }
 
 .brand {
@@ -61,15 +65,20 @@
 }
 
 .brand-logo {
-  width: 28px;
-  height: 28px;
+  width: 30px;
+  height: 30px;
   object-fit: contain;
+  filter: drop-shadow(0 0 6px rgba(144, 238, 144, 0.5));
 }
 
 .brand-name {
   font-size: 1.3rem;
   font-weight: 800;
-  letter-spacing: 0.15em;
+  letter-spacing: 0.18em;
+  background: linear-gradient(90deg, #fff 60%, #90ee90 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
 }
 
 .navbar-right {
@@ -87,14 +96,16 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.4);
+  border: 2px solid rgba(144, 238, 144, 0.5);
   object-fit: cover;
+  box-shadow: 0 0 10px rgba(144, 238, 144, 0.2);
 }
 
 .user-name {
   font-size: 0.9rem;
   font-weight: 500;
   display: none;
+  color: rgba(255, 255, 255, 0.9);
 }
 
 @media (min-width: 640px) {
@@ -104,13 +115,15 @@
 }
 
 .user-badge {
-  background: rgba(255, 255, 255, 0.2);
+  background: rgba(144, 238, 144, 0.2);
+  border: 1px solid rgba(144, 238, 144, 0.35);
   border-radius: 12px;
-  padding: 0.1rem 0.5rem;
+  padding: 0.15rem 0.6rem;
   font-size: 0.7rem;
-  font-weight: 600;
+  font-weight: 700;
   text-transform: uppercase;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.08em;
+  color: #90ee90;
   display: none;
 }
 
@@ -121,18 +134,22 @@
 }
 
 .logout-btn {
-  background: rgba(255, 255, 255, 0.15);
-  border: 1px solid rgba(255, 255, 255, 0.3);
-  color: white;
-  padding: 0.35rem 0.75rem;
-  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.25);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.35rem 0.85rem;
+  border-radius: 8px;
   cursor: pointer;
-  font-size: 0.85rem;
+  font-size: 0.82rem;
+  font-weight: 500;
   transition: all 0.2s;
+  letter-spacing: 0.02em;
 }
 
 .logout-btn:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: rgba(255, 80, 80, 0.25);
+  border-color: rgba(255, 100, 100, 0.4);
+  color: #ffaaaa;
 }
 
 /* Sidebar */
@@ -142,14 +159,18 @@
   left: 0;
   bottom: 0;
   width: 250px;
-  background: #1a4a1a;
+  background: rgba(15, 46, 15, 0.82);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  border-right: 1px solid rgba(144, 238, 144, 0.12);
   color: white;
   z-index: 90;
   display: flex;
   flex-direction: column;
   transform: translateX(-100%);
-  transition: transform 0.3s ease;
+  transition: transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   overflow-y: auto;
+  box-shadow: 4px 0 24px rgba(0, 0, 0, 0.2);
 }
 
 .sidebar.open {
@@ -168,50 +189,56 @@
 
 .sidebar-header {
   padding: 1.5rem 1rem 1rem;
-  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
 }
 
 .sidebar-logo {
   display: flex;
   align-items: center;
-  gap: 0.5rem;
+  gap: 0.6rem;
   font-size: 1rem;
   font-weight: 700;
-  letter-spacing: 0.05em;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .sidebar-logo-img {
-  width: 22px;
-  height: 22px;
+  width: 24px;
+  height: 24px;
   object-fit: contain;
+  filter: drop-shadow(0 0 4px rgba(144, 238, 144, 0.4));
 }
 
 .nav-list {
   list-style: none;
-  padding: 0.5rem 0;
+  padding: 0.75rem 0;
   flex: 1;
 }
 
 .nav-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  padding: 0.75rem 1.25rem;
-  color: rgba(255, 255, 255, 0.8);
+  gap: 0.85rem;
+  padding: 0.8rem 1.25rem;
+  color: rgba(255, 255, 255, 0.72);
   text-decoration: none;
   transition: all 0.2s;
-  font-size: 0.95rem;
+  font-size: 0.93rem;
+  margin: 0.1rem 0.5rem;
+  border-radius: 10px;
 }
 
 .nav-item:hover {
   background: rgba(255, 255, 255, 0.1);
   color: white;
+  transform: translateX(2px);
 }
 
 .nav-item.active {
-  background: rgba(255, 255, 255, 0.15);
-  color: white;
+  background: rgba(144, 238, 144, 0.15);
+  color: #c8ffc8;
   border-left: 3px solid #90ee90;
+  box-shadow: inset 0 0 20px rgba(144, 238, 144, 0.06);
 }
 
 .nav-icon {
@@ -222,18 +249,20 @@
 
 .sidebar-footer {
   padding: 1rem;
-  border-top: 1px solid rgba(255, 255, 255, 0.1);
-  font-size: 0.7rem;
-  color: rgba(255, 255, 255, 0.4);
+  border-top: 1px solid rgba(255, 255, 255, 0.08);
+  font-size: 0.68rem;
+  color: rgba(255, 255, 255, 0.35);
   text-align: center;
-  line-height: 1.6;
+  line-height: 1.7;
 }
 
 /* Overlay */
 .overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.5);
+  background: rgba(0, 0, 0, 0.55);
+  backdrop-filter: blur(2px);
+  -webkit-backdrop-filter: blur(2px);
   z-index: 80;
 }
 
@@ -247,4 +276,15 @@
 .main-content {
   padding-top: 60px;
   min-height: 100vh;
+}
+
+/* Chat-specific: lock main content to viewport so the chat page
+   header and footer stay sticky and only the message list scrolls */
+.main-content--chat {
+  height: 100vh; /* fallback */
+  height: 100dvh; /* adjusts when mobile keyboard appears */
+  overflow: hidden;
+  padding-top: 0;
+  display: flex;
+  flex-direction: column;
 }

@@ -111,7 +111,7 @@ export default function Chat() {
       {/* Chat Window */}
       <div className="chat-window">
         {/* Header with Mobile Dropdown Toggle */}
-        <div className="chat-header" style={{ position: 'relative', zIndex: 10 }}>
+        <div className="chat-header">
           <div
             className="chat-header-content"
             onClick={() => setShowRoomMenu(!showRoomMenu)}
@@ -122,28 +122,15 @@ export default function Chat() {
             <div style={{ flex: 1 }}>
               <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
                 {activeRoom.name}
-                <span className="mobile-caret" style={{ fontSize: '0.8rem', color: '#666', transition: 'transform 0.3s', transform: showRoomMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
+                <span className="mobile-caret" style={{ fontSize: '0.8rem', color: 'rgba(200,255,200,0.65)', transition: 'transform 0.3s', transform: showRoomMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
               </h2>
-              <p style={{ margin: 0, color: '#666', fontSize: '0.9rem' }}>{activeRoom.description}</p>
+              <p style={{ margin: 0 }}>{activeRoom.description}</p>
             </div>
           </div>
 
           {/* Mobile Dropdown Menu */}
           {showRoomMenu && (
-            <div className="mobile-dropdown" style={{
-              position: 'absolute',
-              top: '100%',
-              left: 0,
-              right: 0,
-              backgroundColor: '#fff',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
-              zIndex: 100,
-              borderTop: '1px solid #eee',
-              borderBottomLeftRadius: '8px',
-              borderBottomRightRadius: '8px',
-              display: 'flex',
-              flexDirection: 'column'
-            }}>
+            <div className="mobile-dropdown">
               {CHAT_ROOMS.map((room) => (
                 <button
                   key={room.id}
@@ -158,16 +145,17 @@ export default function Chat() {
                     gap: '1rem',
                     padding: '1rem',
                     border: 'none',
-                    backgroundColor: activeRoom.id === room.id ? '#f0fdf4' : '#fff',
-                    borderBottom: '1px solid #eee',
+                    backgroundColor: activeRoom.id === room.id ? 'rgba(144,238,144,0.12)' : 'transparent',
+                    borderBottom: '1px solid rgba(255,255,255,0.07)',
                     cursor: 'pointer',
-                    textAlign: 'left'
+                    textAlign: 'left',
+                    color: activeRoom.id === room.id ? '#c8ffc8' : 'rgba(255,255,255,0.75)',
                   }}
                 >
                   <span style={{ fontSize: '1.5rem' }}>{room.icon}</span>
                   <div>
-                    <div style={{ fontWeight: 'bold', color: activeRoom.id === room.id ? '#1e4620' : '#333' }}>{room.name}</div>
-                    <div style={{ fontSize: '0.8rem', color: '#666' }}>{room.description}</div>
+                    <div style={{ fontWeight: 'bold' }}>{room.name}</div>
+                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{room.description}</div>
                   </div>
                 </button>
               ))}
@@ -215,7 +203,7 @@ export default function Chat() {
         </div>
 
         {/* Input */}
-        <div className="chat-input-area" style={{ zIndex: 10 }}>
+        <div className="chat-input-area">
           <textarea
             className="chat-input"
             placeholder={`Message #${activeRoom.name.toLowerCase()}...`}

@@ -107,7 +107,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       )}
 
       {/* Main Content */}
-      <main className="main-content">{children}</main>
+      <main className={`main-content${location.pathname === "/chat" ? " main-content--chat" : ""}`}>{children}</main>
     </div>
   );
 }
