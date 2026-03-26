@@ -276,6 +276,22 @@
 .main-content {
   padding-top: 60px;
   min-height: 100vh;
+  transition: filter 0.3s ease;
+}
+
+/* Blur main content on mobile when sidebar is open */
+.main-content--blurred {
+  filter: blur(4px);
+  pointer-events: none;
+  user-select: none;
+}
+
+@media (min-width: 1024px) {
+  .main-content--blurred {
+    filter: none;
+    pointer-events: auto;
+    user-select: auto;
+  }
 }
 
 /* Chat-specific: lock main content to viewport so the chat page
