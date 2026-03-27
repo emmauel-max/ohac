@@ -7,6 +7,7 @@ export interface User {
   rank?: string;
   unit?: string;
   bio?: string;
+  indexNumber?: string;
   notificationEnabled?: boolean;
   notifyAnnouncements?: boolean;
   notifyChat?: boolean;
@@ -57,6 +58,7 @@ export interface ChatMessage {
   photoURL: string | null;
   rank?: string | null;
   text: string;
+  imageUrl?: string | null;
   timestamp: number;
   room: string;
 }
@@ -76,6 +78,7 @@ export interface Announcement {
   authorId: string;
   createdAt: number;
   priority: "low" | "normal" | "high" | "urgent";
+  imageUrl?: string;
 }
 
 export interface Event {
@@ -86,5 +89,6 @@ export interface Event {
   location: string;
   organizer: string;
   createdAt: number;
+  imageUrl?: string;
   rsvps?: string[]; // Array of user UIDs who have RSVP'd
 }

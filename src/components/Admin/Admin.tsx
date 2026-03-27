@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   collection,
   getDocs,
@@ -9,7 +9,8 @@ import {
   query,
   orderBy,
 } from "firebase/firestore";
-import { db } from "../../firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { db, storage } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
 import type { Announcement, User, Course, CourseModule, Event } from "../../types";
 import "./Admin.css";
@@ -29,9 +30,13 @@ export default function Admin() {
   const [annTitle, setAnnTitle] = useState("");
   const [annContent, setAnnContent] = useState("");
   const [annPriority, setAnnPriority] = useState<Announcement["priority"]>("normal");
+  const [annImageFile, setAnnImageFile] = useState<File | null>(null);
+  const annImageRef = useRef<HTMLInputElement>(null);
 
   // Course form
   const [showCourseForm, setShowCourseForm] = useState(false);
+  const [courseImageFile, setCourseImageFile] = useState<File | null>(null);
+  const courseImageRef = useRef<HTMLInputElement>(null);
   const [newCourse, setNewCourse] = useState<{
     title: string; description: string; category: string; duration: string; level: Course["level"]; modules: Omit<CourseModule, "id" | "order">[];
   }>({
@@ -45,6 +50,8 @@ export default function Admin() {
   const [evDate, setEvDate] = useState("");
   const [evLocation, setEvLocation] = useState("");
   const [evOrganizer, setEvOrganizer] = useState("");
+  const [evImageFile, setEvImageFile] = useState<File | null>(null);
+  const evImageRef = useRef<HTMLInputElement>(null);
 
   if (!isAdmin) {
     return (
@@ -104,8 +111,38 @@ export default function Admin() {
     if (activeTab === "events") fetchEvents();
   }, [activeTab]);
 
+  const uploadImage = async (file: File, path: string): Promise<string> => {
+    const sRef = storageRef(storage, path);
+    await uploadBytes(sRef, file);
+    return getDownloadURL(sRef);
+  };
+
+  const handleRemoveAnnImage = () => {
+    setAnnImageFile(null);
+    if (annImageRef.current) annImageRef.current.value = "";
+  };
+
+  const handleRemoveCourseImage = () => {
+    setCourseImageFile(null);
+    if (courseImageRef.current) courseImageRef.current.value = "";
+  };
+
+  const handleRemoveEvImage = () => {
+    setEvImageFile(null);
+    if (evImageRef.current) evImageRef.current.value = "";
+  };
+
   const postAnnouncement = async () => {
     if (!annTitle.trim() || !annContent.trim()) return;
+    let imageUrl: string | undefined;
+    if (annImageFile) {
+      try {
+        imageUrl = await uploadImage(annImageFile, `announcements/${Date.now()}_${annImageFile.name}`);
+      } catch {
+        alert("Image upload failed. Please try again.");
+        return;
+      }
+    }
     await addDoc(collection(db, "announcements"), {
       title: annTitle,
       content: annContent,
@@ -113,10 +150,13 @@ export default function Admin() {
       author: userProfile?.displayName || "Admin",
       authorId: userProfile?.uid || "",
       createdAt: Date.now(),
+      ...(imageUrl ? { imageUrl } : {}),
     });
     setAnnTitle("");
     setAnnContent("");
     setAnnPriority("normal");
+    setAnnImageFile(null);
+    if (annImageRef.current) annImageRef.current.value = "";
     await fetchAnnouncements();
   };
 
@@ -170,6 +210,17 @@ export default function Admin() {
     }
 
     setLoading(true);
+    let imageUrl: string | undefined;
+    if (courseImageFile) {
+      try {
+        imageUrl = await uploadImage(courseImageFile, `courses/${Date.now()}_${courseImageFile.name}`);
+      } catch {
+        alert("Image upload failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
     const formattedModules: CourseModule[] = newCourse.modules.map((m, i) => ({
       ...m,
       id: `m_${Date.now()}_${i}`,
@@ -185,11 +236,14 @@ export default function Admin() {
       modules: formattedModules,
       enrolledCount: 0,
       completedCount: 0,
-      createdAt: Date.now()
+      createdAt: Date.now(),
+      ...(imageUrl ? { imageUrl } : {}),
     });
 
     setShowCourseForm(false);
     setNewCourse({ title: "", description: "", category: "", duration: "", level: "Beginner", modules: [] });
+    setCourseImageFile(null);
+    if (courseImageRef.current) courseImageRef.current.value = "";
     await fetchCourses();
   };
 
@@ -199,6 +253,16 @@ export default function Admin() {
       return;
     }
     setLoading(true);
+    let imageUrl: string | undefined;
+    if (evImageFile) {
+      try {
+        imageUrl = await uploadImage(evImageFile, `events/${Date.now()}_${evImageFile.name}`);
+      } catch {
+        alert("Image upload failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
     await addDoc(collection(db, "events"), {
       title: evTitle,
       description: evDesc,
@@ -206,12 +270,15 @@ export default function Admin() {
       location: evLocation,
       organizer: evOrganizer || userProfile?.displayName || "OHAC Command",
       createdAt: Date.now(),
+      ...(imageUrl ? { imageUrl } : {}),
     });
     setEvTitle("");
     setEvDesc("");
     setEvDate("");
     setEvLocation("");
     setEvOrganizer("");
+    setEvImageFile(null);
+    if (evImageRef.current) evImageRef.current.value = "";
     setShowEventForm(false);
     await fetchEvents();
   };
@@ -383,10 +450,28 @@ export default function Admin() {
                   <option value="high">High Priority</option>
                   <option value="urgent">Urgent</option>
                 </select>
-                <button className="post-btn" onClick={postAnnouncement}>
-                  Post Announcement
-                </button>
               </div>
+              <div className="form-image-row">
+                <label className="form-image-label">
+                  🖼️ Add Image (optional)
+                  <input
+                    type="file"
+                    accept="image/*"
+                    ref={annImageRef}
+                    style={{ display: "none" }}
+                    onChange={(e) => setAnnImageFile(e.target.files?.[0] || null)}
+                  />
+                </label>
+                {annImageFile && (
+                  <span className="form-image-name">
+                    {annImageFile.name}
+                    <button className="form-image-remove" onClick={handleRemoveAnnImage}>✕</button>
+                  </span>
+                )}
+              </div>
+              <button className="post-btn" onClick={postAnnouncement}>
+                Post Announcement
+              </button>
             </div>
 
             {/* Existing Announcements */}
@@ -400,6 +485,9 @@ export default function Admin() {
                       <h4>{ann.title}</h4>
                       <span className={`priority-tag priority-${ann.priority}`}>{ann.priority}</span>
                     </div>
+                    {ann.imageUrl && (
+                      <img src={ann.imageUrl} alt={ann.title} className="admin-item-img" />
+                    )}
                     <p>{ann.content}</p>
                     <div className="ann-item-footer">
                       <span>By {ann.author} · {new Date(ann.createdAt).toLocaleString()}</span>
@@ -474,6 +562,24 @@ export default function Admin() {
                     <option value="Advanced">Advanced</option>
                   </select>
                 </div>
+                <div className="form-image-row">
+                  <label className="form-image-label">
+                    🖼️ Course Image (optional)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={courseImageRef}
+                      style={{ display: "none" }}
+                      onChange={(e) => setCourseImageFile(e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  {courseImageFile && (
+                    <span className="form-image-name">
+                      {courseImageFile.name}
+                      <button className="form-image-remove" onClick={handleRemoveCourseImage}>✕</button>
+                    </span>
+                  )}
+                </div>
 
                 <div className="modules-section" style={{ marginTop: '1.5rem', borderTop: '1px solid #ddd', paddingTop: '1rem' }}>
                   <h4>Modules</h4>
@@ -526,6 +632,9 @@ export default function Admin() {
               <div className="courses-list">
                 {courses.map((c) => (
                   <div key={c.id} className="course-item" style={{ background: '#fff', padding: '1.5rem', borderRadius: '8px', boxShadow: '0 2px 4px rgba(0,0,0,0.05)', marginBottom: '1rem' }}>
+                    {c.imageUrl && (
+                      <img src={c.imageUrl} alt={c.title} className="admin-item-img" />
+                    )}
                     <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
                       <h4>{c.title}</h4>
                       <span className={`priority-tag priority-${c.level.toLowerCase()}`}>{c.level}</span>
@@ -603,10 +712,28 @@ export default function Admin() {
                     onChange={(e) => setEvOrganizer(e.target.value)}
                     className="form-input"
                   />
-                  <button className="post-btn" onClick={postEvent}>
-                    Save Event
-                  </button>
                 </div>
+                <div className="form-image-row">
+                  <label className="form-image-label">
+                    🖼️ Event Image (optional)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={evImageRef}
+                      style={{ display: "none" }}
+                      onChange={(e) => setEvImageFile(e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  {evImageFile && (
+                    <span className="form-image-name">
+                      {evImageFile.name}
+                      <button className="form-image-remove" onClick={handleRemoveEvImage}>✕</button>
+                    </span>
+                  )}
+                </div>
+                <button className="post-btn" onClick={postEvent}>
+                  Save Event
+                </button>
               </div>
             )}
 
@@ -621,6 +748,9 @@ export default function Admin() {
                       <h4>{ev.title}</h4>
                       <span className="priority-tag priority-normal">{ev.date}</span>
                     </div>
+                    {ev.imageUrl && (
+                      <img src={ev.imageUrl} alt={ev.title} className="admin-item-img" />
+                    )}
                     <p style={{ margin: '0.5rem 0' }}>{ev.description}</p>
                     <div className="ann-item-footer">
                       <span>📍 {ev.location} &nbsp;|&nbsp; 👤 {ev.organizer}</span>

@@ -151,6 +151,7 @@
 /* ── Messages Area (the only scrollable part) ────────────── */
 .messages-area {
   flex: 1;
+  min-height: 0;           /* prevent flex child from overflowing */
   overflow-y: auto;
   padding: 1rem;
   display: flex;
@@ -353,9 +354,113 @@
   cursor: not-allowed;
 }
 
-/* ── Hide mobile caret on desktop ────────────────────────── */
-@media (min-width: 769px) {
+/* ── Hide mobile caret and switch hint on desktop ────────── */
+@media (min-width: 640px) {
   .mobile-caret {
     display: none !important;
+  }
+
+  .mobile-switch-hint {
+    display: none !important;
+  }
+}
+
+/* Mobile "tap to switch" hint */
+.mobile-switch-hint {
+  font-size: 0.68rem;
+  color: rgba(200, 255, 200, 0.55);
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
+}
+
+/* ── First-time chat tour banner ─────────────────────────── */
+.chat-tour-banner {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  padding: 0.65rem 1rem;
+  background: rgba(26, 74, 26, 0.92);
+  border-bottom: 1px solid rgba(144, 238, 144, 0.25);
+  font-size: 0.82rem;
+  color: rgba(200, 255, 200, 0.9);
+  z-index: 9;
+}
+
+.chat-tour-icon {
+  font-size: 1.1rem;
+  flex-shrink: 0;
+}
+
+.chat-tour-text {
+  flex: 1;
+  line-height: 1.4;
+}
+
+.chat-tour-text strong {
+  color: #c8ffc8;
+}
+
+.chat-tour-dismiss {
+  flex-shrink: 0;
+  background: rgba(144, 238, 144, 0.18);
+  border: 1px solid rgba(144, 238, 144, 0.4);
+  color: #c8ffc8;
+  padding: 0.3rem 0.65rem;
+  border-radius: 6px;
+  font-size: 0.78rem;
+  font-weight: 700;
+  cursor: pointer;
+  white-space: nowrap;
+}
+
+.chat-tour-dismiss:hover {
+  background: rgba(144, 238, 144, 0.3);
+}
+
+/* ── Image upload button ─────────────────────────────────── */
+.img-upload-btn {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1.5px solid rgba(144, 238, 144, 0.25);
+  color: rgba(200, 255, 200, 0.75);
+  font-size: 1.1rem;
+  cursor: pointer;
+  transition: all 0.2s;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.img-upload-btn:hover:not(:disabled) {
+  background: rgba(144, 238, 144, 0.15);
+  border-color: rgba(144, 238, 144, 0.5);
+}
+
+.img-upload-btn:disabled {
+  opacity: 0.4;
+  cursor: not-allowed;
+}
+
+/* ── Shared images in message bubbles ────────────────────── */
+.msg-image {
+  display: block;
+  max-width: 220px;
+  max-height: 220px;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (min-width: 640px) {
+  .msg-image {
+    max-width: 280px;
+    max-height: 280px;
   }
 }

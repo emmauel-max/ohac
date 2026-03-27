@@ -5,6 +5,7 @@ import Layout from "./components/Layout/Layout";
 import Login from "./components/Auth/Login";
 import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
+import PublicProfile from "./components/PublicProfile";
 import Courses from "./components/Courses/Courses";
 import Chat from "./components/Chat/Chat";
 import Admin from "./components/Admin/Admin";
@@ -96,6 +97,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Profile />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/profile/:uid"
+        element={
+          <ProtectedRoute>
+            <PublicProfile />
           </ProtectedRoute>
         }
       />
