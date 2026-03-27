@@ -2,6 +2,7 @@ import { useState, useEffect } from "react";
 import { collection, getDocs, query, orderBy, setDoc, doc, updateDoc, increment, arrayUnion, where } from "firebase/firestore";
 import { db } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
+import { linkify } from "../../utils/linkify";
 import type { Course, CourseEnrollment } from "../../types";
 import "./Courses.css";
 
@@ -400,7 +401,7 @@ export default function Courses() {
               <h2>{mod.title}</h2>
             </div>
             <div className="module-body">
-              <p>{mod.content}</p>
+              <p>{linkify(mod.content)}</p>
               {mod.videoUrl && (
                 <div className="video-placeholder">
                   <span>📹 Video: {mod.videoUrl}</span>

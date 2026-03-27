@@ -131,6 +131,23 @@ export default function Admin() {
     await fetchUsers();
   };
 
+  const toggleUserBan = async (uid: string, currentBanStatus: boolean) => {
+    const confirmAction = currentBanStatus
+      ? confirm("Unban this user? They will be able to access the app again.")
+      : confirm("Ban this user? They will not be able to access the app again.");
+    
+    if (!confirmAction) return;
+
+    try {
+      await updateDoc(doc(db, "users", uid), { banned: !currentBanStatus });
+      await fetchUsers();
+      alert(`User has been ${currentBanStatus ? "un" : ""}banned successfully.`);
+    } catch (err) {
+      console.error("Failed to ban/unban user", err);
+      alert("Could not update user status. Please try again.");
+    }
+  };
+
   const handleAddModule = () => {
     setNewCourse(prev => ({
       ...prev,
@@ -305,15 +322,24 @@ export default function Admin() {
                           </span>
                         </td>
                         <td>
-                          <select
-                            value={user.role}
-                            onChange={(e) => updateUserRole(user.uid, e.target.value as User["role"])}
-                            className="role-select"
-                          >
-                            <option value="cadet">Cadet</option>
-                            <option value="member">Member</option>
-                            <option value="admin">Admin</option>
-                          </select>
+                          <div className="user-actions">
+                            <select
+                              value={user.role}
+                              onChange={(e) => updateUserRole(user.uid, e.target.value as User["role"])}
+                              className="role-select"
+                            >
+                              <option value="cadet">Cadet</option>
+                              <option value="member">Member</option>
+                              <option value="admin">Admin</option>
+                            </select>
+                            <button
+                              className={`ban-btn ${user.banned ? "unbanned" : ""}`}
+                              onClick={() => toggleUserBan(user.uid, user.banned || false)}
+                              title={user.banned ? "Unban this user" : "Ban this user"}
+                            >
+                              {user.banned ? "🔓 Unban" : "🚫 Ban"}
+                            </button>
+                          </div>
                         </td>
                       </tr>
                     ))}

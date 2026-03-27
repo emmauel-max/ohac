@@ -7,10 +7,13 @@
 }
 
 .profile-card {
-  background: #fff;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.25rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 .profile-header {
@@ -22,12 +25,12 @@
 
 .profile-header h1 {
   font-size: 1.35rem;
-  color: #153515;
+  color: rgba(255, 255, 255, 0.95);
   margin-bottom: 0.2rem;
 }
 
 .profile-header p {
-  color: #557055;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
 }
 
@@ -36,7 +39,7 @@
   height: 64px;
   border-radius: 50%;
   object-fit: cover;
-  border: 2px solid #dbe9db;
+  border: 2px solid rgba(144, 238, 144, 0.3);
 }
 
 .profile-grid {
@@ -59,23 +62,25 @@
 
 .profile-field span {
   font-size: 0.82rem;
-  color: #4b6a4b;
+  color: rgba(255, 255, 255, 0.6);
   font-weight: 600;
 }
 
 .profile-field input,
 .profile-field textarea {
-  border: 1px solid #cfe0cf;
+  border: 1px solid rgba(144, 238, 144, 0.25);
   border-radius: 8px;
   padding: 0.6rem 0.7rem;
   font-size: 0.92rem;
   outline: none;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .profile-field input:focus,
 .profile-field textarea:focus {
-  border-color: #4f8a4f;
-  box-shadow: 0 0 0 3px rgba(79, 138, 79, 0.15);
+  border-color: rgba(144, 238, 144, 0.55);
+  box-shadow: 0 0 0 3px rgba(144, 238, 144, 0.15);
 }
 
 .profile-field-full {
@@ -83,14 +88,15 @@
 }
 
 .profile-item {
-  border: 1px solid #e6efe6;
+  border: 1px solid rgba(144, 238, 144, 0.15);
   border-radius: 8px;
   padding: 0.75rem;
+  background: rgba(255, 255, 255, 0.02);
 }
 
 .profile-item .label {
   display: block;
-  color: #638063;
+  color: rgba(255, 255, 255, 0.5);
   font-size: 0.76rem;
   margin-bottom: 0.25rem;
   text-transform: uppercase;
@@ -98,7 +104,7 @@
 }
 
 .profile-item .value {
-  color: #1a4a1a;
+  color: rgba(255, 255, 255, 0.95);
   font-weight: 700;
 }
 

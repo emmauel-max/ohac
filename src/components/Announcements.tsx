@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
 import { db } from "../firebase";
+import { linkify } from "../utils/linkify";
 import type { Announcement } from "../types";
 import "./Announcements.css";
 
@@ -85,7 +86,7 @@ export default function Announcements() {
                 </span>
               </div>
               <h3>{ann.title}</h3>
-              <p>{ann.content}</p>
+              <p>{linkify(ann.content)}</p>
               <div className="ann-author">
                 <span>— {ann.author}</span>
               </div>

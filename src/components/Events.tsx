@@ -1,7 +1,9 @@
 import { useState, useEffect } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
-import type { Event } from "../types";
+import { useAuth } from "../hooks/useAuth";
+import { linkify } from "../utils/linkify";
+import type { Event, User } from "../types";
 import "./Events.css";
 
 const SAMPLE_EVENTS: Event[] = [
@@ -44,12 +46,16 @@ const SAMPLE_EVENTS: Event[] = [
 ];
 
 export default function Events() {
+  const { currentUser } = useAuth();
   const [events, setEvents] = useState<Event[]>([]);
+  const [users, setUsers] = useState<Record<string, User>>({});
   const [loading, setLoading] = useState(true);
+  const [rsvpLoading, setRsvpLoading] = useState<string | null>(null);
 
   useEffect(() => {
-    const fetchEvents = async () => {
+    const fetchData = async () => {
       try {
+        // Fetch events
         const q = query(collection(db, "events"), orderBy("date"));
         const snap = await getDocs(q);
         if (snap.docs.length > 0) {
@@ -57,13 +63,21 @@ export default function Events() {
         } else {
           setEvents(SAMPLE_EVENTS);
         }
+        
+        // Fetch users for RSVP display
+        const userSnap = await getDocs(collection(db, "users"));
+        const usersMap: Record<string, User> = {};
+        userSnap.docs.forEach((d) => {
+          usersMap[d.id] = { ...d.data() } as User;
+        });
+        setUsers(usersMap);
       } catch {
         setEvents(SAMPLE_EVENTS);
       } finally {
         setLoading(false);
       }
     };
-    fetchEvents();
+    fetchData();
   }, []);
 
   const upcomingEvents = events
@@ -90,6 +104,46 @@ export default function Events() {
     return `In ${diff} days`;
   };
 
+  const handleRSVP = async (eventId: string) => {
+    if (!currentUser) {
+      alert("You must be logged in to RSVP.");
+      return;
+    }
+
+    setRsvpLoading(eventId);
+    try {
+      const event = events.find((e) => e.id === eventId);
+      if (!event) return;
+
+      const currentRSVPs = event.rsvps || [];
+      const hasRSVPd = currentRSVPs.includes(currentUser.uid);
+      
+      const updatedRSVPs = hasRSVPd
+        ? currentRSVPs.filter((uid) => uid !== currentUser.uid)
+        : [...currentRSVPs, currentUser.uid];
+
+      await updateDoc(doc(db, "events", eventId), {
+        rsvps: updatedRSVPs,
+      });
+
+      setEvents((prevEvents) =>
+        prevEvents.map((e) =>
+          e.id === eventId ? { ...e, rsvps: updatedRSVPs } : e
+        )
+      );
+    } catch (err) {
+      console.error("Failed to RSVP", err);
+      alert("Could not process your RSVP. Please try again.");
+    } finally {
+      setRsvpLoading(null);
+    }
+  };
+
+  const getRSVPPreviewImages = (rsvps: string[] | undefined) => {
+    if (!rsvps || rsvps.length === 0) return [];
+    return rsvps.slice(0, 4).map((uid) => users[uid]?.photoURL || "/icons/icon-192.png");
+  };
+
   return (
     <div className="events-page">
       <div className="page-header">
@@ -105,27 +159,62 @@ export default function Events() {
             <section className="events-section">
               <h2>Upcoming Events</h2>
               <div className="events-grid">
-                {upcomingEvents.map((event) => (
-                  <div key={event.id} className="event-card upcoming">
-                    <div className="event-countdown">{getDaysUntil(event.date)}</div>
-                    <h3>{event.title}</h3>
-                    <p className="event-description">{event.description}</p>
-                    <div className="event-details">
-                      <div className="event-detail">
-                        <span>📅</span>
-                        <span>{formatDate(event.date)}</span>
+                {upcomingEvents.map((event) => {
+                  const rsvpCount = event.rsvps?.length || 0;
+                  const hasRSVPd = currentUser && event.rsvps?.includes(currentUser.uid);
+                  const previewImages = getRSVPPreviewImages(event.rsvps);
+                  return (
+                    <div key={event.id} className="event-card upcoming">
+                      <div className="event-countdown">{getDaysUntil(event.date)}</div>
+                      <h3>{event.title}</h3>
+                      <p className="event-description">{linkify(event.description)}</p>
+                      <div className="event-details">
+                        <div className="event-detail">
+                          <span>📅</span>
+                          <span>{formatDate(event.date)}</span>
+                        </div>
+                        <div className="event-detail">
+                          <span>📍</span>
+                          <span>{event.location}</span>
+                        </div>
+                        <div className="event-detail">
+                          <span>👤</span>
+                          <span>{event.organizer}</span>
+                        </div>
                       </div>
-                      <div className="event-detail">
-                        <span>📍</span>
-                        <span>{event.location}</span>
-                      </div>
-                      <div className="event-detail">
-                        <span>👤</span>
-                        <span>{event.organizer}</span>
+                      
+                      <div className="event-rsvp-section">
+                        <div className="rsvp-info">
+                          <div className="rsvp-count">
+                            <span className="rsvp-number">{rsvpCount}</span>
+                            <span className="rsvp-label">{rsvpCount === 1 ? "person" : "people"} RSVP'd</span>
+                          </div>
+                          {previewImages.length > 0 && (
+                            <div className="rsvp-preview">
+                              {previewImages.map((img, idx) => (
+                                <img
+                                  key={idx}
+                                  src={img}
+                                  alt="RSVP'd user"
+                                  className="rsvp-avatar"
+                                  title={`RSVP'd user ${idx + 1}`}
+                                />
+                              ))}
+                              {rsvpCount > 4 && <div className="rsvp-overflow">+{rsvpCount - 4}</div>}
+                            </div>
+                          )}
+                        </div>
+                        <button
+                          className={`rsvp-btn ${hasRSVPd ? "rsvped" : ""}`}
+                          onClick={() => handleRSVP(event.id)}
+                          disabled={rsvpLoading === event.id}
+                        >
+                          {rsvpLoading === event.id ? "Processing..." : hasRSVPd ? "✓ RSVP'd" : "RSVP"}
+                        </button>
                       </div>
                     </div>
-                  </div>
-                ))}
+                  );
+                })}
               </div>
             </section>
           )}

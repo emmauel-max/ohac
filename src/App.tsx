@@ -14,6 +14,7 @@ import TourGuide from "./components/TourGuide";
 import NotificationBridge from "./components/NotificationBridge";
 import logo from "./assets/logo.png";
 import "./index.css";
+import "./styles/linkify.css";
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth();

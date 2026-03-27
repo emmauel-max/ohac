@@ -1,0 +1,31 @@
+/* Linkified text styles */
+.link-item {
+  color: #f5d800;
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+  transition: all 0.2s;
+  word-break: break-word;
+}
+
+.link-item:hover {
+  color: #ffeb3b;
+  text-shadow: 0 0 8px rgba(245, 216, 0, 0.5);
+}
+
+/* Ensure links work in dark backgrounds */
+.ann-card .link-item,
+.event-card .link-item,
+.course-card .link-item,
+.message-text .link-item,
+.chat-message .link-item {
+  color: #f5d800;
+}
+
+.ann-card .link-item:hover,
+.event-card .link-item:hover,
+.course-card .link-item:hover,
+.message-text .link-item:hover,
+.chat-message .link-item:hover {
+  color: #ffeb3b;
+}

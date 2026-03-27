@@ -11,7 +11,8 @@
 .admin-header h1 {
   font-size: 1.8rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
 }
 
 .admin-header p {
@@ -90,10 +91,13 @@
 
 /* Content */
 .admin-content {
-  background: white;
+  background: rgba(10, 30, 10, 0.72);
   border-radius: 12px;
   padding: 1.5rem;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
 }
 
 /* Overview */
@@ -110,8 +114,8 @@
 }
 
 .overview-card {
-  background: #f8fff8;
-  border: 1px solid #c8e6c8;
+  background: rgba(20, 50, 20, 0.8);
+  border: 1px solid rgba(144, 238, 144, 0.2);
   border-radius: 12px;
   padding: 1.25rem;
   text-align: center;
@@ -124,7 +128,7 @@
 
 .overview-label {
   font-size: 0.75rem;
-  color: #888;
+  color: rgba(255, 255, 255, 0.5);
   font-weight: 600;
   text-transform: uppercase;
   letter-spacing: 0.05em;
@@ -134,13 +138,13 @@
 .overview-value {
   font-size: 1.75rem;
   font-weight: 800;
-  color: #1a4a1a;
+  color: #f5d800;
 }
 
 .admin-welcome {
   grid-column: 1 / -1;
-  background: linear-gradient(135deg, #f0f8f0, #e8f4e8);
-  border: 1px solid #c8e6c8;
+  background: linear-gradient(135deg, rgba(20, 50, 20, 0.6), rgba(30, 70, 30, 0.5));
+  border: 1px solid rgba(144, 238, 144, 0.2);
   border-radius: 12px;
   padding: 1.5rem;
   margin-top: 0.5rem;
@@ -148,12 +152,12 @@
 
 .admin-welcome h3 {
   font-size: 1.1rem;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-bottom: 0.75rem;
 }
 
 .admin-welcome p {
-  color: #555;
+  color: rgba(255, 255, 255, 0.7);
   font-size: 0.9rem;
   margin-bottom: 0.75rem;
   line-height: 1.6;
@@ -168,7 +172,7 @@
 
 .admin-welcome li {
   font-size: 0.9rem;
-  color: #444;
+  color: rgba(255, 255, 255, 0.65);
 }
 
 /* Users */
@@ -178,8 +182,9 @@
 .events-section h2 {
   font-size: 1.2rem;
   font-weight: 700;
-  color: #1a4a1a;
+  color: #f5d800;
   margin-bottom: 1rem;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
 }
 
 .users-table-wrapper {
@@ -195,17 +200,19 @@
 .users-table th {
   text-align: left;
   padding: 0.6rem 0.75rem;
-  background: #f0f4f0;
-  color: #444;
+  background: rgba(20, 50, 20, 0.6);
+  color: rgba(255, 255, 255, 0.7);
   font-weight: 700;
   font-size: 0.75rem;
   text-transform: uppercase;
   letter-spacing: 0.05em;
+  border-bottom: 1px solid rgba(144, 238, 144, 0.15);
 }
 
 .users-table td {
   padding: 0.75rem;
-  border-bottom: 1px solid #f0f0f0;
+  border-bottom: 1px solid rgba(144, 238, 144, 0.1);
+  color: rgba(255, 255, 255, 0.8);
 }
 
 .user-cell {
@@ -251,12 +258,57 @@
   border-radius: 6px;
   font-size: 0.85rem;
   cursor: pointer;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
+  border-color: rgba(144, 238, 144, 0.25);
+}
+
+.role-select:focus {
+  border-color: rgba(144, 238, 144, 0.55);
+  outline: none;
+}
+
+.user-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.ban-btn {
+  padding: 0.3rem 0.6rem;
+  border: 1px solid rgba(220, 38, 38, 0.5);
+  border-radius: 6px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  cursor: pointer;
+  background: rgba(220, 38, 38, 0.15);
+  color: rgba(220, 38, 38, 0.9);
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.ban-btn:hover {
+  background: rgba(220, 38, 38, 0.3);
+  border-color: rgba(220, 38, 38, 0.8);
+  color: #ff6b6b;
+}
+
+.ban-btn.unbanned {
+  border-color: rgba(144, 238, 144, 0.5);
+  background: rgba(144, 238, 144, 0.15);
+  color: rgba(144, 238, 144, 0.9);
+}
+
+.ban-btn.unbanned:hover {
+  background: rgba(144, 238, 144, 0.3);
+  color: #90ee90;
 }
 
 /* Announcements */
 .post-form {
-  background: #f8fff8;
-  border: 1px solid #c8e6c8;
+  background: rgba(20, 50, 20, 0.5);
+  border: 1px solid rgba(144, 238, 144, 0.15);
   border-radius: 12px;
   padding: 1.25rem;
   margin-bottom: 1.5rem;
@@ -268,7 +320,7 @@
 .post-form h3 {
   font-size: 1rem;
   font-weight: 700;
-  color: #1a4a1a;
+  color: #f5d800;
 }
 
 .form-input,
@@ -276,18 +328,20 @@
 .form-select {
   width: 100%;
   padding: 0.6rem 0.875rem;
-  border: 2px solid #ddd;
+  border: 2px solid rgba(144, 238, 144, 0.25);
   border-radius: 8px;
   font-size: 0.9rem;
   outline: none;
   font-family: inherit;
   transition: border-color 0.2s;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.9);
 }
 
 .form-input:focus,
 .form-textarea:focus,
 .form-select:focus {
-  border-color: #2d6a2d;
+  border-color: rgba(144, 238, 144, 0.55);
 }
 
 .form-row {
@@ -327,9 +381,10 @@
 }
 
 .ann-item {
-  border: 1px solid #e8f0e8;
+  border: 1px solid rgba(144, 238, 144, 0.15);
   border-radius: 8px;
   padding: 1rem;
+  background: rgba(10, 30, 10, 0.4);
 }
 
 .ann-item-header {
@@ -343,7 +398,7 @@
   flex: 1;
   font-size: 0.95rem;
   font-weight: 700;
-  color: #222;
+  color: rgba(255, 255, 255, 0.95);
 }
 
 .priority-tag {
@@ -362,7 +417,7 @@
 
 .ann-item p {
   font-size: 0.85rem;
-  color: #666;
+  color: rgba(255, 255, 255, 0.65);
   line-height: 1.5;
   margin-bottom: 0.5rem;
 }
@@ -372,7 +427,7 @@
   align-items: center;
   justify-content: space-between;
   font-size: 0.75rem;
-  color: #999;
+  color: rgba(255, 255, 255, 0.4);
 }
 
 .delete-btn {

@@ -115,3 +115,97 @@
   padding: 3rem;
   color: rgba(255, 255, 255, 0.6);
 }
+
+/* RSVP Section */
+.event-rsvp-section {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.rsvp-info {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  flex: 1;
+}
+
+.rsvp-count {
+  display: flex;
+  align-items: baseline;
+  gap: 0.5rem;
+}
+
+.rsvp-number {
+  font-size: 1.25rem;
+  font-weight: 800;
+  color: #f5d800;
+}
+
+.rsvp-label {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.6);
+}
+
+.rsvp-preview {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.rsvp-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  background: rgba(10, 30, 10, 0.5);
+}
+
+.rsvp-overflow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  background: rgba(45, 106, 45, 0.6);
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.8);
+}
+
+.rsvp-btn {
+  background: rgba(45, 106, 45, 0.7);
+  border: 2px solid rgba(144, 238, 144, 0.3);
+  color: rgba(255, 255, 255, 0.9);
+  padding: 0.4rem 0.9rem;
+  border-radius: 6px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.rsvp-btn:hover:not(:disabled) {
+  background: rgba(45, 106, 45, 0.9);
+  border-color: rgba(144, 238, 144, 0.5);
+  color: white;
+}
+
+.rsvp-btn.rsvped {
+  background: rgba(144, 238, 144, 0.2);
+  border-color: rgba(144, 238, 144, 0.5);
+  color: #f5d800;
+}
+
+.rsvp-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}

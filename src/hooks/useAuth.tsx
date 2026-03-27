@@ -10,6 +10,7 @@ interface AuthContextType {
   currentUser: FirebaseUser | null;
   userProfile: User | null;
   loading: boolean;
+  isBanned: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
@@ -21,12 +22,24 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isBanned, setIsBanned] = useState(false);
 
   const signInWithGoogle = async () => {
     const result = await signInWithPopup(auth, googleProvider);
     const user = result.user;
     const userRef = doc(db, "users", user.uid);
     const userSnap = await getDoc(userRef);
+    
+    // Check if user is banned
+    if (userSnap.exists() && userSnap.data().banned) {
+      await signOut(auth);
+      setCurrentUser(null);
+      setUserProfile(null);
+      setIsBanned(true);
+      alert("You are not allowed to access this app because you have been banned. Please contact an administrator if you believe this is an error.");
+      return;
+    }
+    
     if (!userSnap.exists()) {
       await setDoc(userRef, {
         uid: user.uid,
@@ -42,6 +55,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         notifyChat: true,
         notifyEvents: true,
         enrolledCourses: [],
+        banned: false,
         createdAt: serverTimestamp(),
       });
     }
@@ -59,10 +73,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
         if (userSnap.exists()) {
-          setUserProfile(userSnap.data() as User);
+          const userData = userSnap.data() as User;
+          // Check if user is banned
+          if (userData.banned) {
+            await signOut(auth);
+            setCurrentUser(null);
+            setUserProfile(null);
+            setIsBanned(true);
+          } else {
+            setUserProfile(userData);
+            setIsBanned(false);
+          }
         }
       } else {
         setUserProfile(null);
+        setIsBanned(false);
       }
       setLoading(false);
     });
@@ -72,7 +97,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isAdmin = userProfile?.role === "admin";
 
   return (
-    <AuthContext.Provider value={{ currentUser, userProfile, loading, signInWithGoogle, logout, isAdmin }}>
+    <AuthContext.Provider value={{ currentUser, userProfile, loading, isBanned, signInWithGoogle, logout, isAdmin }}>
       {children}
     </AuthContext.Provider>
   );

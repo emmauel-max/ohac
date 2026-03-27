@@ -2,6 +2,7 @@ import { useState, useEffect, useRef } from "react";
 import { ref, push, onValue, off } from "firebase/database";
 import { rtdb } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
+import { linkify } from "../../utils/linkify";
 import type { ChatMessage, ChatRoom } from "../../types";
 import "./Chat.css";
 
@@ -200,7 +201,7 @@ export default function Chat() {
                       {msg.rank && <span className="msg-rank">{msg.rank}</span>}
                     </span>
                   )}
-                  <p className="msg-text">{msg.text}</p>
+                  <p className="msg-text">{linkify(msg.text)}</p>
                   <span className="msg-time">{formatTime(msg.timestamp)}</span>
                 </div>
               </div>

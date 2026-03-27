@@ -14,6 +14,7 @@ export interface User {
   fcmTokens?: string[];
   enrolledCourses?: string[];
   createdAt?: number;
+  banned?: boolean;
 }
 
 export interface Course {
@@ -85,4 +86,5 @@ export interface Event {
   location: string;
   organizer: string;
   createdAt: number;
+  rsvps?: string[]; // Array of user UIDs who have RSVP'd
 }
