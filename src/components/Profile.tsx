@@ -9,6 +9,7 @@ export default function Profile() {
   const [rank, setRank] = useState("");
   const [unit, setUnit] = useState("");
   const [bio, setBio] = useState("");
+  const [indexNumber, setIndexNumber] = useState("");
   const [notificationEnabled, setNotificationEnabled] = useState(true);
   const [notifyAnnouncements, setNotifyAnnouncements] = useState(true);
   const [notifyChat, setNotifyChat] = useState(true);
@@ -19,6 +20,7 @@ export default function Profile() {
     setRank(userProfile?.rank || "Cadet");
     setUnit(userProfile?.unit || "Oguaa Hall");
     setBio(userProfile?.bio || "");
+    setIndexNumber(userProfile?.indexNumber || "");
     setNotificationEnabled(userProfile?.notificationEnabled !== false);
     setNotifyAnnouncements(userProfile?.notifyAnnouncements !== false);
     setNotifyChat(userProfile?.notifyChat !== false);
@@ -55,6 +57,7 @@ export default function Profile() {
         rank: rank.trim() || "Cadet",
         unit: unit.trim() || "Oguaa Hall",
         bio: bio.trim(),
+        indexNumber: indexNumber.trim(),
         notificationEnabled,
         notifyAnnouncements,
         notifyChat,
@@ -90,6 +93,10 @@ export default function Profile() {
             <span className="value">{userProfile?.role || "cadet"}</span>
           </div>
           <div className="profile-item">
+            <span className="label">Index Number</span>
+            <span className="value">{userProfile?.indexNumber || "—"}</span>
+          </div>
+          <div className="profile-item">
             <span className="label">Courses Enrolled</span>
             <span className="value">{userProfile?.enrolledCourses?.length || 0}</span>
           </div>
@@ -116,6 +123,16 @@ export default function Profile() {
               value={unit}
               onChange={(e) => setUnit(e.target.value)}
               placeholder="Oguaa Hall"
+            />
+          </label>
+
+          <label className="profile-field">
+            <span>Index Number</span>
+            <input
+              type="text"
+              value={indexNumber}
+              onChange={(e) => setIndexNumber(e.target.value)}
+              placeholder="e.g. UCC/2020/0001"
             />
           </label>
 

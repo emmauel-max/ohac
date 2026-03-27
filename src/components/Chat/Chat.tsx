@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { ref, push, onValue, off } from "firebase/database";
-import { rtdb } from "../../firebase";
+import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
+import { rtdb, storage } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { linkify } from "../../utils/linkify";
 import type { ChatMessage, ChatRoom } from "../../types";
@@ -25,14 +26,36 @@ const CHAT_ROOMS: ThemedChatRoom[] = [
   { id: "announcements-chat", name: "Notices", description: "Unit notices", icon: "📢", wallpaper: noticesBg },
 ];
 
+const CHAT_TOUR_KEY_PREFIX = "ohac:chat-tour:done:";
+
 export default function Chat() {
   const { currentUser, userProfile } = useAuth();
   const [activeRoom, setActiveRoom] = useState<ThemedChatRoom>(CHAT_ROOMS[0]);
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [showRoomMenu, setShowRoomMenu] = useState(false); 
+  const [showRoomMenu, setShowRoomMenu] = useState(false);
+  const [showChatTour, setShowChatTour] = useState(false);
+  const [uploadingImage, setUploadingImage] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
+  const imageInputRef = useRef<HTMLInputElement>(null);
+
+  // Show mobile chat tour once per user
+  useEffect(() => {
+    if (!currentUser) return;
+    const key = `${CHAT_TOUR_KEY_PREFIX}${currentUser.uid}`;
+    const isMobile = window.innerWidth < 640;
+    if (isMobile && !window.localStorage.getItem(key)) {
+      setShowChatTour(true);
+    }
+  }, [currentUser]);
+
+  const dismissChatTour = () => {
+    if (currentUser) {
+      window.localStorage.setItem(`${CHAT_TOUR_KEY_PREFIX}${currentUser.uid}`, "1");
+    }
+    setShowChatTour(false);
+  };
 
   useEffect(() => {
     const messagesRef = ref(rtdb, `chat/${activeRoom.id}`);
@@ -56,9 +79,10 @@ export default function Chat() {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
-  const sendMessage = async () => {
+  const sendMessage = async (imageUrl?: string) => {
     const text = newMessage.trim();
-    if (!text || !currentUser || sending) return;
+    if (!text && !imageUrl) return;
+    if (!currentUser || sending) return;
     setSending(true);
     try {
       await push(ref(rtdb, `chat/${activeRoom.id}`), {
@@ -66,7 +90,8 @@ export default function Chat() {
         displayName: currentUser.displayName || "Cadet",
         photoURL: currentUser.photoURL || null,
         rank: userProfile?.rank || null,
-        text,
+        text: text || "",
+        imageUrl: imageUrl || null,
         timestamp: Date.now(),
         room: activeRoom.id,
       });
@@ -75,6 +100,36 @@ export default function Chat() {
       console.error("Failed to send message", err);
     } finally {
       setSending(false);
+    }
+  };
+
+  const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !currentUser) return;
+
+    const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
+    if (!validTypes.includes(file.type)) {
+      alert("Please select a valid image (JPEG, PNG, GIF, or WebP).");
+      return;
+    }
+    if (file.size > 5 * 1024 * 1024) {
+      alert("Image must be smaller than 5 MB.");
+      return;
+    }
+
+    setUploadingImage(true);
+    try {
+      const path = `chat/${activeRoom.id}/${currentUser.uid}_${Date.now()}_${file.name}`;
+      const sRef = storageRef(storage, path);
+      await uploadBytes(sRef, file);
+      const url = await getDownloadURL(sRef);
+      await sendMessage(url);
+    } catch (err) {
+      console.error("Failed to upload image", err);
+      alert("Could not upload image. Please try again.");
+    } finally {
+      setUploadingImage(false);
+      if (imageInputRef.current) imageInputRef.current.value = "";
     }
   };
 
@@ -118,7 +173,7 @@ export default function Chat() {
             className="chat-header-content"
             onClick={() => setShowRoomMenu(!showRoomMenu)}
             style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', width: '100%' }}
-            title="Click to switch rooms"
+            title="Tap to switch rooms"
           >
             <span style={{ fontSize: '1.8rem' }}>{activeRoom.icon}</span>
             <div style={{ flex: 1 }}>
@@ -128,6 +183,7 @@ export default function Chat() {
               </h2>
               <p style={{ margin: 0 }}>{activeRoom.description}</p>
             </div>
+            <span className="mobile-switch-hint">Tap to switch</span>
           </div>
 
           {/* Mobile Dropdown Menu */}
@@ -152,6 +208,7 @@ export default function Chat() {
                     cursor: 'pointer',
                     textAlign: 'left',
                     color: activeRoom.id === room.id ? '#c8ffc8' : 'rgba(255,255,255,0.75)',
+                    width: '100%',
                   }}
                 >
                   <span style={{ fontSize: '1.5rem' }}>{room.icon}</span>
@@ -165,7 +222,17 @@ export default function Chat() {
           )}
         </div>
 
-        {/* Messages */}
+        {/* First-time mobile tour banner */}
+        {showChatTour && (
+          <div className="chat-tour-banner">
+            <span className="chat-tour-icon">💡</span>
+            <span className="chat-tour-text">
+              Tap the <strong>header above</strong> (showing the current room name) to switch between chat rooms — General, Training, Courses, and Notices.
+            </span>
+            <button className="chat-tour-dismiss" onClick={dismissChatTour}>Got it</button>
+          </div>
+        )}
+
         {/* Messages */}
         <div 
           className="messages-area" 
@@ -194,14 +261,26 @@ export default function Chat() {
                   />
                 )}
                 <div className="msg-bubble">
-                  {/* Author name + rank shown only for other users' messages */}
                   {!isOwn && (
                     <span className="msg-author">
                       {msg.displayName}
                       {msg.rank && <span className="msg-rank">{msg.rank}</span>}
                     </span>
                   )}
-                  <p className="msg-text">{linkify(msg.text)}</p>
+                  {msg.imageUrl && (
+                    <a
+                      href={msg.imageUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={msg.imageUrl}
+                        alt="shared image"
+                        className="msg-image"
+                      />
+                    </a>
+                  )}
+                  {msg.text && <p className="msg-text">{linkify(msg.text)}</p>}
                   <span className="msg-time">{formatTime(msg.timestamp)}</span>
                 </div>
               </div>
@@ -212,6 +291,22 @@ export default function Chat() {
 
         {/* Input */}
         <div className="chat-input-area">
+          <input
+            type="file"
+            accept="image/*"
+            ref={imageInputRef}
+            style={{ display: "none" }}
+            onChange={handleImageUpload}
+          />
+          <button
+            className="img-upload-btn"
+            onClick={() => imageInputRef.current?.click()}
+            disabled={uploadingImage || sending}
+            title="Share an image"
+            aria-label="Upload image"
+          >
+            {uploadingImage ? "⏳" : "🖼️"}
+          </button>
           <textarea
             className="chat-input"
             placeholder={`Message #${activeRoom.name.toLowerCase()}...`}
@@ -222,7 +317,7 @@ export default function Chat() {
           />
           <button
             className="send-btn"
-            onClick={sendMessage}
+            onClick={() => sendMessage()}
             disabled={!newMessage.trim() || sending}
           >
             ➤
