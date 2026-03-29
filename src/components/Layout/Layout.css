@@ -336,3 +336,94 @@
   display: flex;
   flex-direction: column;
 }
+
+/* ── Bottom Navigation (mobile only) ────────────────────── */
+.bottom-nav {
+  display: none;
+}
+
+@media (max-width: 1023px) {
+  /* Show the bottom nav on mobile */
+  .bottom-nav {
+    display: flex;
+    align-items: stretch;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(15, 46, 15, 0.96);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(144, 238, 144, 0.2);
+    z-index: 100;
+    box-shadow: 0 -4px 24px rgba(0, 0, 0, 0.3);
+  }
+
+  /* Add bottom padding so content isn't hidden behind the bottom nav */
+  .main-content {
+    padding-bottom: 60px;
+  }
+
+  /* Chat page manages its own bottom offset; don't double-add padding */
+  .main-content--chat {
+    padding-bottom: 0;
+  }
+
+  /* Hide bottom-nav destination items from the sidebar on mobile */
+  .nav-item--bottom-nav {
+    display: none;
+  }
+}
+
+.bottom-nav-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 0.15rem;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.55);
+  position: relative;
+  transition: color 0.2s;
+  padding: 0.25rem 0;
+}
+
+.bottom-nav-item.active {
+  color: #90ee90;
+}
+
+.bottom-nav-item:active {
+  opacity: 0.75;
+}
+
+.bottom-nav-icon {
+  font-size: 1.35rem;
+  line-height: 1;
+}
+
+.bottom-nav-label {
+  font-size: 0.62rem;
+  font-weight: 600;
+  letter-spacing: 0.02em;
+  line-height: 1;
+}
+
+.bottom-nav-badge {
+  position: absolute;
+  top: 4px;
+  right: calc(50% - 20px);
+  background: #ef4444;
+  color: #fff;
+  font-size: 0.58rem;
+  font-weight: 700;
+  min-width: 16px;
+  height: 16px;
+  padding: 0 4px;
+  border-radius: 8px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 1.5px solid rgba(15, 46, 15, 0.9);
+}

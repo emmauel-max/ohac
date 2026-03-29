@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { Link } from "react-router-dom";
-import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, limit, getCountFromServer } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import logo from "../assets/logo.png";
@@ -11,11 +11,16 @@ import "./Dashboard.css";
 // Import the header background image
 import headerBg from "../assets/background/header-image.jpg";
 
+const FOUNDING_YEAR = 2010;
+
 export default function Dashboard() {
   const { currentUser, userProfile } = useAuth();
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
+  const [activeCadets, setActiveCadets] = useState<string>("…");
+  const [coursesAvailable, setCoursesAvailable] = useState<string>("…");
 
+  // Fetch latest announcements
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -36,11 +41,32 @@ export default function Dashboard() {
     fetchAnnouncements();
   }, []);
 
+  // Fetch real-time counts from Firestore
+  useEffect(() => {
+    const fetchCounts = async () => {
+      try {
+        const [usersSnap, coursesSnap] = await Promise.all([
+          getCountFromServer(collection(db, "users")),
+          getCountFromServer(collection(db, "courses")),
+        ]);
+        setActiveCadets(String(usersSnap.data().count));
+        setCoursesAvailable(String(coursesSnap.data().count));
+      } catch (err) {
+        console.error("Failed to fetch counts", err);
+        setActiveCadets("120+");
+        setCoursesAvailable("8+");
+      }
+    };
+    fetchCounts();
+  }, []);
+
+  const yearsActive = new Date().getFullYear() - FOUNDING_YEAR;
+
   const stats = [
-    { label: "Active Cadets", value: "120+", icon: "👥" },
-    { label: "Courses Available", value: "8", icon: "📚" },
+    { label: "Active Cadets", value: activeCadets, icon: "👥" },
+    { label: "Courses Available", value: coursesAvailable, icon: "📚" },
     { label: "Training Hours", value: "500+", icon: "⏱️" },
-    { label: "Years Active", value: "15+", icon: "🏆" },
+    { label: "Years Active", value: `${yearsActive}+`, icon: "🏆" },
   ];
 
   const quickLinks = [
