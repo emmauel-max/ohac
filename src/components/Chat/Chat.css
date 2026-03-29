@@ -1,120 +1,161 @@
 /* ============================================================
-   Chat Page – Full Glassmorphism Redesign
+   Direct Messages – Chat Page
    ============================================================ */
 
-/* The chat page fills the space below the navbar.
-   The parent .main-content--chat already removes padding-top,
-   so we account for the 60px navbar here. */
-.chat-page {
+/* ── User List (DM inbox page) ───────────────────────────── */
+.dm-page {
+  max-width: 700px;
+  margin: 0 auto;
+  padding: 1.5rem 1rem;
+}
+
+.dm-list-header {
+  margin-bottom: 1.25rem;
+}
+
+.dm-list-header h2 {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: #f5d800;
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  margin-bottom: 0.2rem;
+}
+
+.dm-list-header p {
+  font-size: 0.88rem;
+  color: rgba(255, 255, 255, 0.65);
+  margin-bottom: 0.85rem;
+}
+
+.dm-search {
+  width: 100%;
+  padding: 0.6rem 1rem;
+  border: 1.5px solid rgba(144, 238, 144, 0.28);
+  border-radius: 22px;
+  font-size: 0.9rem;
+  outline: none;
+  background: rgba(255, 255, 255, 0.1);
+  color: #e8ffe8;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.dm-search::placeholder {
+  color: rgba(200, 255, 200, 0.45);
+}
+
+.dm-search:focus {
+  border-color: rgba(144, 238, 144, 0.6);
+  box-shadow: 0 0 0 3px rgba(144, 238, 144, 0.1);
+}
+
+/* ── User List Items ─────────────────────────────────────── */
+.dm-user-list {
   display: flex;
-  height: calc(100vh - 60px); /* fallback */
-  height: calc(100dvh - 60px); /* adjusts when mobile keyboard appears */
-  margin-top: 60px;
-  overflow: hidden;
-  position: relative;
-}
-
-/* On mobile, also subtract the 60px bottom nav */
-@media (max-width: 1023px) {
-  .chat-page {
-    height: calc(100dvh - 120px); /* 60px navbar + 60px bottom nav */
-  }
-}
-
-/* ── Room List (Desktop Sidebar) ─────────────────────────── */
-.room-list {
-  width: 220px;
-  flex-shrink: 0;
-  background: rgba(15, 46, 15, 0.72);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border-right: 1px solid rgba(144, 238, 144, 0.12);
-  color: white;
-  display: none;
   flex-direction: column;
-  overflow-y: auto;
+  gap: 0.5rem;
 }
 
-@media (min-width: 640px) {
-  .room-list {
-    display: flex;
-  }
-}
-
-.room-list h3 {
-  padding: 1rem 1rem 0.75rem;
-  font-size: 0.7rem;
-  text-transform: uppercase;
-  letter-spacing: 0.12em;
-  color: rgba(144, 238, 144, 0.55);
-  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-}
-
-.room-btn {
+.dm-user-item {
   display: flex;
   align-items: center;
-  gap: 0.75rem;
-  width: calc(100% - 0.8rem);
-  text-align: left;
-  padding: 0.85rem 1rem;
-  border: none;
-  background: none;
-  color: rgba(255, 255, 255, 0.65);
+  gap: 0.85rem;
+  width: 100%;
+  padding: 0.9rem 1rem;
+  background: rgba(255, 255, 255, 0.06);
+  border: 1px solid rgba(144, 238, 144, 0.12);
+  border-radius: 14px;
+  color: rgba(255, 255, 255, 0.85);
   cursor: pointer;
-  transition: all 0.2s;
-  margin: 0.1rem 0.4rem;
-  border-radius: 10px;
+  text-align: left;
+  transition: all 0.18s;
 }
 
-.room-btn:hover {
-  background: rgba(255, 255, 255, 0.08);
-  color: white;
-}
-
-.room-btn.active {
-  background: rgba(144, 238, 144, 0.14);
+.dm-user-item:hover,
+.dm-user-item:active {
+  background: rgba(144, 238, 144, 0.1);
+  border-color: rgba(144, 238, 144, 0.3);
   color: #c8ffc8;
-  border-left: 3px solid #90ee90;
-  box-shadow: inset 0 0 16px rgba(144, 238, 144, 0.06);
 }
 
-.room-icon {
-  font-size: 1.2rem;
+.dm-user-avatar {
+  width: 46px;
+  height: 46px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(255, 255, 255, 0.25);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.2);
 }
 
-.room-info {
-  display: flex;
-  flex-direction: column;
-  gap: 0.1rem;
-}
-
-.room-name {
-  font-size: 0.9rem;
-  font-weight: 600;
-}
-
-.room-desc {
-  font-size: 0.7rem;
-  opacity: 0.55;
-}
-
-/* ── Chat Window ─────────────────────────────────────────── */
-.chat-window {
+.dm-user-info {
   flex: 1;
   display: flex;
   flex-direction: column;
+  gap: 0.15rem;
+  min-width: 0;
+}
+
+.dm-user-name {
+  font-size: 0.95rem;
+  font-weight: 700;
+  white-space: nowrap;
   overflow: hidden;
-  height: 100%;
+  text-overflow: ellipsis;
+}
+
+.dm-user-rank {
+  font-size: 0.73rem;
+  color: rgba(200, 255, 200, 0.7);
+  font-weight: 500;
+}
+
+.dm-user-unit {
+  font-size: 0.68rem;
+  color: rgba(200, 255, 200, 0.45);
+}
+
+.dm-user-arrow {
+  font-size: 1.4rem;
+  color: rgba(144, 238, 144, 0.5);
+  flex-shrink: 0;
+}
+
+.dm-status {
+  padding: 2rem;
+  text-align: center;
+  color: rgba(255, 255, 255, 0.45);
+  font-size: 0.9rem;
+}
+
+/* ── DM Conversation (fullscreen – covers bottom nav) ─────── */
+.dm-fullscreen {
+  position: fixed;
+  top: 60px;    /* sit below the top navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 110; /* above bottom-nav (z-index: 100) */
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, #0f2e0f 0%, #1a4a1a 60%, #2d6a2d 100%);
+  overflow: hidden;
+}
+
+/* On desktop with the 250px sidebar */
+@media (min-width: 1024px) {
+  .dm-fullscreen {
+    left: 250px;
+  }
 }
 
 /* ── Chat Header (sticky top) ────────────────────────────── */
 .chat-header {
-  flex-shrink: 0;          /* never shrink – stays sticky at top */
+  flex-shrink: 0;
   display: flex;
   align-items: center;
   gap: 0.75rem;
   padding: 0.9rem 1.25rem;
-  background: rgba(20, 55, 20, 0.78);
+  background: rgba(20, 55, 20, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-bottom: 1px solid rgba(144, 238, 144, 0.2);
@@ -123,48 +164,68 @@
   z-index: 10;
 }
 
-.chat-header h2 {
+.dm-back-btn {
+  flex-shrink: 0;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(144, 238, 144, 0.25);
+  color: #c8ffc8;
+  font-size: 1.6rem;
+  line-height: 1;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s;
+  margin-right: 0.1rem;
+}
+
+.dm-back-btn:hover {
+  background: rgba(144, 238, 144, 0.18);
+}
+
+.dm-header-avatar {
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(144, 238, 144, 0.4);
+  box-shadow: 0 0 8px rgba(144, 238, 144, 0.15);
+}
+
+.dm-header-info {
+  flex: 1;
+  min-width: 0;
+}
+
+.dm-header-info h2 {
   font-size: 1.05rem;
   font-weight: 700;
   color: #e8ffe8;
   margin: 0;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
-.chat-header p {
-  font-size: 0.75rem;
+.dm-header-info p {
+  font-size: 0.73rem;
   color: rgba(200, 255, 200, 0.65);
   margin: 0;
 }
 
-/* Mobile dropdown */
-.mobile-dropdown {
-  position: absolute;
-  top: 100%;
-  left: 0;
-  right: 0;
-  background: rgba(15, 40, 15, 0.92);
-  backdrop-filter: blur(24px);
-  -webkit-backdrop-filter: blur(24px);
-  border-top: 1px solid rgba(144, 238, 144, 0.15);
-  border-bottom: 1px solid rgba(144, 238, 144, 0.1);
-  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.35);
-  z-index: 100;
-  display: flex;
-  flex-direction: column;
-  border-radius: 0 0 12px 12px;
-  overflow: hidden;
-}
-
-/* ── Messages Area (the only scrollable part) ────────────── */
+/* ── Messages Area (scrollable) ──────────────────────────── */
 .messages-area {
   flex: 1;
-  min-height: 0;           /* prevent flex child from overflowing */
+  min-height: 0;
   overflow-y: auto;
   padding: 1rem;
   display: flex;
   flex-direction: column;
   gap: 0.75rem;
-  /* Custom scrollbar */
   scrollbar-width: thin;
   scrollbar-color: rgba(144, 238, 144, 0.3) transparent;
 }
@@ -249,23 +310,6 @@
   border-color: rgba(144, 238, 144, 0.25);
 }
 
-.msg-author {
-  display: block;
-  font-size: 0.7rem;
-  font-weight: 700;
-  color: #2d6a2d;
-  margin-bottom: 0.2rem;
-}
-
-.msg-rank {
-  display: block;
-  font-size: 0.58rem;
-  font-weight: 500;
-  color: #4a8a4a;
-  margin-top: 0.05rem;
-  letter-spacing: 0.03em;
-}
-
 .msg-text {
   font-size: 0.88rem;
   line-height: 1.55;
@@ -286,15 +330,34 @@
   color: rgba(200, 255, 200, 0.55);
 }
 
+/* ── Shared images in message bubbles ────────────────────── */
+.msg-image {
+  display: block;
+  max-width: 220px;
+  max-height: 220px;
+  border-radius: 10px;
+  object-fit: cover;
+  cursor: pointer;
+  margin-bottom: 0.3rem;
+  border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+@media (min-width: 640px) {
+  .msg-image {
+    max-width: 280px;
+    max-height: 280px;
+  }
+}
+
 /* ── Input Area (sticky bottom) ──────────────────────────── */
 .chat-input-area {
-  flex-shrink: 0;          /* never shrink – stays sticky at bottom */
+  flex-shrink: 0;
   display: flex;
   align-items: flex-end;
   gap: 0.75rem;
   padding: 0.85rem 1rem;
   padding-bottom: max(0.85rem, env(safe-area-inset-bottom));
-  background: rgba(20, 55, 20, 0.78);
+  background: rgba(20, 55, 20, 0.85);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
   border-top: 1px solid rgba(144, 238, 144, 0.2);
@@ -361,203 +424,6 @@
   cursor: not-allowed;
 }
 
-/* ── Hide mobile caret and switch hint on desktop ────────── */
-@media (min-width: 640px) {
-  .mobile-caret {
-    display: none !important;
-  }
-
-  .mobile-switch-hint {
-    display: none !important;
-  }
-
-  .back-to-rooms-btn {
-    display: none !important;
-  }
-
-  .mobile-room-selection {
-    display: none !important;
-  }
-}
-
-/* Hide chat-window on mobile when room list is showing */
-.chat-window--hidden-mobile {
-  display: none;
-}
-
-@media (min-width: 640px) {
-  .chat-window--hidden-mobile {
-    display: flex !important;
-  }
-}
-
-/* ── Back to Rooms button (mobile only) ──────────────────── */
-.back-to-rooms-btn {
-  flex-shrink: 0;
-  background: rgba(255, 255, 255, 0.08);
-  border: 1px solid rgba(144, 238, 144, 0.25);
-  color: #c8ffc8;
-  font-size: 1.6rem;
-  line-height: 1;
-  width: 36px;
-  height: 36px;
-  border-radius: 50%;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s;
-  margin-right: 0.25rem;
-}
-
-.back-to-rooms-btn:hover {
-  background: rgba(144, 238, 144, 0.18);
-}
-
-/* ── Mobile Room Selection Screen ────────────────────────── */
-.mobile-room-selection {
-  display: none; /* hidden on desktop */
-  position: absolute;
-  inset: 0;
-  background: rgba(15, 46, 15, 0.97);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  flex-direction: column;
-  overflow-y: auto;
-  z-index: 20;
-}
-
-@media (max-width: 639px) {
-  .mobile-room-selection {
-    display: flex;
-  }
-}
-
-.mobile-room-selection-header {
-  padding: 1.5rem 1.25rem 1rem;
-  border-bottom: 1px solid rgba(144, 238, 144, 0.12);
-}
-
-.mobile-room-selection-header h2 {
-  font-size: 1.3rem;
-  font-weight: 800;
-  color: #e8ffe8;
-  margin-bottom: 0.2rem;
-}
-
-.mobile-room-selection-header p {
-  font-size: 0.82rem;
-  color: rgba(200, 255, 200, 0.55);
-}
-
-.mobile-room-cards {
-  display: flex;
-  flex-direction: column;
-  padding: 0.75rem;
-  gap: 0.5rem;
-}
-
-.mobile-room-card {
-  display: flex;
-  align-items: center;
-  gap: 1rem;
-  width: 100%;
-  padding: 1rem 1.1rem;
-  background: rgba(255, 255, 255, 0.05);
-  border: 1px solid rgba(144, 238, 144, 0.1);
-  border-radius: 14px;
-  color: rgba(255, 255, 255, 0.82);
-  cursor: pointer;
-  text-align: left;
-  transition: all 0.18s;
-}
-
-.mobile-room-card:hover,
-.mobile-room-card:active {
-  background: rgba(144, 238, 144, 0.1);
-  border-color: rgba(144, 238, 144, 0.3);
-  color: #c8ffc8;
-}
-
-.mobile-room-card.active {
-  background: rgba(144, 238, 144, 0.14);
-  border-color: rgba(144, 238, 144, 0.35);
-  color: #c8ffc8;
-}
-
-.mobile-room-card-icon {
-  font-size: 2rem;
-  flex-shrink: 0;
-}
-
-.mobile-room-card-info {
-  flex: 1;
-  display: flex;
-  flex-direction: column;
-  gap: 0.15rem;
-}
-
-.mobile-room-card-name {
-  font-size: 1rem;
-  font-weight: 700;
-}
-
-.mobile-room-card-desc {
-  font-size: 0.78rem;
-  opacity: 0.6;
-}
-
-.mobile-room-card-arrow {
-  font-size: 1.4rem;
-  color: rgba(144, 238, 144, 0.5);
-  flex-shrink: 0;
-}
-
-/* ── First-time chat tour banner ─────────────────────────── */
-.chat-tour-banner {
-  flex-shrink: 0;
-  display: flex;
-  align-items: center;
-  gap: 0.6rem;
-  padding: 0.65rem 1rem;
-  background: rgba(26, 74, 26, 0.92);
-  border-bottom: 1px solid rgba(144, 238, 144, 0.25);
-  font-size: 0.82rem;
-  color: rgba(200, 255, 200, 0.9);
-  z-index: 9;
-}
-
-.chat-tour-icon {
-  font-size: 1.1rem;
-  flex-shrink: 0;
-}
-
-.chat-tour-text {
-  flex: 1;
-  line-height: 1.4;
-}
-
-.chat-tour-text strong {
-  color: #c8ffc8;
-}
-
-.chat-tour-dismiss {
-  flex-shrink: 0;
-  background: rgba(144, 238, 144, 0.18);
-  border: 1px solid rgba(144, 238, 144, 0.4);
-  color: #c8ffc8;
-  padding: 0.3rem 0.65rem;
-  border-radius: 6px;
-  font-size: 0.78rem;
-  font-weight: 700;
-  cursor: pointer;
-  white-space: nowrap;
-}
-
-.chat-tour-dismiss:hover {
-  background: rgba(144, 238, 144, 0.3);
-}
-
 /* ── Image upload button ─────────────────────────────────── */
 .img-upload-btn {
   width: 38px;
@@ -583,23 +449,4 @@
 .img-upload-btn:disabled {
   opacity: 0.4;
   cursor: not-allowed;
-}
-
-/* ── Shared images in message bubbles ────────────────────── */
-.msg-image {
-  display: block;
-  max-width: 220px;
-  max-height: 220px;
-  border-radius: 10px;
-  object-fit: cover;
-  cursor: pointer;
-  margin-bottom: 0.3rem;
-  border: 1px solid rgba(255, 255, 255, 0.15);
-}
-
-@media (min-width: 640px) {
-  .msg-image {
-    max-width: 280px;
-    max-height: 280px;
-  }
 }

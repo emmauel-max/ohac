@@ -70,6 +70,26 @@ export interface ChatRoom {
   icon: string;
 }
 
+export interface DirectMessage {
+  id: string;
+  uid: string;
+  displayName: string;
+  photoURL: string | null;
+  rank?: string | null;
+  text: string;
+  imageUrl?: string | null;
+  timestamp: number;
+}
+
+export interface DMInboxEntry {
+  latestTs: number;
+  latestText: string;
+  latestUid: string;
+  senderName: string;
+  senderPhoto: string | null;
+  convId: string;
+}
+
 export interface Announcement {
   id: string;
   title: string;

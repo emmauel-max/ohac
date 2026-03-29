@@ -173,10 +173,24 @@
 }
 
 /* Course Reader */
+/* Course Reader – fullscreen overlay that covers the bottom nav bar */
 .course-reader {
+  position: fixed;
+  top: 60px;    /* below the top navbar */
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 110; /* above bottom-nav (z-index: 100) */
+  overflow-y: auto;
+  background: linear-gradient(135deg, #0f2e0f 0%, #1a4a1a 40%, #2d6a2d 100%);
   padding: 1rem;
-  max-width: 1200px;
-  margin: 0 auto;
+}
+
+/* Respect the sidebar on desktop */
+@media (min-width: 1024px) {
+  .course-reader {
+    left: 250px;
+  }
 }
 
 .back-btn {
@@ -202,6 +216,8 @@
   display: flex;
   gap: 1.5rem;
   align-items: flex-start;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
 /* Module List Sidebar */

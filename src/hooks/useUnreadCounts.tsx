@@ -17,16 +17,11 @@ import {
   where,
 } from "firebase/firestore";
 import {
-  get,
-  limitToLast,
-  onChildAdded,
-  query as rtdbQuery,
+  onValue,
   ref as rtdbRef,
 } from "firebase/database";
 import { db, rtdb } from "../firebase";
 import { useAuth } from "./useAuth";
-
-const CHAT_ROOMS = ["general", "training", "courses", "announcements-chat"];
 
 const LS_ANN_TS = "ohac_ann_last_seen_at";
 const LS_EVENT_TS = "ohac_event_last_seen_at";
@@ -141,59 +136,32 @@ export function UnreadCountsProvider({ children }: { children: ReactNode }) {
     });
     unsubscribes.push(unSubEvent);
 
-    // ── Chat ──────────────────────────────────────────────────
-    // Track the latest seen message ID per room for the real-time listeners.
-    const seenMsgIdByRoom = new Map<string, string | null>(
-      CHAT_ROOMS.map((r) => [r, null])
-    );
-
-    CHAT_ROOMS.forEach((roomId) => {
-      // Initial: check if the latest message in this room is unread
-      get(rtdbQuery(rtdbRef(rtdb, `chat/${roomId}`), limitToLast(1)))
-        .then((snapshot) => {
-          if (!snapshot.exists()) return;
-          snapshot.forEach((child) => {
-            const msg = child.val();
-            if (
-              msg &&
-              msg.timestamp > lastChatTs &&
-              msg.uid !== currentUser.uid &&
-              !chatRoomsWithNew.current.has(roomId)
-            ) {
-              chatRoomsWithNew.current.add(roomId);
-              setChatCount((c) => c + 1);
-            }
-          });
-        })
-        .catch(() => {});
-
-      // Real-time: detect new messages while the app is open
-      const roomQ = rtdbQuery(rtdbRef(rtdb, `chat/${roomId}`), limitToLast(1));
-      const unSubRoom = onChildAdded(roomQ, (snap) => {
-        const val = snap.val();
-        const msgId = snap.key;
-        if (!val || !msgId) return;
-
-        const prevId = seenMsgIdByRoom.get(roomId);
-        if (!prevId) {
-          // First fire: this is the existing latest message, skip counting it
-          seenMsgIdByRoom.set(roomId, msgId);
-          return;
-        }
-
-        if (msgId !== prevId) {
-          seenMsgIdByRoom.set(roomId, msgId);
-          if (
-            val.uid !== currentUser.uid &&
-            !chatRoomsWithNew.current.has(roomId)
-          ) {
-            chatRoomsWithNew.current.add(roomId);
-            setChatCount((c) => c + 1);
-          }
+    // ── DM Inbox ──────────────────────────────────────────────
+    // Watch dm_inbox/{currentUser.uid}/ for new DMs from others.
+    const dmInboxRef = rtdbRef(rtdb, `dm_inbox/${currentUser.uid}`);
+    const unSubDm = onValue(dmInboxRef, (snapshot) => {
+      // Recalculate from scratch on every snapshot to avoid stale accumulation.
+      chatRoomsWithNew.current.clear();
+      if (!snapshot.exists()) {
+        setChatCount(0);
+        return;
+      }
+      let count = 0;
+      snapshot.forEach((child) => {
+        const inbox = child.val();
+        const convId: string = inbox?.convId ?? child.key ?? "";
+        if (
+          inbox &&
+          inbox.latestTs > lastChatTs &&
+          inbox.latestUid !== currentUser.uid
+        ) {
+          chatRoomsWithNew.current.add(convId);
+          count++;
         }
       });
-      unsubscribes.push(unSubRoom);
+      setChatCount(count);
     });
+    unsubscribes.push(unSubDm);
 
     return () => {
       unsubscribes.forEach((u) => u());
