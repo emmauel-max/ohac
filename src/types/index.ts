@@ -159,6 +159,35 @@ export interface LogisticsShareRecord {
   items: LogisticsShareItem[];
 }
 
+export interface WeeklyInventoryRecord {
+  id: string;
+  item: string;
+  entries: Record<string, number>;
+  updatedAt: number;
+  updatedByUid: string;
+  updatedByName: string;
+  updatedByRole: "qm" | "rqms" | "major";
+}
+
+export interface ProgramDistributionEntry {
+  cadetName: string;
+  phone: string;
+  itemsGiven: string;
+  createdAt: number;
+  createdByUid: string;
+  createdByName: string;
+  createdByRole: "qm" | "rqms";
+}
+
+export interface LogisticsProgram {
+  id: string;
+  programName: string;
+  createdAt: number;
+  createdByUid: string;
+  createdByName: string;
+  entries: ProgramDistributionEntry[];
+}
+
 export interface BorrowedLogisticsItem {
   item: string;
   quantity: string;
@@ -167,12 +196,16 @@ export interface BorrowedLogisticsItem {
 
 export interface BorrowedLogisticsRecord {
   id: string;
-  borrowingUnit: string;
-  contactPerson: string;
+  borrowerName: string;
+  contact: string;
+  hall: string;
+  purpose: string;
+  itemsAndQuantities: string;
   returnDate: string;
-  reason: string;
+  issueCondition: string;
+  returnCondition: string;
   createdAt: number;
   createdByUid: string;
   createdByName: string;
-  items: BorrowedLogisticsItem[];
+  createdByRole: "qm" | "rqms";
 }

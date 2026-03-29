@@ -421,6 +421,18 @@
   accent-color: #90ee90;
 }
 
+.officer-photo-remove-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  font-size: 0.82rem;
+  color: rgba(255, 180, 180, 0.95);
+}
+
+.officer-photo-remove-checkbox input {
+  accent-color: #dc2626;
+}
+
 .form-select {
   width: auto;
   flex: 1;

@@ -5,6 +5,7 @@ import {
   addDoc,
   updateDoc,
   deleteDoc,
+  deleteField,
   doc,
   query,
   orderBy,
@@ -73,6 +74,7 @@ export default function Admin() {
   const [officerRoleTitle, setOfficerRoleTitle] = useState("");
   const [officerBio, setOfficerBio] = useState("");
   const [officerImageFile, setOfficerImageFile] = useState<File | null>(null);
+  const [removeOfficerPhoto, setRemoveOfficerPhoto] = useState(false);
   const officerImageRef = useRef<HTMLInputElement>(null);
 
   if (!isAdmin) {
@@ -156,6 +158,10 @@ export default function Admin() {
     } as Record<OfficerRank, number>
   );
 
+  const editingOfficer = editingOfficerId
+    ? officers.find((officer) => officer.id === editingOfficerId) || null
+    : null;
+
   const uploadImage = async (file: File, path: string): Promise<string> => {
     const sRef = storageRef(storage, path);
     await uploadBytes(sRef, file);
@@ -191,6 +197,7 @@ export default function Admin() {
     setOfficerRoleTitle("");
     setOfficerBio("");
     setOfficerImageFile(null);
+    setRemoveOfficerPhoto(false);
     if (officerImageRef.current) officerImageRef.current.value = "";
   };
 
@@ -216,6 +223,7 @@ export default function Admin() {
     setOfficerRoleTitle(officer.roleTitle || officer.appointment || "");
     setOfficerBio(officer.bio || "");
     setOfficerImageFile(null);
+    setRemoveOfficerPhoto(false);
     if (officerImageRef.current) officerImageRef.current.value = "";
     setShowOfficerForm(true);
   };
@@ -483,7 +491,7 @@ export default function Admin() {
 
     const roleTitleToSave = officerRoleTitle.trim() || (officerIsQuartermaster ? "Quartermaster" : "");
 
-    await updateDoc(doc(db, "officers", editingOfficerId), {
+    const updatePayload: Record<string, unknown> = {
       name: officerName.trim(),
       gender: officerGender,
       email: normalizedOfficerEmail,
@@ -492,8 +500,15 @@ export default function Admin() {
       isQuartermaster: officerIsQuartermaster,
       roleTitle: roleTitleToSave,
       bio: officerBio.trim(),
-      ...(imageUrl ? { photoURL: imageUrl } : {}),
-    });
+    };
+
+    if (imageUrl) {
+      updatePayload.photoURL = imageUrl;
+    } else if (removeOfficerPhoto) {
+      updatePayload.photoURL = deleteField();
+    }
+
+    await updateDoc(doc(db, "officers", editingOfficerId), updatePayload);
 
     closeOfficerForm();
     await fetchOfficers();
@@ -1091,7 +1106,10 @@ export default function Admin() {
                       accept="image/*"
                       ref={officerImageRef}
                       style={{ display: "none" }}
-                      onChange={(e) => setOfficerImageFile(e.target.files?.[0] || null)}
+                      onChange={(e) => {
+                        setOfficerImageFile(e.target.files?.[0] || null);
+                        setRemoveOfficerPhoto(false);
+                      }}
                     />
                   </label>
                   {officerImageFile && (
@@ -1099,6 +1117,16 @@ export default function Admin() {
                       {officerImageFile.name}
                       <button className="form-image-remove" onClick={handleRemoveOfficerImage}>✕</button>
                     </span>
+                  )}
+                  {editingOfficerId && !officerImageFile && (editingOfficer?.photoURL || editingOfficer?.imageUrl) && (
+                    <label className="officer-photo-remove-checkbox">
+                      <input
+                        type="checkbox"
+                        checked={removeOfficerPhoto}
+                        onChange={(e) => setRemoveOfficerPhoto(e.target.checked)}
+                      />
+                      Remove current uploaded photo
+                    </label>
                   )}
                 </div>
                 <button className="post-btn" onClick={editingOfficerId ? updateOfficerProfile : createOfficerProfile}>

@@ -16,6 +16,7 @@ interface AuthContextType {
   logout: () => Promise<void>;
   isAdmin: boolean;
   isQuartermaster: boolean;
+  isRqms: boolean;
   isMajor: boolean;
   canAccessLogistics: boolean;
   canEditLogistics: boolean;
@@ -28,6 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [userProfile, setUserProfile] = useState<User | null>(null);
   const [matchedOfficer, setMatchedOfficer] = useState<Officer | null>(null);
   const [isQuartermaster, setIsQuartermaster] = useState(false);
+  const [isRqms, setIsRqms] = useState(false);
   const [isMajor, setIsMajor] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isBanned, setIsBanned] = useState(false);
@@ -80,6 +82,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setCurrentUser(user);
       setMatchedOfficer(null);
       setIsQuartermaster(false);
+      setIsRqms(false);
       setIsMajor(false);
 
       if (user) {
@@ -96,6 +99,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             setUserProfile(userData);
             setIsBanned(false);
+            setIsRqms(userData.logisticsRole === "rqms");
 
             const emailLower = user.email?.toLowerCase().trim();
             if (emailLower) {
@@ -132,8 +136,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = userProfile?.role === "admin";
-  const canAccessLogistics = isQuartermaster || isMajor;
-  const canEditLogistics = isQuartermaster;
+  const canAccessLogistics = isQuartermaster || isRqms || isMajor;
+  const canEditLogistics = isQuartermaster || isRqms;
 
   return (
     <AuthContext.Provider
@@ -147,6 +151,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         logout,
         isAdmin,
         isQuartermaster,
+        isRqms,
         isMajor,
         canAccessLogistics,
         canEditLogistics,
