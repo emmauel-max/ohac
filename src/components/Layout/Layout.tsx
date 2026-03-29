@@ -10,6 +10,7 @@ interface NavItem {
   label: string;
   icon: string;
   adminOnly?: boolean;
+  logisticsOnly?: boolean;
 }
 
 const navItems: NavItem[] = [
@@ -19,6 +20,7 @@ const navItems: NavItem[] = [
   { path: "/chat", label: "Messages", icon: "💬" },
   { path: "/events", label: "Events", icon: "📅" },
   { path: "/officers", label: "Officers", icon: "🎖️" },
+  { path: "/logistics", label: "Logistics", icon: "📦", logisticsOnly: true },
   { path: "/announcements", label: "Announcements", icon: "📢" },
   { path: "/admin", label: "Admin Panel", icon: "⚙️", adminOnly: true },
 ];
@@ -35,7 +37,7 @@ const bottomNavItems: NavItem[] = [
 const BOTTOM_NAV_PATHS = new Set(bottomNavItems.map((i) => i.path));
 
 export default function Layout({ children }: { children: React.ReactNode }) {
-  const { currentUser, userProfile, logout, isAdmin } = useAuth();
+  const { currentUser, userProfile, logout, isAdmin, canAccessLogistics } = useAuth();
   const location = useLocation();
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const {
@@ -61,7 +63,9 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     else if (location.pathname === "/chat") markChatRead();
   }, [location.pathname, markAnnouncementsRead, markEventsRead, markChatRead]);
 
-  const visibleNavItems = navItems.filter((item) => !item.adminOnly || isAdmin);
+  const visibleNavItems = navItems.filter(
+    (item) => (!item.adminOnly || isAdmin) && (!item.logisticsOnly || canAccessLogistics)
+  );
 
   /** Returns the unread badge count for a given nav path */
   function badgeCount(path: string): number {

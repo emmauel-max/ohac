@@ -14,6 +14,7 @@ export interface User {
   notifyEvents?: boolean;
   fcmTokens?: string[];
   enrolledCourses?: string[];
+  logisticsRole?: "none" | "rqms";
   createdAt?: number;
   banned?: boolean;
 }
@@ -124,6 +125,9 @@ export interface Officer {
   id: string;
   name: string;
   rank: OfficerRank;
+  email?: string;
+  emailLower?: string;
+  isQuartermaster?: boolean;
   roleTitle?: string;
   bio?: string;
   photoURL?: string;
@@ -133,4 +137,40 @@ export interface Officer {
   fullName?: string;
   appointment?: string;
   imageUrl?: string;
+}
+
+export interface LogisticsShareItem {
+  item: string;
+  quantity: string;
+  condition: string;
+  notes?: string;
+}
+
+export interface LogisticsShareRecord {
+  id: string;
+  destinationUnit: string;
+  purpose: string;
+  dispatchDate: string;
+  createdAt: number;
+  createdByUid: string;
+  createdByName: string;
+  items: LogisticsShareItem[];
+}
+
+export interface BorrowedLogisticsItem {
+  item: string;
+  quantity: string;
+  expectedReturnCondition: string;
+}
+
+export interface BorrowedLogisticsRecord {
+  id: string;
+  borrowingUnit: string;
+  contactPerson: string;
+  returnDate: string;
+  reason: string;
+  createdAt: number;
+  createdByUid: string;
+  createdByName: string;
+  items: BorrowedLogisticsItem[];
 }

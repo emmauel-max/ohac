@@ -1,0 +1,241 @@
+.logistics-page {
+  max-width: 1150px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.logistics-header {
+  background: rgba(10, 30, 10, 0.72);
+  border-radius: 12px;
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  padding: 1.25rem;
+}
+
+.logistics-header h1 {
+  color: #f5d800;
+  font-size: 1.5rem;
+  margin-bottom: 0.35rem;
+}
+
+.logistics-header p {
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.logistics-readonly-note {
+  margin-top: 0.5rem;
+  color: #facc15;
+  font-size: 0.9rem;
+}
+
+.logistics-tabs {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 0.5rem;
+}
+
+@media (min-width: 860px) {
+  .logistics-tabs {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.logistics-tab {
+  border: 1px solid rgba(144, 238, 144, 0.2);
+  border-radius: 10px;
+  background: rgba(20, 50, 20, 0.55);
+  color: rgba(255, 255, 255, 0.8);
+  font-weight: 700;
+  padding: 0.65rem 0.8rem;
+  cursor: pointer;
+}
+
+.logistics-tab.active {
+  background: rgba(144, 238, 144, 0.16);
+  border-color: rgba(144, 238, 144, 0.45);
+  color: #d9ffd9;
+}
+
+.logistics-card,
+.logistics-denied {
+  background: rgba(10, 30, 10, 0.72);
+  border-radius: 12px;
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  padding: 1.25rem;
+}
+
+.logistics-card h2,
+.logistics-denied h2 {
+  color: #f5d800;
+  margin-bottom: 0.45rem;
+}
+
+.logistics-hint,
+.logistics-denied p,
+.logistics-empty {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.logistics-form-grid {
+  margin-top: 0.85rem;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: 1fr;
+}
+
+@media (min-width: 860px) {
+  .logistics-form-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.logistics-input,
+.logistics-textarea {
+  width: 100%;
+  padding: 0.58rem 0.78rem;
+  border: 1px solid rgba(144, 238, 144, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.05);
+  color: rgba(255, 255, 255, 0.92);
+  font-family: inherit;
+}
+
+.logistics-textarea {
+  margin-top: 0.7rem;
+}
+
+.sheet-table-wrap {
+  margin-top: 0.85rem;
+  overflow-x: auto;
+}
+
+.sheet-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.88rem;
+}
+
+.sheet-table th,
+.sheet-table td {
+  border-bottom: 1px solid rgba(144, 238, 144, 0.15);
+  padding: 0.5rem;
+  text-align: left;
+}
+
+.sheet-table th {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+.sheet-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-top: 0.75rem;
+}
+
+.primary-btn,
+.secondary-btn,
+.sheet-remove-btn {
+  border: none;
+  border-radius: 8px;
+  font-weight: 700;
+  font-size: 0.82rem;
+  padding: 0.5rem 0.85rem;
+  cursor: pointer;
+}
+
+.primary-btn {
+  background: #1f7a2e;
+  color: white;
+}
+
+.secondary-btn {
+  background: rgba(144, 238, 144, 0.2);
+  color: #d9ffd9;
+}
+
+.sheet-remove-btn {
+  background: rgba(239, 68, 68, 0.2);
+  color: #fecaca;
+}
+
+.primary-btn:disabled,
+.secondary-btn:disabled,
+.sheet-remove-btn:disabled,
+.logistics-input:disabled,
+.logistics-textarea:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.logistics-subtitle {
+  margin-top: 1rem;
+  margin-bottom: 0.55rem;
+  color: rgba(255, 255, 255, 0.92);
+}
+
+.logistics-records {
+  display: grid;
+  gap: 0.65rem;
+}
+
+.record-card {
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  border-radius: 10px;
+  background: rgba(18, 44, 18, 0.6);
+  padding: 0.85rem;
+}
+
+.record-card h4 {
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.35rem;
+}
+
+.record-card p,
+.record-card li {
+  color: rgba(255, 255, 255, 0.78);
+  font-size: 0.85rem;
+}
+
+.record-card ul {
+  margin-top: 0.4rem;
+  padding-left: 1rem;
+}
+
+.rqms-list {
+  display: grid;
+  gap: 0.7rem;
+  margin-top: 0.75rem;
+}
+
+.rqms-user-card {
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  border-radius: 10px;
+  padding: 0.85rem;
+  background: rgba(18, 44, 18, 0.6);
+  display: flex;
+  gap: 0.75rem;
+  justify-content: space-between;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.rqms-user-card h4 {
+  color: rgba(255, 255, 255, 0.95);
+}
+
+.rqms-user-card p,
+.readonly-mini {
+  color: rgba(255, 255, 255, 0.72);
+  font-size: 0.84rem;
+}
+
+.rqms-actions {
+  display: flex;
+  gap: 0.5rem;
+  flex-wrap: wrap;
+}

@@ -409,6 +409,18 @@
   flex-wrap: wrap;
 }
 
+.officer-qm-checkbox {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.5rem;
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.officer-qm-checkbox input {
+  accent-color: #90ee90;
+}
+
 .form-select {
   width: auto;
   flex: 1;

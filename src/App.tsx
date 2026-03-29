@@ -12,6 +12,7 @@ import Admin from "./components/Admin/Admin";
 import Announcements from "./components/Announcements";
 import Events from "./components/Events";
 import Officers from "./components/Officers";
+import LogisticsManagement from "./components/LogisticsManagement";
 import CodeOfConduct from "./components/CodeOfConduct";
 import TermsOfService from "./components/TermsOfService";
 import PrivacyPolicy from "./components/PrivacyPolicy";
@@ -151,6 +152,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Officers />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/logistics"
+        element={
+          <ProtectedRoute>
+            <LogisticsManagement />
           </ProtectedRoute>
         }
       />

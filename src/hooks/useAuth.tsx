@@ -2,18 +2,23 @@ import { createContext, useContext, useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
-import { doc, getDoc, setDoc, serverTimestamp } from "firebase/firestore";
+import { collection, doc, getDoc, getDocs, query, setDoc, serverTimestamp, where } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
-import type { User } from "../types";
+import type { Officer, User } from "../types";
 
 interface AuthContextType {
   currentUser: FirebaseUser | null;
   userProfile: User | null;
+  matchedOfficer: Officer | null;
   loading: boolean;
   isBanned: boolean;
   signInWithGoogle: () => Promise<void>;
   logout: () => Promise<void>;
   isAdmin: boolean;
+  isQuartermaster: boolean;
+  isMajor: boolean;
+  canAccessLogistics: boolean;
+  canEditLogistics: boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
@@ -21,6 +26,9 @@ const AuthContext = createContext<AuthContextType | null>(null);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
   const [userProfile, setUserProfile] = useState<User | null>(null);
+  const [matchedOfficer, setMatchedOfficer] = useState<Officer | null>(null);
+  const [isQuartermaster, setIsQuartermaster] = useState(false);
+  const [isMajor, setIsMajor] = useState(false);
   const [loading, setLoading] = useState(true);
   const [isBanned, setIsBanned] = useState(false);
 
@@ -55,6 +63,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         notifyChat: true,
         notifyEvents: true,
         enrolledCourses: [],
+        logisticsRole: "none",
         banned: false,
         createdAt: serverTimestamp(),
       });
@@ -69,6 +78,10 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const unsubscribe = onAuthStateChanged(auth, async (user) => {
       setCurrentUser(user);
+      setMatchedOfficer(null);
+      setIsQuartermaster(false);
+      setIsMajor(false);
+
       if (user) {
         const userRef = doc(db, "users", user.uid);
         const userSnap = await getDoc(userRef);
@@ -83,6 +96,30 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           } else {
             setUserProfile(userData);
             setIsBanned(false);
+
+            const emailLower = user.email?.toLowerCase().trim();
+            if (emailLower) {
+              const officerQuery = query(
+                collection(db, "officers"),
+                where("emailLower", "==", emailLower)
+              );
+              const officerSnap = await getDocs(officerQuery);
+              const linkedOfficers = officerSnap.docs.map((d) => ({
+                id: d.id,
+                ...d.data(),
+              })) as Officer[];
+
+              const quartermasterOfficer = linkedOfficers.find(
+                (officer) =>
+                  officer.isQuartermaster ||
+                  /quarter\s*master/i.test(officer.roleTitle || officer.appointment || "")
+              );
+              const majorOfficer = linkedOfficers.find((officer) => officer.rank === "Major");
+
+              setMatchedOfficer(quartermasterOfficer || majorOfficer || linkedOfficers[0] || null);
+              setIsQuartermaster(Boolean(quartermasterOfficer));
+              setIsMajor(Boolean(majorOfficer));
+            }
           }
         }
       } else {
@@ -95,9 +132,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const isAdmin = userProfile?.role === "admin";
+  const canAccessLogistics = isQuartermaster || isMajor;
+  const canEditLogistics = isQuartermaster;
 
   return (
-    <AuthContext.Provider value={{ currentUser, userProfile, loading, isBanned, signInWithGoogle, logout, isAdmin }}>
+    <AuthContext.Provider
+      value={{
+        currentUser,
+        userProfile,
+        matchedOfficer,
+        loading,
+        isBanned,
+        signInWithGoogle,
+        logout,
+        isAdmin,
+        isQuartermaster,
+        isMajor,
+        canAccessLogistics,
+        canEditLogistics,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );

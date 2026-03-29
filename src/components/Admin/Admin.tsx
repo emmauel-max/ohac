@@ -65,7 +65,9 @@ export default function Admin() {
   // Officer form
   const [showOfficerForm, setShowOfficerForm] = useState(false);
   const [officerName, setOfficerName] = useState("");
+  const [officerEmail, setOfficerEmail] = useState("");
   const [officerRank, setOfficerRank] = useState<OfficerRank>("Lieutenant");
+  const [officerIsQuartermaster, setOfficerIsQuartermaster] = useState(false);
   const [officerRoleTitle, setOfficerRoleTitle] = useState("");
   const [officerBio, setOfficerBio] = useState("");
   const [officerImageFile, setOfficerImageFile] = useState<File | null>(null);
@@ -343,6 +345,19 @@ export default function Admin() {
       return;
     }
 
+    const normalizedOfficerEmail = officerEmail.trim().toLowerCase();
+    if (!normalizedOfficerEmail) {
+      alert("Please enter the officer's login email.");
+      return;
+    }
+
+    if (officerIsQuartermaster && officers.some((officer) => officer.isQuartermaster)) {
+      alert("A Quartermaster profile already exists. Edit or remove it before adding another.");
+      return;
+    }
+
+    const roleTitleToSave = officerRoleTitle.trim() || (officerIsQuartermaster ? "Quartermaster" : "");
+
     const allowed = OFFICER_RANK_LIMITS[officerRank];
     if (officerCounts[officerRank] >= allowed) {
       alert(`You already have the maximum number of ${officerRank} profiles (${allowed}).`);
@@ -367,15 +382,20 @@ export default function Admin() {
 
     await addDoc(collection(db, "officers"), {
       name: officerName.trim(),
+      email: normalizedOfficerEmail,
+      emailLower: normalizedOfficerEmail,
       rank: officerRank,
-      roleTitle: officerRoleTitle.trim(),
+      isQuartermaster: officerIsQuartermaster,
+      roleTitle: roleTitleToSave,
       bio: officerBio.trim(),
       createdAt: Date.now(),
       ...(imageUrl ? { photoURL: imageUrl } : {}),
     });
 
     setOfficerName("");
+    setOfficerEmail("");
     setOfficerRank("Lieutenant");
+    setOfficerIsQuartermaster(false);
     setOfficerRoleTitle("");
     setOfficerBio("");
     setOfficerImageFile(null);
@@ -913,6 +933,13 @@ export default function Admin() {
                   onChange={(e) => setOfficerName(e.target.value)}
                   className="form-input"
                 />
+                <input
+                  type="email"
+                  placeholder="Officer Login Email"
+                  value={officerEmail}
+                  onChange={(e) => setOfficerEmail(e.target.value)}
+                  className="form-input"
+                />
                 <div className="form-row">
                   <select
                     value={officerRank}
@@ -932,6 +959,14 @@ export default function Admin() {
                     className="form-input"
                   />
                 </div>
+                <label className="officer-qm-checkbox">
+                  <input
+                    type="checkbox"
+                    checked={officerIsQuartermaster}
+                    onChange={(e) => setOfficerIsQuartermaster(e.target.checked)}
+                  />
+                  Mark this officer as Quartermaster
+                </label>
                 <textarea
                   placeholder="Officer bio (optional)"
                   value={officerBio}
@@ -975,6 +1010,10 @@ export default function Admin() {
                       <h4>{officer.name}</h4>
                       <span className="priority-tag priority-normal">{officer.rank}</span>
                     </div>
+                    <p style={{ marginBottom: "0.35rem", color: "rgba(255, 255, 255, 0.72)", fontSize: "0.82rem" }}>
+                      📧 {officer.email || "No email set"}
+                      {officer.isQuartermaster ? " · Quartermaster" : ""}
+                    </p>
                     {officer.photoURL && (
                       <img src={officer.photoURL} alt={officer.name} className="admin-item-img" />
                     )}
