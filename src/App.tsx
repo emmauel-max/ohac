@@ -11,6 +11,9 @@ import Chat from "./components/Chat/Chat";
 import Admin from "./components/Admin/Admin";
 import Announcements from "./components/Announcements";
 import Events from "./components/Events";
+import CodeOfConduct from "./components/CodeOfConduct";
+import TermsOfService from "./components/TermsOfService";
+import Faq from "./components/Faq";
 import TourGuide from "./components/TourGuide";
 import NotificationBridge from "./components/NotificationBridge";
 import logo from "./assets/logo.png";
@@ -138,6 +141,30 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Events />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/code-of-conduct"
+        element={
+          <ProtectedRoute>
+            <CodeOfConduct />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/terms-of-service"
+        element={
+          <ProtectedRoute>
+            <TermsOfService />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/faq"
+        element={
+          <ProtectedRoute>
+            <Faq />
           </ProtectedRoute>
         }
       />

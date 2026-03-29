@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { doc, updateDoc } from "firebase/firestore";
 import { db } from "../firebase";
 import { useAuth } from "../hooks/useAuth";
 import "./Profile.css";
 
 export default function Profile() {
+  const navigate = useNavigate();
   const { currentUser, userProfile } = useAuth();
   const [rank, setRank] = useState("");
   const [unit, setUnit] = useState("");
@@ -194,6 +196,22 @@ export default function Profile() {
         <button className="secondary-btn" onClick={handleEnableBrowserNotifications}>
           Enable Browser Notifications
         </button>
+      </section>
+
+      <section className="profile-card">
+        <h2>Resources</h2>
+        <p>Read official policies and answers to common questions.</p>
+        <div className="resources-actions-inline">
+          <button className="secondary-btn" onClick={() => navigate("/code-of-conduct")}>
+            Code of Conduct
+          </button>
+          <button className="secondary-btn" onClick={() => navigate("/terms-of-service")}>
+            Terms of Service
+          </button>
+          <button className="secondary-btn" onClick={() => navigate("/faq")}>
+            Frequently Asked Questions
+          </button>
+        </div>
       </section>
 
       <section className="profile-card">
