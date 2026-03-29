@@ -11,6 +11,7 @@ import Chat from "./components/Chat/Chat";
 import Admin from "./components/Admin/Admin";
 import Announcements from "./components/Announcements";
 import Events from "./components/Events";
+import Officers from "./components/Officers";
 import CodeOfConduct from "./components/CodeOfConduct";
 import TermsOfService from "./components/TermsOfService";
 import PrivacyPolicy from "./components/PrivacyPolicy";
@@ -142,6 +143,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Events />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/officers"
+        element={
+          <ProtectedRoute>
+            <Officers />
           </ProtectedRoute>
         }
       />

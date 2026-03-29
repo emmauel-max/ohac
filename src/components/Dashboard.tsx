@@ -8,10 +8,7 @@ import uccLogo from "../assets/ucc-logo.png";
 import type { Announcement } from "../types";
 import "./Dashboard.css";
 
-// Import the header background image
 import headerBg from "../assets/background/header-image.jpg";
-
-const FOUNDING_YEAR = 2010;
 
 export default function Dashboard() {
   const { currentUser, userProfile } = useAuth();
@@ -20,7 +17,6 @@ export default function Dashboard() {
   const [activeCadets, setActiveCadets] = useState<string>("…");
   const [coursesAvailable, setCoursesAvailable] = useState<string>("…");
 
-  // Fetch latest announcements
   useEffect(() => {
     const fetchAnnouncements = async () => {
       try {
@@ -41,7 +37,6 @@ export default function Dashboard() {
     fetchAnnouncements();
   }, []);
 
-  // Fetch real-time counts from Firestore
   useEffect(() => {
     const fetchCounts = async () => {
       try {
@@ -60,13 +55,17 @@ export default function Dashboard() {
     fetchCounts();
   }, []);
 
-  const yearsActive = new Date().getFullYear() - FOUNDING_YEAR;
-
   const stats = [
     { label: "Active Cadets", value: activeCadets, icon: "👥" },
     { label: "Courses Available", value: coursesAvailable, icon: "📚" },
     { label: "Training Hours", value: "500+", icon: "⏱️" },
-    { label: "Years Active", value: `${yearsActive}+`, icon: "🏆" },
+    {
+      label: "Officers",
+      value: "12",
+      icon: "🎖️",
+      to: "/officers",
+      buttonLabel: "Meet Officers",
+    },
   ];
 
   const quickLinks = [
@@ -85,16 +84,15 @@ export default function Dashboard() {
 
   return (
     <div className="dashboard">
-      {/* Hero Section with Background Image */}
-      <div 
-        className="hero" 
+      <div
+        className="hero"
         data-tour-id="dashboard-hero"
         style={{
           backgroundImage: `linear-gradient(rgba(26, 74, 26, 0.7), rgba(26, 42, 26, 0.85)), url(${headerBg})`,
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat',
-          color: 'white' // Ensuring text stays white over the image
+          backgroundSize: "cover",
+          backgroundPosition: "center",
+          backgroundRepeat: "no-repeat",
+          color: "white",
         }}
       >
         <div className="hero-content">
@@ -106,24 +104,26 @@ export default function Dashboard() {
           </p>
         </div>
         <div className="hero-badge">
-          {/* Note: Ensure these logos have transparent backgrounds for the best look! */}
           <img src={logo} alt="OHAC logo" className="hero-logo" />
           <img src={uccLogo} alt="UCC logo" className="hero-logo" />
         </div>
       </div>
 
-      {/* Stats */}
       <div className="stats-grid">
         {stats.map((stat) => (
           <div key={stat.label} className="stat-card">
             <div className="stat-icon">{stat.icon}</div>
             <div className="stat-value">{stat.value}</div>
             <div className="stat-label">{stat.label}</div>
+            {stat.to && (
+              <Link to={stat.to} className="stat-action-btn">
+                {stat.buttonLabel}
+              </Link>
+            )}
           </div>
         ))}
       </div>
 
-      {/* Quick Links */}
       <section className="section" data-tour-id="quick-links-section">
         <h2 className="section-title">Quick Access</h2>
         <div className="quick-links">
@@ -141,7 +141,6 @@ export default function Dashboard() {
         </div>
       </section>
 
-      {/* Announcements */}
       <section className="section" data-tour-id="announcements-section">
         <div className="section-header">
           <h2 className="section-title">Latest Announcements</h2>
@@ -175,7 +174,6 @@ export default function Dashboard() {
         )}
       </section>
 
-      {/* Mission Statement */}
       <section className="section mission-section">
         <h2 className="section-title">Our Mission</h2>
         <p className="mission-text">

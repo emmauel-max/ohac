@@ -200,12 +200,49 @@
 .users-section h2,
 .announcements-section h2,
 .courses-section h2,
+.officers-section h2,
 .events-section h2 {
   font-size: 1.2rem;
   font-weight: 700;
   color: #f5d800;
   margin-bottom: 1rem;
   text-shadow: 0 1px 3px rgba(0, 0, 0, 0.3);
+}
+
+.officer-structure-grid {
+  margin-top: 0.75rem;
+  margin-bottom: 1rem;
+  display: grid;
+  gap: 0.6rem;
+  grid-template-columns: repeat(1, 1fr);
+}
+
+@media (min-width: 640px) {
+  .officer-structure-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 980px) {
+  .officer-structure-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.officer-structure-item {
+  background: rgba(20, 50, 20, 0.6);
+  border: 1px solid rgba(144, 238, 144, 0.2);
+  border-radius: 8px;
+  padding: 0.75rem;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.82rem;
+}
+
+.officer-structure-item strong {
+  color: #f5d800;
 }
 
 .users-table-wrapper {

@@ -113,3 +113,24 @@ export interface Event {
   imageUrl?: string;
   rsvps?: string[]; // Array of user UIDs who have RSVP'd
 }
+
+export type OfficerRank =
+  | "Major"
+  | "Captain"
+  | "Lieutenant"
+  | "Warrant Officer Class 1";
+
+export interface Officer {
+  id: string;
+  name: string;
+  rank: OfficerRank;
+  roleTitle?: string;
+  bio?: string;
+  photoURL?: string;
+  unit?: string;
+  createdAt: number;
+  // Compatibility fields for previously stored officer records.
+  fullName?: string;
+  appointment?: string;
+  imageUrl?: string;
+}

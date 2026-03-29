@@ -12,10 +12,17 @@ import {
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
-import type { Announcement, User, Course, CourseModule, Event } from "../../types";
+import type { Announcement, User, Course, CourseModule, Event, Officer, OfficerRank } from "../../types";
 import "./Admin.css";
 
-type AdminTab = "overview" | "users" | "announcements" | "courses" | "events";
+type AdminTab = "overview" | "users" | "announcements" | "courses" | "events" | "officers";
+
+const OFFICER_RANK_LIMITS: Record<OfficerRank, number> = {
+  Major: 1,
+  Captain: 2,
+  Lieutenant: 8,
+  "Warrant Officer Class 1": 1,
+};
 
 export default function Admin() {
   const { isAdmin, userProfile } = useAuth();
@@ -24,6 +31,7 @@ export default function Admin() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);
   const [events, setEvents] = useState<Event[]>([]);
+  const [officers, setOfficers] = useState<Officer[]>([]);
   const [loading, setLoading] = useState(false);
 
   // Announcement form
@@ -54,6 +62,15 @@ export default function Admin() {
   const [evImageFile, setEvImageFile] = useState<File | null>(null);
   const evImageRef = useRef<HTMLInputElement>(null);
 
+  // Officer form
+  const [showOfficerForm, setShowOfficerForm] = useState(false);
+  const [officerName, setOfficerName] = useState("");
+  const [officerRank, setOfficerRank] = useState<OfficerRank>("Lieutenant");
+  const [officerRoleTitle, setOfficerRoleTitle] = useState("");
+  const [officerBio, setOfficerBio] = useState("");
+  const [officerImageFile, setOfficerImageFile] = useState<File | null>(null);
+  const officerImageRef = useRef<HTMLInputElement>(null);
+
   if (!isAdmin) {
     return (
       <div className="admin-denied">
@@ -73,6 +90,7 @@ export default function Admin() {
     { id: "announcements", label: "Announcements", icon: "📢" },
     { id: "courses", label: "Courses", icon: "📚" },
     { id: "events", label: "Events", icon: "📅" },
+    { id: "officers", label: "Officers", icon: "🎖️" },
   ];
 
   const fetchUsers = async () => {
@@ -105,12 +123,34 @@ export default function Admin() {
     setLoading(false);
   };
 
+  const fetchOfficers = async () => {
+    setLoading(true);
+    const q = query(collection(db, "officers"), orderBy("createdAt", "asc"));
+    const snap = await getDocs(q);
+    setOfficers(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Officer)));
+    setLoading(false);
+  };
+
   useEffect(() => {
     if (activeTab === "users") fetchUsers();
     if (activeTab === "announcements") fetchAnnouncements();
     if (activeTab === "courses") fetchCourses();
     if (activeTab === "events") fetchEvents();
+    if (activeTab === "officers") fetchOfficers();
   }, [activeTab]);
+
+  const officerCounts = officers.reduce(
+    (acc, officer) => {
+      acc[officer.rank] += 1;
+      return acc;
+    },
+    {
+      Major: 0,
+      Captain: 0,
+      Lieutenant: 0,
+      "Warrant Officer Class 1": 0,
+    } as Record<OfficerRank, number>
+  );
 
   const uploadImage = async (file: File, path: string): Promise<string> => {
     const sRef = storageRef(storage, path);
@@ -131,6 +171,11 @@ export default function Admin() {
   const handleRemoveEvImage = () => {
     setEvImageFile(null);
     if (evImageRef.current) evImageRef.current.value = "";
+  };
+
+  const handleRemoveOfficerImage = () => {
+    setOfficerImageFile(null);
+    if (officerImageRef.current) officerImageRef.current.value = "";
   };
 
   const postAnnouncement = async () => {
@@ -290,6 +335,59 @@ export default function Admin() {
     if (!confirm("Delete this event?")) return;
     await deleteDoc(doc(db, "events", id));
     await fetchEvents();
+  };
+
+  const createOfficerProfile = async () => {
+    if (!officerName.trim()) {
+      alert("Please enter the officer's name.");
+      return;
+    }
+
+    const allowed = OFFICER_RANK_LIMITS[officerRank];
+    if (officerCounts[officerRank] >= allowed) {
+      alert(`You already have the maximum number of ${officerRank} profiles (${allowed}).`);
+      return;
+    }
+
+    setLoading(true);
+    let imageUrl: string | undefined;
+
+    if (officerImageFile) {
+      try {
+        imageUrl = await uploadImage(
+          officerImageFile,
+          `officers/${Date.now()}_${officerImageFile.name}`
+        );
+      } catch {
+        alert("Image upload failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    await addDoc(collection(db, "officers"), {
+      name: officerName.trim(),
+      rank: officerRank,
+      roleTitle: officerRoleTitle.trim(),
+      bio: officerBio.trim(),
+      createdAt: Date.now(),
+      ...(imageUrl ? { photoURL: imageUrl } : {}),
+    });
+
+    setOfficerName("");
+    setOfficerRank("Lieutenant");
+    setOfficerRoleTitle("");
+    setOfficerBio("");
+    setOfficerImageFile(null);
+    if (officerImageRef.current) officerImageRef.current.value = "";
+    setShowOfficerForm(false);
+    await fetchOfficers();
+  };
+
+  const deleteOfficerProfile = async (id: string) => {
+    if (!confirm("Delete this officer profile?")) return;
+    await deleteDoc(doc(db, "officers", id));
+    await fetchOfficers();
   };
 
   return (
@@ -774,6 +872,124 @@ export default function Admin() {
                   </div>
                 ))}
                 {events.length === 0 && <p className="empty">No events scheduled yet.</p>}
+              </div>
+            )}
+          </div>
+        )}
+
+        {/* Officers */}
+        {activeTab === "officers" && (
+          <div className="officers-section">
+            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "1rem" }}>
+              <h2>Unit Officers</h2>
+              <button
+                className="post-btn"
+                onClick={() => setShowOfficerForm(!showOfficerForm)}
+              >
+                {showOfficerForm ? "Cancel" : "➕ Add Officer Profile"}
+              </button>
+            </div>
+
+            <p className="hint">
+              Officer structure target: 1 Major, 2 Captains, 8 Lieutenants, 1 Warrant Officer Class 1.
+            </p>
+
+            <div className="officer-structure-grid">
+              {(Object.keys(OFFICER_RANK_LIMITS) as OfficerRank[]).map((rank) => (
+                <div key={rank} className="officer-structure-item">
+                  <span>{rank}</span>
+                  <strong>{officerCounts[rank]} / {OFFICER_RANK_LIMITS[rank]}</strong>
+                </div>
+              ))}
+            </div>
+
+            {showOfficerForm && (
+              <div className="post-form" style={{ marginTop: "1rem", marginBottom: "1.5rem" }}>
+                <h3>Create Officer Profile</h3>
+                <input
+                  type="text"
+                  placeholder="Officer Name"
+                  value={officerName}
+                  onChange={(e) => setOfficerName(e.target.value)}
+                  className="form-input"
+                />
+                <div className="form-row">
+                  <select
+                    value={officerRank}
+                    onChange={(e) => setOfficerRank(e.target.value as OfficerRank)}
+                    className="form-select"
+                  >
+                    <option value="Major">Major</option>
+                    <option value="Captain">Captain</option>
+                    <option value="Lieutenant">Lieutenant</option>
+                    <option value="Warrant Officer Class 1">Warrant Officer Class 1</option>
+                  </select>
+                  <input
+                    type="text"
+                    placeholder="Role / Appointment (optional)"
+                    value={officerRoleTitle}
+                    onChange={(e) => setOfficerRoleTitle(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <textarea
+                  placeholder="Officer bio (optional)"
+                  value={officerBio}
+                  onChange={(e) => setOfficerBio(e.target.value)}
+                  className="form-textarea"
+                  rows={3}
+                />
+                <div className="form-image-row">
+                  <label className="form-image-label">
+                    🖼️ Officer Photo (optional)
+                    <input
+                      type="file"
+                      accept="image/*"
+                      ref={officerImageRef}
+                      style={{ display: "none" }}
+                      onChange={(e) => setOfficerImageFile(e.target.files?.[0] || null)}
+                    />
+                  </label>
+                  {officerImageFile && (
+                    <span className="form-image-name">
+                      {officerImageFile.name}
+                      <button className="form-image-remove" onClick={handleRemoveOfficerImage}>✕</button>
+                    </span>
+                  )}
+                </div>
+                <button className="post-btn" onClick={createOfficerProfile}>
+                  Save Officer Profile
+                </button>
+              </div>
+            )}
+
+            {loading ? (
+              <p className="loading">Loading...</p>
+            ) : officers.length === 0 ? (
+              <p className="empty">No officer profiles yet.</p>
+            ) : (
+              <div className="ann-list">
+                {officers.map((officer) => (
+                  <div key={officer.id} className="ann-item">
+                    <div className="ann-item-header">
+                      <h4>{officer.name}</h4>
+                      <span className="priority-tag priority-normal">{officer.rank}</span>
+                    </div>
+                    {officer.photoURL && (
+                      <img src={officer.photoURL} alt={officer.name} className="admin-item-img" />
+                    )}
+                    <p>
+                      {officer.roleTitle || "Officer"}
+                      {officer.bio ? ` · ${officer.bio}` : ""}
+                    </p>
+                    <div className="ann-item-footer">
+                      <span>Created {new Date(officer.createdAt).toLocaleString()}</span>
+                      <button className="delete-btn" onClick={() => deleteOfficerProfile(officer.id)}>
+                        🗑️ Delete
+                      </button>
+                    </div>
+                  </div>
+                ))}
               </div>
             )}
           </div>

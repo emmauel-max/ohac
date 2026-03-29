@@ -1,0 +1,131 @@
+.officers-page {
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+
+.officers-header h1 {
+  font-size: 1.8rem;
+  font-weight: 800;
+  color: #f5d800;
+  margin-bottom: 0.25rem;
+}
+
+.officers-header p {
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.officer-strength-card,
+.officers-rank-section {
+  background: rgba(10, 30, 10, 0.72);
+  border-radius: 12px;
+  padding: 1.25rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+.officer-strength-card h2,
+.officers-rank-section h2 {
+  font-size: 1.1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.7rem;
+}
+
+.strength-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 0.6rem;
+}
+
+@media (min-width: 768px) {
+  .strength-grid {
+    grid-template-columns: repeat(4, 1fr);
+  }
+}
+
+.strength-item {
+  border: 1px solid rgba(144, 238, 144, 0.2);
+  border-radius: 8px;
+  padding: 0.7rem;
+  background: rgba(20, 50, 20, 0.6);
+  display: grid;
+  gap: 0.35rem;
+}
+
+.strength-rank {
+  font-size: 0.8rem;
+  color: rgba(255, 255, 255, 0.7);
+}
+
+.strength-count {
+  font-size: 1rem;
+  font-weight: 800;
+  color: #f5d800;
+}
+
+.officers-grid {
+  display: grid;
+  grid-template-columns: repeat(1, 1fr);
+  gap: 0.75rem;
+}
+
+@media (min-width: 640px) {
+  .officers-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (min-width: 960px) {
+  .officers-grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
+}
+
+.officer-card {
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  border-radius: 10px;
+  padding: 1rem;
+  background: rgba(15, 40, 15, 0.55);
+}
+
+.officer-avatar {
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid rgba(144, 238, 144, 0.35);
+  margin-bottom: 0.6rem;
+}
+
+.officer-card h3 {
+  font-size: 1rem;
+  color: rgba(255, 255, 255, 0.95);
+  margin-bottom: 0.2rem;
+}
+
+.officer-role {
+  font-size: 0.85rem;
+  color: rgba(144, 238, 144, 0.85);
+  margin-bottom: 0.45rem;
+}
+
+.officer-bio {
+  font-size: 0.86rem;
+  color: rgba(255, 255, 255, 0.72);
+  line-height: 1.6;
+}
+
+.officers-loading,
+.officers-empty {
+  text-align: center;
+  padding: 2.5rem;
+  color: rgba(255, 255, 255, 0.7);
+  background: rgba(10, 30, 10, 0.72);
+  border-radius: 12px;
+  border: 1px solid rgba(144, 238, 144, 0.15);
+}
