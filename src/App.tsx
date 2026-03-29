@@ -14,26 +14,30 @@ import Events from "./components/Events";
 import TourGuide from "./components/TourGuide";
 import NotificationBridge from "./components/NotificationBridge";
 import logo from "./assets/logo.png";
+import splashBg from "./assets/background/splash-screen-background.jpg";
 import "./index.css";
 import "./styles/linkify.css";
+
+const loadingStyle: React.CSSProperties = {
+  display: "flex",
+  alignItems: "center",
+  justifyContent: "center",
+  height: "100vh",
+  flexDirection: "column",
+  gap: "1rem",
+  backgroundImage: `linear-gradient(rgba(26, 42, 26, 0.7), rgba(26, 58, 26, 0.85)), url(${splashBg})`,
+  backgroundSize: "cover",
+  backgroundPosition: "center",
+  backgroundRepeat: "no-repeat",
+  color: "white",
+};
 
 function ProtectedRoute({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth();
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          flexDirection: "column",
-          gap: "1rem",
-          background: "#1a4a1a",
-          color: "white",
-        }}
-      >
+      <div style={loadingStyle}>
         <img
           src={logo}
           alt="OHAC logo"
@@ -56,18 +60,7 @@ function AppRoutes() {
 
   if (loading) {
     return (
-      <div
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-          height: "100vh",
-          flexDirection: "column",
-          gap: "1rem",
-          background: "#1a4a1a",
-          color: "white",
-        }}
-      >
+      <div style={loadingStyle}>
         <img
           src={logo}
           alt="OHAC logo"
