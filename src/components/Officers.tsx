@@ -1,8 +1,10 @@
 import { useEffect, useMemo, useState } from "react";
-import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { collection, getDocs, query, orderBy, where, limit, updateDoc, doc } from "firebase/firestore";
 import { db } from "../firebase";
 import type { Officer } from "../types";
 import "./Officers.css";
+import malePlaceholder from "../assets/placeholders/male-officer-image-placeholder.jpg";
+import femalePlaceholder from "../assets/placeholders/female-officer-image-placeholder.jpg";
 
 const EXPECTED_STRENGTH: Record<Officer["rank"], number> = {
   Major: 1,
@@ -22,13 +24,57 @@ export default function Officers() {
   const [officers, setOfficers] = useState<Officer[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const resolvePlaceholder = (officer: Officer): string => {
+    return officer.gender === "female" ? femalePlaceholder : malePlaceholder;
+  };
+
+  const resolveOfficerPhoto = (officer: Officer): string => {
+    return (
+      officer.photoURL ||
+      officer.googlePhotoURL ||
+      officer.imageUrl ||
+      resolvePlaceholder(officer)
+    );
+  };
+
   useEffect(() => {
     const fetchOfficers = async () => {
       try {
         const q = query(collection(db, "officers"), orderBy("createdAt", "asc"));
         const snap = await getDocs(q);
-        const data = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Officer));
-        setOfficers(data);
+        const rawData = snap.docs.map((d) => ({ id: d.id, ...d.data() } as Officer));
+
+        const syncedData = await Promise.all(
+          rawData.map(async (officer) => {
+            const emailLower = officer.emailLower || officer.email?.toLowerCase().trim();
+            if (!emailLower) return officer;
+
+            try {
+              const usersCollection = collection(db, "users");
+              const [exactCaseSnap, lowerCaseSnap] = await Promise.all([
+                getDocs(query(usersCollection, where("email", "==", officer.email || ""), limit(1))),
+                getDocs(query(usersCollection, where("email", "==", emailLower), limit(1))),
+              ]);
+              const matchedDoc = exactCaseSnap.docs[0] || lowerCaseSnap.docs[0];
+              const matchingUser = matchedDoc?.data() as { photoURL?: string } | undefined;
+
+              if (!matchingUser?.photoURL || matchingUser.photoURL === officer.googlePhotoURL) {
+                return officer;
+              }
+
+              await updateDoc(doc(db, "officers", officer.id), {
+                googlePhotoURL: matchingUser.photoURL,
+              });
+
+              return { ...officer, googlePhotoURL: matchingUser.photoURL };
+            } catch (err) {
+              console.error("Failed to sync officer photo", err);
+              return officer;
+            }
+          })
+        );
+
+        setOfficers(syncedData);
       } catch (err) {
         console.error("Failed to fetch officers", err);
       } finally {
@@ -93,7 +139,7 @@ export default function Officers() {
                   {grouped[rank].map((officer) => {
                     const displayName = officer.name || officer.fullName || "Officer";
                     const role = officer.roleTitle || officer.appointment || rank;
-                    const photo = officer.photoURL || officer.imageUrl || "/icons/icon-192.png";
+                    const photo = resolveOfficerPhoto(officer);
 
                     return (
                       <article key={officer.id} className="officer-card">

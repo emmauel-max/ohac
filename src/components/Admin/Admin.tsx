@@ -66,6 +66,7 @@ export default function Admin() {
   const [showOfficerForm, setShowOfficerForm] = useState(false);
   const [officerName, setOfficerName] = useState("");
   const [officerEmail, setOfficerEmail] = useState("");
+  const [officerGender, setOfficerGender] = useState<"male" | "female">("male");
   const [officerRank, setOfficerRank] = useState<OfficerRank>("Lieutenant");
   const [officerIsQuartermaster, setOfficerIsQuartermaster] = useState(false);
   const [officerRoleTitle, setOfficerRoleTitle] = useState("");
@@ -382,6 +383,7 @@ export default function Admin() {
 
     await addDoc(collection(db, "officers"), {
       name: officerName.trim(),
+      gender: officerGender,
       email: normalizedOfficerEmail,
       emailLower: normalizedOfficerEmail,
       rank: officerRank,
@@ -394,6 +396,7 @@ export default function Admin() {
 
     setOfficerName("");
     setOfficerEmail("");
+    setOfficerGender("male");
     setOfficerRank("Lieutenant");
     setOfficerIsQuartermaster(false);
     setOfficerRoleTitle("");
@@ -942,6 +945,14 @@ export default function Admin() {
                 />
                 <div className="form-row">
                   <select
+                    value={officerGender}
+                    onChange={(e) => setOfficerGender(e.target.value as "male" | "female")}
+                    className="form-select"
+                  >
+                    <option value="male">Male</option>
+                    <option value="female">Female</option>
+                  </select>
+                  <select
                     value={officerRank}
                     onChange={(e) => setOfficerRank(e.target.value as OfficerRank)}
                     className="form-select"
@@ -1012,6 +1023,7 @@ export default function Admin() {
                     </div>
                     <p style={{ marginBottom: "0.35rem", color: "rgba(255, 255, 255, 0.72)", fontSize: "0.82rem" }}>
                       📧 {officer.email || "No email set"}
+                      {officer.gender ? ` · ${officer.gender}` : ""}
                       {officer.isQuartermaster ? " · Quartermaster" : ""}
                     </p>
                     {officer.photoURL && (

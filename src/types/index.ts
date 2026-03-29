@@ -125,9 +125,11 @@ export interface Officer {
   id: string;
   name: string;
   rank: OfficerRank;
+  gender?: "male" | "female";
   email?: string;
   emailLower?: string;
   isQuartermaster?: boolean;
+  googlePhotoURL?: string;
   roleTitle?: string;
   bio?: string;
   photoURL?: string;
