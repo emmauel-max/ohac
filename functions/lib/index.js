@@ -33,7 +33,7 @@ var __importStar = (this && this.__importStar) || (function () {
     };
 })();
 Object.defineProperty(exports, "__esModule", { value: true });
-exports.helloWorld = exports.onChatMessageCreate = exports.onEventCreate = exports.onAnnouncementCreate = void 0;
+exports.helloWorld = exports.onChatMessageCreate = exports.sendMorningEventReminders = exports.sendEarlyEventReminders = exports.onEventCreate = exports.onAnnouncementCreate = void 0;
 const admin = __importStar(require("firebase-admin"));
 const functions = __importStar(require("firebase-functions/v1")); // <-- FIXED: Explicitly use v1
 admin.initializeApp();
@@ -93,6 +93,56 @@ async function sendToAllUsers(title, body, type, excludeUserId) {
     });
     await Promise.allSettled(sendPromises);
 }
+function getTodayAccraDate() {
+    return new Intl.DateTimeFormat("en-CA", {
+        timeZone: "Africa/Accra",
+        year: "numeric",
+        month: "2-digit",
+        day: "2-digit",
+    }).format(new Date());
+}
+function parseTimeToMinutes(time) {
+    if (!time)
+        return 360;
+    const [hRaw, mRaw] = time.split(":");
+    const hours = Number(hRaw);
+    const minutes = Number(mRaw);
+    if (Number.isNaN(hours) || Number.isNaN(minutes))
+        return 360;
+    return hours * 60 + minutes;
+}
+function isEarlyEvent(time) {
+    return parseTimeToMinutes(time) < 360;
+}
+function formatReminderBody(event) {
+    const location = event.location ? ` at ${event.location}` : "";
+    const time = event.time ? ` (${event.time})` : "";
+    return `Reminder: ${event.title || "Upcoming event"}${time}${location} is today.`;
+}
+async function sendDailyEventReminders(slot) {
+    const today = getTodayAccraDate();
+    const eventsSnap = await db.collection("events").where("date", "==", today).get();
+    if (eventsSnap.empty)
+        return;
+    const sendJobs = eventsSnap.docs.map(async (eventDocSnap) => {
+        const event = eventDocSnap.data();
+        const earlyEvent = isEarlyEvent(event.time);
+        if (slot === "early" && !earlyEvent)
+            return;
+        if (slot === "morning" && earlyEvent)
+            return;
+        const alreadySent = slot === "early"
+            ? event.reminderSentAt330On === today
+            : event.reminderSentAt600On === today;
+        if (alreadySent)
+            return;
+        await sendToAllUsers("Event Reminder", formatReminderBody(event), "event");
+        await eventDocSnap.ref.update(slot === "early"
+            ? { reminderSentAt330On: today }
+            : { reminderSentAt600On: today });
+    });
+    await Promise.allSettled(sendJobs);
+}
 // Trigger on new announcement
 exports.onAnnouncementCreate = functions.firestore
     .document("announcements/{announcementId}")
@@ -106,6 +156,22 @@ exports.onEventCreate = functions.firestore
     .onCreate(async (snap) => {
     const event = snap.data();
     await sendToAllUsers("New Event", event.title, "event").catch(console.error);
+});
+// Daily event reminder for events before 06:00 (sent at 03:30)
+exports.sendEarlyEventReminders = functions.pubsub
+    .schedule("30 3 * * *")
+    .timeZone("Africa/Accra")
+    .onRun(async () => {
+    await sendDailyEventReminders("early");
+    return null;
+});
+// Daily event reminder for events at/after 06:00 (sent at 06:00)
+exports.sendMorningEventReminders = functions.pubsub
+    .schedule("0 6 * * *")
+    .timeZone("Africa/Accra")
+    .onRun(async () => {
+    await sendDailyEventReminders("morning");
+    return null;
 });
 // Trigger on new chat message
 exports.onChatMessageCreate = functions.database

@@ -95,6 +95,22 @@ export default function Events() {
     });
   };
 
+  const formatTime = (timeStr?: string) => {
+    if (!timeStr) return null;
+    const [hourRaw, minuteRaw] = timeStr.split(":");
+    const hour = Number(hourRaw);
+    const minute = Number(minuteRaw);
+    if (Number.isNaN(hour) || Number.isNaN(minute)) return timeStr;
+
+    const dt = new Date();
+    dt.setHours(hour, minute, 0, 0);
+    return dt.toLocaleTimeString("en-GH", {
+      hour: "numeric",
+      minute: "2-digit",
+      hour12: true,
+    });
+  };
+
   const getDaysUntil = (dateStr: string) => {
     const today = new Date(new Date().toDateString());
     const event = new Date(dateStr);
@@ -173,6 +189,12 @@ export default function Events() {
                           <span>📅</span>
                           <span>{formatDate(event.date)}</span>
                         </div>
+                        {event.time && (
+                          <div className="event-detail">
+                            <span>⏰</span>
+                            <span>{formatTime(event.time)}</span>
+                          </div>
+                        )}
                         <div className="event-detail">
                           <span>📍</span>
                           <span>{event.location}</span>
@@ -232,6 +254,12 @@ export default function Events() {
                         <span>📅</span>
                         <span>{formatDate(event.date)}</span>
                       </div>
+                      {event.time && (
+                        <div className="event-detail">
+                          <span>⏰</span>
+                          <span>{formatTime(event.time)}</span>
+                        </div>
+                      )}
                       <div className="event-detail">
                         <span>📍</span>
                         <span>{event.location}</span>

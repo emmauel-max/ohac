@@ -14,6 +14,15 @@ interface UserDoc {
   notifyEvents?: boolean;
 }
 
+interface EventDoc {
+  title?: string;
+  date?: string;
+  time?: string;
+  location?: string;
+  reminderSentAt330On?: string;
+  reminderSentAt600On?: string;
+}
+
 async function removeInvalidTokens(
   uid: string,
   invalidTokens: string[]
@@ -95,6 +104,70 @@ async function sendToAllUsers(
   await Promise.allSettled(sendPromises);
 }
 
+function getTodayAccraDate(): string {
+  return new Intl.DateTimeFormat("en-CA", {
+    timeZone: "Africa/Accra",
+    year: "numeric",
+    month: "2-digit",
+    day: "2-digit",
+  }).format(new Date());
+}
+
+function parseTimeToMinutes(time?: string): number {
+  if (!time) return 360;
+  const [hRaw, mRaw] = time.split(":");
+  const hours = Number(hRaw);
+  const minutes = Number(mRaw);
+  if (Number.isNaN(hours) || Number.isNaN(minutes)) return 360;
+  return hours * 60 + minutes;
+}
+
+function isEarlyEvent(time?: string): boolean {
+  return parseTimeToMinutes(time) < 360;
+}
+
+function formatReminderBody(event: EventDoc): string {
+  const location = event.location ? ` at ${event.location}` : "";
+  const time = event.time ? ` (${event.time})` : "";
+  return `Reminder: ${event.title || "Upcoming event"}${time}${location} is today.`;
+}
+
+async function sendDailyEventReminders(slot: "early" | "morning"): Promise<void> {
+  const today = getTodayAccraDate();
+  const eventsSnap = await db.collection("events").where("date", "==", today).get();
+
+  if (eventsSnap.empty) return;
+
+  const sendJobs = eventsSnap.docs.map(async (eventDocSnap) => {
+    const event = eventDocSnap.data() as EventDoc;
+    const earlyEvent = isEarlyEvent(event.time);
+
+    if (slot === "early" && !earlyEvent) return;
+    if (slot === "morning" && earlyEvent) return;
+
+    const alreadySent =
+      slot === "early"
+        ? event.reminderSentAt330On === today
+        : event.reminderSentAt600On === today;
+
+    if (alreadySent) return;
+
+    await sendToAllUsers(
+      "Event Reminder",
+      formatReminderBody(event),
+      "event"
+    );
+
+    await eventDocSnap.ref.update(
+      slot === "early"
+        ? { reminderSentAt330On: today }
+        : { reminderSentAt600On: today }
+    );
+  });
+
+  await Promise.allSettled(sendJobs);
+}
+
 // Trigger on new announcement
 export const onAnnouncementCreate = functions.firestore
   .document("announcements/{announcementId}")
@@ -115,6 +188,24 @@ export const onEventCreate = functions.firestore
     await sendToAllUsers("New Event", event.title, "event").catch(
       console.error
     );
+  });
+
+// Daily event reminder for events before 06:00 (sent at 03:30)
+export const sendEarlyEventReminders = functions.pubsub
+  .schedule("30 3 * * *")
+  .timeZone("Africa/Accra")
+  .onRun(async () => {
+    await sendDailyEventReminders("early");
+    return null;
+  });
+
+// Daily event reminder for events at/after 06:00 (sent at 06:00)
+export const sendMorningEventReminders = functions.pubsub
+  .schedule("0 6 * * *")
+  .timeZone("Africa/Accra")
+  .onRun(async () => {
+    await sendDailyEventReminders("morning");
+    return null;
   });
 
 // Trigger on new chat message

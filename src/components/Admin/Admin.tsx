@@ -48,6 +48,7 @@ export default function Admin() {
   const [evTitle, setEvTitle] = useState("");
   const [evDesc, setEvDesc] = useState("");
   const [evDate, setEvDate] = useState("");
+  const [evTime, setEvTime] = useState("06:00");
   const [evLocation, setEvLocation] = useState("");
   const [evOrganizer, setEvOrganizer] = useState("");
   const [evImageFile, setEvImageFile] = useState<File | null>(null);
@@ -267,6 +268,7 @@ export default function Admin() {
       title: evTitle,
       description: evDesc,
       date: evDate,
+      time: evTime,
       location: evLocation,
       organizer: evOrganizer || userProfile?.displayName || "OHAC Command",
       createdAt: Date.now(),
@@ -275,6 +277,7 @@ export default function Admin() {
     setEvTitle("");
     setEvDesc("");
     setEvDate("");
+    setEvTime("06:00");
     setEvLocation("");
     setEvOrganizer("");
     setEvImageFile(null);
@@ -697,6 +700,14 @@ export default function Admin() {
                     className="form-input"
                   />
                   <input
+                    type="time"
+                    value={evTime}
+                    onChange={(e) => setEvTime(e.target.value)}
+                    className="form-input"
+                  />
+                </div>
+                <div className="form-row">
+                  <input
                     type="text"
                     placeholder="Location (e.g., Main Parade Ground)"
                     value={evLocation}
@@ -746,7 +757,9 @@ export default function Admin() {
                   <div key={ev.id} className="ann-item" style={{ background: '#fff', padding: '1rem', borderRadius: '8px', marginBottom: '1rem', borderLeft: '4px solid #1e4620' }}>
                     <div className="ann-item-header">
                       <h4>{ev.title}</h4>
-                      <span className="priority-tag priority-normal">{ev.date}</span>
+                      <span className="priority-tag priority-normal">
+                        {ev.date}{ev.time ? ` ${ev.time}` : ""}
+                      </span>
                     </div>
                     {ev.imageUrl && (
                       <img src={ev.imageUrl} alt={ev.title} className="admin-item-img" />
