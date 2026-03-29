@@ -64,6 +64,7 @@ export default function Admin() {
 
   // Officer form
   const [showOfficerForm, setShowOfficerForm] = useState(false);
+  const [editingOfficerId, setEditingOfficerId] = useState<string | null>(null);
   const [officerName, setOfficerName] = useState("");
   const [officerEmail, setOfficerEmail] = useState("");
   const [officerGender, setOfficerGender] = useState<"male" | "female">("male");
@@ -179,6 +180,44 @@ export default function Admin() {
   const handleRemoveOfficerImage = () => {
     setOfficerImageFile(null);
     if (officerImageRef.current) officerImageRef.current.value = "";
+  };
+
+  const resetOfficerForm = () => {
+    setOfficerName("");
+    setOfficerEmail("");
+    setOfficerGender("male");
+    setOfficerRank("Lieutenant");
+    setOfficerIsQuartermaster(false);
+    setOfficerRoleTitle("");
+    setOfficerBio("");
+    setOfficerImageFile(null);
+    if (officerImageRef.current) officerImageRef.current.value = "";
+  };
+
+  const openOfficerCreateForm = () => {
+    setEditingOfficerId(null);
+    resetOfficerForm();
+    setShowOfficerForm(true);
+  };
+
+  const closeOfficerForm = () => {
+    setEditingOfficerId(null);
+    resetOfficerForm();
+    setShowOfficerForm(false);
+  };
+
+  const startEditingOfficer = (officer: Officer) => {
+    setEditingOfficerId(officer.id);
+    setOfficerName(officer.name || officer.fullName || "");
+    setOfficerEmail(officer.email || officer.emailLower || "");
+    setOfficerGender(officer.gender || "male");
+    setOfficerRank(officer.rank);
+    setOfficerIsQuartermaster(Boolean(officer.isQuartermaster));
+    setOfficerRoleTitle(officer.roleTitle || officer.appointment || "");
+    setOfficerBio(officer.bio || "");
+    setOfficerImageFile(null);
+    if (officerImageRef.current) officerImageRef.current.value = "";
+    setShowOfficerForm(true);
   };
 
   const postAnnouncement = async () => {
@@ -394,16 +433,69 @@ export default function Admin() {
       ...(imageUrl ? { photoURL: imageUrl } : {}),
     });
 
-    setOfficerName("");
-    setOfficerEmail("");
-    setOfficerGender("male");
-    setOfficerRank("Lieutenant");
-    setOfficerIsQuartermaster(false);
-    setOfficerRoleTitle("");
-    setOfficerBio("");
-    setOfficerImageFile(null);
-    if (officerImageRef.current) officerImageRef.current.value = "";
-    setShowOfficerForm(false);
+    closeOfficerForm();
+    await fetchOfficers();
+  };
+
+  const updateOfficerProfile = async () => {
+    if (!editingOfficerId) return;
+
+    if (!officerName.trim()) {
+      alert("Please enter the officer's name.");
+      return;
+    }
+
+    const normalizedOfficerEmail = officerEmail.trim().toLowerCase();
+    if (!normalizedOfficerEmail) {
+      alert("Please enter the officer's login email.");
+      return;
+    }
+
+    const remainingOfficers = officers.filter((officer) => officer.id !== editingOfficerId);
+
+    const rankCountWithoutCurrent = remainingOfficers.filter((officer) => officer.rank === officerRank).length;
+    const allowed = OFFICER_RANK_LIMITS[officerRank];
+    if (rankCountWithoutCurrent >= allowed) {
+      alert(`You already have the maximum number of ${officerRank} profiles (${allowed}).`);
+      return;
+    }
+
+    if (officerIsQuartermaster && remainingOfficers.some((officer) => officer.isQuartermaster)) {
+      alert("A Quartermaster profile already exists. Edit or remove it before assigning another.");
+      return;
+    }
+
+    setLoading(true);
+    let imageUrl: string | undefined;
+
+    if (officerImageFile) {
+      try {
+        imageUrl = await uploadImage(
+          officerImageFile,
+          `officers/${Date.now()}_${officerImageFile.name}`
+        );
+      } catch {
+        alert("Image upload failed. Please try again.");
+        setLoading(false);
+        return;
+      }
+    }
+
+    const roleTitleToSave = officerRoleTitle.trim() || (officerIsQuartermaster ? "Quartermaster" : "");
+
+    await updateDoc(doc(db, "officers", editingOfficerId), {
+      name: officerName.trim(),
+      gender: officerGender,
+      email: normalizedOfficerEmail,
+      emailLower: normalizedOfficerEmail,
+      rank: officerRank,
+      isQuartermaster: officerIsQuartermaster,
+      roleTitle: roleTitleToSave,
+      bio: officerBio.trim(),
+      ...(imageUrl ? { photoURL: imageUrl } : {}),
+    });
+
+    closeOfficerForm();
     await fetchOfficers();
   };
 
@@ -907,7 +999,13 @@ export default function Admin() {
               <h2>Unit Officers</h2>
               <button
                 className="post-btn"
-                onClick={() => setShowOfficerForm(!showOfficerForm)}
+                onClick={() => {
+                  if (showOfficerForm) {
+                    closeOfficerForm();
+                  } else {
+                    openOfficerCreateForm();
+                  }
+                }}
               >
                 {showOfficerForm ? "Cancel" : "➕ Add Officer Profile"}
               </button>
@@ -928,7 +1026,7 @@ export default function Admin() {
 
             {showOfficerForm && (
               <div className="post-form" style={{ marginTop: "1rem", marginBottom: "1.5rem" }}>
-                <h3>Create Officer Profile</h3>
+                <h3>{editingOfficerId ? "Edit Officer Profile" : "Create Officer Profile"}</h3>
                 <input
                   type="text"
                   placeholder="Officer Name"
@@ -1003,8 +1101,8 @@ export default function Admin() {
                     </span>
                   )}
                 </div>
-                <button className="post-btn" onClick={createOfficerProfile}>
-                  Save Officer Profile
+                <button className="post-btn" onClick={editingOfficerId ? updateOfficerProfile : createOfficerProfile}>
+                  {editingOfficerId ? "Update Officer Profile" : "Save Officer Profile"}
                 </button>
               </div>
             )}
@@ -1035,9 +1133,14 @@ export default function Admin() {
                     </p>
                     <div className="ann-item-footer">
                       <span>Created {new Date(officer.createdAt).toLocaleString()}</span>
-                      <button className="delete-btn" onClick={() => deleteOfficerProfile(officer.id)}>
-                        🗑️ Delete
-                      </button>
+                      <div className="ann-item-actions">
+                        <button className="edit-btn" onClick={() => startEditingOfficer(officer)}>
+                          ✏️ Edit
+                        </button>
+                        <button className="delete-btn" onClick={() => deleteOfficerProfile(officer.id)}>
+                          🗑️ Delete
+                        </button>
+                      </div>
                     </div>
                   </div>
                 ))}

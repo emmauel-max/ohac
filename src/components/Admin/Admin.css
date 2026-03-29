@@ -500,6 +500,27 @@
   color: rgba(255, 255, 255, 0.4);
 }
 
+.ann-item-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+}
+
+.edit-btn {
+  background: none;
+  border: 1px solid rgba(144, 238, 144, 0.75);
+  color: #90ee90;
+  padding: 0.25rem 0.6rem;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 0.75rem;
+  transition: all 0.2s;
+}
+
+.edit-btn:hover {
+  background: rgba(144, 238, 144, 0.18);
+}
+
 .delete-btn {
   background: none;
   border: 1px solid #dc2626;
