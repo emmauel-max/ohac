@@ -115,6 +115,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
               const quartermasterOfficer = linkedOfficers.find(
                 (officer) =>
+                  officer.portfolio === "Quartermaster" ||
                   officer.isQuartermaster ||
                   /quarter\s*master/i.test(officer.roleTitle || officer.appointment || "")
               );

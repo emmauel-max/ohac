@@ -315,6 +315,7 @@
 .main-content--blurred {
   filter: blur(4px);
   pointer-events: none;
+    -webkit-user-select: none;
   user-select: none;
 }
 
@@ -322,6 +323,7 @@
   .main-content--blurred {
     filter: none;
     pointer-events: auto;
+      -webkit-user-select: auto;
     user-select: auto;
   }
 }

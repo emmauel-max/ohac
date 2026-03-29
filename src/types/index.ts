@@ -119,16 +119,64 @@ export type OfficerRank =
   | "Major"
   | "Captain"
   | "Lieutenant"
-  | "Warrant Officer Class 1";
+  | "Warrant Officer Class 1"
+  | "Warrant Officer Class 2";
+
+export type OfficerPortfolio =
+  | "Commander"
+  | "2nd in Command"
+  | "Adjutant"
+  | "Quartermaster"
+  | "Intelligence Officer"
+  | "Provost Marshall"
+  | "Platoon Commander 1"
+  | "Platoon Commander 2"
+  | "Band Master"
+  | "Chief Training Officer"
+  | "Assistant Band Master"
+  | "Regimental Sergeant Major";
+
+export const PORTFOLIO_RANK_MAP: Record<OfficerPortfolio, OfficerRank> = {
+  "Commander": "Major",
+  "2nd in Command": "Captain",
+  "Adjutant": "Captain",
+  "Quartermaster": "Lieutenant",
+  "Intelligence Officer": "Lieutenant",
+  "Provost Marshall": "Lieutenant",
+  "Platoon Commander 1": "Lieutenant",
+  "Platoon Commander 2": "Lieutenant",
+  "Band Master": "Lieutenant",
+  "Chief Training Officer": "Lieutenant",
+  "Assistant Band Master": "Lieutenant",
+  "Regimental Sergeant Major": "Warrant Officer Class 2",
+};
+
+export const PORTFOLIOS_BY_RANK: Record<OfficerRank, OfficerPortfolio[]> = {
+  "Major": ["Commander"],
+  "Captain": ["2nd in Command", "Adjutant"],
+  "Lieutenant": [
+    "Quartermaster",
+    "Intelligence Officer",
+    "Provost Marshall",
+    "Platoon Commander 1",
+    "Platoon Commander 2",
+    "Band Master",
+    "Chief Training Officer",
+    "Assistant Band Master",
+  ],
+  "Warrant Officer Class 1": [],
+  "Warrant Officer Class 2": ["Regimental Sergeant Major"],
+};
 
 export interface Officer {
   id: string;
   name: string;
   rank: OfficerRank;
+  portfolio?: OfficerPortfolio;
   gender?: "male" | "female";
   email?: string;
   emailLower?: string;
-  isQuartermaster?: boolean;
+  isQuartermaster?: boolean; // Deprecated: use portfolio === "Quartermaster" instead
   googlePhotoURL?: string;
   roleTitle?: string;
   bio?: string;
@@ -208,4 +256,15 @@ export interface BorrowedLogisticsRecord {
   createdByUid: string;
   createdByName: string;
   createdByRole: "qm" | "rqms";
+}
+
+export interface LogisticsLog {
+  id: string;
+  userUid: string;
+  userName: string;
+  userEmail: string;
+  userRole: "qm" | "rqms" | "major";
+  action: "enter" | "exit"; // entry or exit from logistics page
+  timestamp: number;
+  date: string; // YYYY-MM-DD for easy querying by date
 }

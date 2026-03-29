@@ -466,6 +466,8 @@ export default function Courses() {
           value={filterLevel}
           onChange={(e) => setFilterLevel(e.target.value)}
           className="filter-select"
+          title="Filter courses by difficulty level"
+          aria-label="Filter by level"
         >
           {levels.map((l) => <option key={l}>{l}</option>)}
         </select>
@@ -473,6 +475,8 @@ export default function Courses() {
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
           className="filter-select"
+          title="Filter courses by category"
+          aria-label="Filter by category"
         >
           {categories.map((c) => <option key={c}>{c}</option>)}
         </select>

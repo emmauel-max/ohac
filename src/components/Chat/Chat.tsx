@@ -360,6 +360,8 @@ export default function Chat() {
           <textarea
             className="chat-input"
             placeholder={`Message ${selectedRoom.name}…`}
+            title={`Message ${selectedRoom.name}`}
+            aria-label={`Message ${selectedRoom.name}`}
             value={newRoomMessage}
             onChange={(e) => setNewRoomMessage(e.target.value)}
             onKeyDown={handleRoomKeyDown}
@@ -472,6 +474,8 @@ export default function Chat() {
             ref={imageInputRef}
             style={{ display: "none" }}
             onChange={handleImageUpload}
+            title="Choose an image to upload"
+            aria-label="Choose an image to upload"
           />
           <button
             className="img-upload-btn"
@@ -485,6 +489,8 @@ export default function Chat() {
           <textarea
             className="chat-input"
             placeholder={`Message ${selectedUser.displayName || "Cadet"}…`}
+            title={`Message ${selectedUser.displayName || "Cadet"}`}
+            aria-label={`Message ${selectedUser.displayName || "Cadet"}`}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -512,6 +518,8 @@ export default function Chat() {
           type="search"
           className="dm-search"
           placeholder="Search cadets to message…"
+          title="Search cadets to message"
+          aria-label="Search cadets to message"
           value={searchQuery}
           onChange={(e) => setSearchQuery(e.target.value)}
         />

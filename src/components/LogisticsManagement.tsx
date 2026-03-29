@@ -16,13 +16,14 @@ import { useAuth } from "../hooks/useAuth";
 import type {
   BorrowedLogisticsRecord,
   LogisticsProgram,
+  LogisticsLog,
   ProgramDistributionEntry,
   User,
   WeeklyInventoryRecord,
 } from "../types";
 import "./LogisticsManagement.css";
 
-type LogisticsScreen = "dashboard" | "inventory" | "distribution" | "borrowing";
+type LogisticsScreen = "dashboard" | "inventory" | "distribution" | "borrowing" | "logs";
 
 const INVENTORY_ITEMS = [
   "Ceremonial Tops",
@@ -106,6 +107,9 @@ export default function LogisticsManagement() {
 
   const [users, setUsers] = useState<User[]>([]);
   const [promotionEmail, setPromotionEmail] = useState("");
+  const [demotionEmail, setDemotionEmail] = useState("");
+  const [logisticsLogs, setLogisticsLogs] = useState<LogisticsLog[]>([]);
+  const [userSessionId, setUserSessionId] = useState<string>("");
 
   const currentWeekKey = toWeekKey(getWeekStart(new Date()));
 
@@ -190,6 +194,20 @@ export default function LogisticsManagement() {
 
     fetchAll();
   }, [canAccessLogistics, selectedProgramId, weekKeys]);
+
+  // Log entry when user accesses logistics page
+  useEffect(() => {
+    if (!canAccessLogistics) return;
+    logEntry();
+    fetchLogisticsLogs();
+
+    // Log exit when user leaves
+    return () => {
+      if (userSessionId) {
+        logExit(userSessionId);
+      }
+    };
+  }, [canAccessLogistics]);
 
   const refreshPrograms = async () => {
     const programsSnap = await getDocs(query(collection(db, "logisticsPrograms"), orderBy("createdAt", "desc")));
@@ -377,6 +395,85 @@ export default function LogisticsManagement() {
     alert("User promoted to RQMS.");
   };
 
+  const demoteUserByEmail = async () => {
+    if (!isQuartermaster) return;
+
+    const normalizedEmail = demotionEmail.trim().toLowerCase();
+    if (!normalizedEmail) {
+      alert("Enter the user email to demote.");
+      return;
+    }
+
+    const usersCollection = collection(db, "users");
+    const [exactSnap, lowerSnap] = await Promise.all([
+      getDocs(query(usersCollection, where("email", "==", demotionEmail.trim()), limit(1))),
+      getDocs(query(usersCollection, where("email", "==", normalizedEmail), limit(1))),
+    ]);
+
+    const userDoc = exactSnap.docs[0] || lowerSnap.docs[0];
+    if (!userDoc) {
+      alert("No user found with that email.");
+      return;
+    }
+
+    const userData = userDoc.data() as User;
+    if (userData.logisticsRole !== "rqms") {
+      alert("This user is not an RQMS.");
+      return;
+    }
+
+    await updateDoc(doc(db, "users", userDoc.id), { logisticsRole: "none" });
+    setUsers((prev) =>
+      prev.map((u) => (u.uid === userDoc.id ? { ...u, logisticsRole: "none" } : u))
+    );
+    setDemotionEmail("");
+    alert("User demoted from RQMS.");
+  };
+
+  const logEntry = async () => {
+    if (!canAccessLogistics || !currentUser || !userProfile) return;
+
+    const sessionId = `${currentUser.uid}-${Date.now()}`;
+    setUserSessionId(sessionId);
+
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0]; // YYYY-MM-DD
+
+    await addDoc(collection(db, "logisticsLogs"), {
+      userUid: currentUser.uid,
+      userName: userProfile.displayName || "Unknown User",
+      userEmail: userProfile.email || "",
+      userRole: isQuartermaster ? "qm" : isRqms ? "rqms" : "major",
+      action: "enter",
+      timestamp: Date.now(),
+      date: dateStr,
+    });
+  };
+
+  const logExit = async (sessionId: string) => {
+    if (!currentUser || !userProfile || !sessionId) return;
+
+    const today = new Date();
+    const dateStr = today.toISOString().split("T")[0];
+
+    await addDoc(collection(db, "logisticsLogs"), {
+      userUid: currentUser.uid,
+      userName: userProfile.displayName || "Unknown User",
+      userEmail: userProfile.email || "",
+      userRole: isQuartermaster ? "qm" : isRqms ? "rqms" : "major",
+      action: "exit",
+      timestamp: Date.now(),
+      date: dateStr,
+    });
+  };
+
+  const fetchLogisticsLogs = async () => {
+    const logsSnap = await getDocs(
+      query(collection(db, "logisticsLogs"), orderBy("timestamp", "desc"), limit(500))
+    );
+    setLogisticsLogs(logsSnap.docs.map((d) => ({ id: d.id, ...d.data() } as LogisticsLog)));
+  };
+
   const dashboardStats = useMemo(() => {
     const weekStart = getWeekStart(new Date()).getTime();
 
@@ -440,7 +537,7 @@ export default function LogisticsManagement() {
         )}
       </header>
 
-      <div className="logistics-tabs four-tabs">
+      <div className="logistics-tabs five-tabs">
         <button
           className={`logistics-tab ${activeScreen === "dashboard" ? "active" : ""}`}
           onClick={() => setActiveScreen("dashboard")}
@@ -469,6 +566,18 @@ export default function LogisticsManagement() {
         >
           Borrowing
         </button>
+        {isQuartermaster && (
+          <button
+            className={`logistics-tab ${activeScreen === "logs" ? "active" : ""}`}
+            onClick={() => {
+              setActiveScreen("logs");
+              fetchLogisticsLogs();
+            }}
+            type="button"
+          >
+            Access Logs
+          </button>
+        )}
       </div>
 
       {activeScreen === "dashboard" && (
@@ -507,6 +616,8 @@ export default function LogisticsManagement() {
                 value={promotionEmail}
                 onChange={(e) => setPromotionEmail(e.target.value)}
                 placeholder="user@email.com"
+                title="Enter user email to promote to RQMS"
+                aria-label="Promotion email"
                 disabled={!isQuartermaster}
               />
               <button
@@ -540,6 +651,33 @@ export default function LogisticsManagement() {
                 ))
             )}
           </div>
+
+          <div className="logistics-card section-gap">
+            <h3>Demote RQMS User (by email)</h3>
+            <div className="form-inline">
+              <input
+                className="logistics-input"
+                value={demotionEmail}
+                onChange={(e) => setDemotionEmail(e.target.value)}
+                placeholder="user@email.com"
+                title="Enter RQMS email to demote"
+                aria-label="Demotion email"
+                disabled={!isQuartermaster}
+              />
+              <button
+                type="button"
+                className="primary-btn"
+                onClick={demoteUserByEmail}
+                disabled={!isQuartermaster}
+                style={{ backgroundColor: "#d32f2f" }}
+              >
+                Demote From RQMS
+              </button>
+            </div>
+            {!isQuartermaster && (
+              <p className="readonly-mini">Only Quartermaster can demote by email.</p>
+            )}
+          </div>
         </section>
       )}
 
@@ -570,6 +708,8 @@ export default function LogisticsManagement() {
                           type="number"
                           className="logistics-input compact-input"
                           value={inventoryDraft[item]?.[weekKey] || ""}
+                          title={`${item} quantity for week ${weekLabel(weekKey)}`}
+                          aria-label={`${item} quantity for week ${weekLabel(weekKey)}`}
                           onChange={(e) =>
                             setInventoryDraft((prev) => ({
                               ...prev,
@@ -615,6 +755,8 @@ export default function LogisticsManagement() {
               value={newProgramName}
               onChange={(e) => setNewProgramName(e.target.value)}
               placeholder="Program name"
+              title="Enter uniform distribution program name"
+              aria-label="Program name"
               disabled={!canEditLogistics}
             />
             <button
@@ -657,6 +799,8 @@ export default function LogisticsManagement() {
                       placeholder="Cadet name"
                       value={cadetName}
                       onChange={(e) => setCadetName(e.target.value)}
+                      title="Enter cadet name"
+                      aria-label="Cadet name"
                       disabled={!canEditLogistics}
                     />
                     <input
@@ -664,6 +808,8 @@ export default function LogisticsManagement() {
                       placeholder="Phone number"
                       value={cadetPhone}
                       onChange={(e) => setCadetPhone(e.target.value)}
+                      title="Enter cadet phone number"
+                      aria-label="Cadet phone number"
                       disabled={!canEditLogistics}
                     />
                     <input
@@ -671,6 +817,8 @@ export default function LogisticsManagement() {
                       placeholder="Items given (e.g 1 top, 1 belt)"
                       value={itemsGiven}
                       onChange={(e) => setItemsGiven(e.target.value)}
+                      title="Enter items given"
+                      aria-label="Items given"
                       disabled={!canEditLogistics}
                     />
                   </div>
@@ -736,6 +884,8 @@ export default function LogisticsManagement() {
               placeholder="Borrower name"
               value={borrowerName}
               onChange={(e) => setBorrowerName(e.target.value)}
+              title="Enter borrower name"
+              aria-label="Borrower name"
               disabled={!canEditLogistics}
             />
             <input
@@ -743,6 +893,8 @@ export default function LogisticsManagement() {
               placeholder="Contact"
               value={borrowerContact}
               onChange={(e) => setBorrowerContact(e.target.value)}
+              title="Enter borrower contact"
+              aria-label="Borrower contact"
               disabled={!canEditLogistics}
             />
             <input
@@ -750,6 +902,8 @@ export default function LogisticsManagement() {
               placeholder="Hall"
               value={borrowerHall}
               onChange={(e) => setBorrowerHall(e.target.value)}
+              title="Enter borrower hall"
+              aria-label="Borrower hall"
               disabled={!canEditLogistics}
             />
           </div>
@@ -760,6 +914,8 @@ export default function LogisticsManagement() {
               placeholder="Purpose"
               value={borrowPurpose}
               onChange={(e) => setBorrowPurpose(e.target.value)}
+              title="Enter borrowing purpose"
+              aria-label="Borrowing purpose"
               disabled={!canEditLogistics}
             />
             <input
@@ -767,6 +923,8 @@ export default function LogisticsManagement() {
               placeholder="Items and specific numbers"
               value={borrowItemsAndQuantities}
               onChange={(e) => setBorrowItemsAndQuantities(e.target.value)}
+              title="Enter items and quantities"
+              aria-label="Items and quantities"
               disabled={!canEditLogistics}
             />
             <input
@@ -775,6 +933,8 @@ export default function LogisticsManagement() {
               value={borrowReturnDate}
               onChange={(e) => setBorrowReturnDate(e.target.value)}
               disabled={!canEditLogistics}
+              title="Select return date for borrowed items"
+              aria-label="Return date"
             />
           </div>
 
@@ -784,6 +944,8 @@ export default function LogisticsManagement() {
               placeholder="Condition upon issue"
               value={issueCondition}
               onChange={(e) => setIssueCondition(e.target.value)}
+              title="Enter condition upon issue"
+              aria-label="Condition upon issue"
               disabled={!canEditLogistics}
             />
             <input
@@ -791,6 +953,8 @@ export default function LogisticsManagement() {
               placeholder="Condition upon return"
               value={returnCondition}
               onChange={(e) => setReturnCondition(e.target.value)}
+              title="Enter condition upon return"
+              aria-label="Condition upon return"
               disabled={!canEditLogistics}
             />
           </div>
@@ -840,6 +1004,60 @@ export default function LogisticsManagement() {
                       <td>{record.returnDate}</td>
                       <td>{record.issueCondition || "-"}</td>
                       <td>{record.returnCondition || "-"}</td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          </div>
+        </section>
+      )}
+
+      {activeScreen === "logs" && isQuartermaster && (
+        <section className="logistics-card">
+          <h2>Access Logs</h2>
+          <p className="logistics-hint">View who accessed the logistics management system and when.</p>
+
+          <div className="sheet-table-wrap">
+            <table className="sheet-table">
+              <thead>
+                <tr>
+                  <th>User</th>
+                  <th>Email</th>
+                  <th>Role</th>
+                  <th>Action</th>
+                  <th>Date</th>
+                  <th>Time</th>
+                </tr>
+              </thead>
+              <tbody>
+                {loading ? (
+                  <tr>
+                    <td colSpan={6} className="logistics-empty">Loading...</td>
+                  </tr>
+                ) : logisticsLogs.length === 0 ? (
+                  <tr>
+                    <td colSpan={6} className="logistics-empty">No access logs yet.</td>
+                  </tr>
+                ) : (
+                  logisticsLogs.map((log) => (
+                    <tr key={log.id}>
+                      <td>{log.userName}</td>
+                      <td>{log.userEmail}</td>
+                      <td>{log.userRole.toUpperCase()}</td>
+                      <td>
+                        <span style={{
+                          padding: "4px 8px",
+                          borderRadius: "4px",
+                          backgroundColor: log.action === "enter" ? "#4caf50" : "#f44336",
+                          color: "white",
+                          fontSize: "0.9em",
+                        }}>
+                          {log.action === "enter" ? "✓ Entry" : "✗ Exit"}
+                        </span>
+                      </td>
+                      <td>{log.date}</td>
+                      <td>{new Date(log.timestamp).toLocaleTimeString()}</td>
                     </tr>
                   ))
                 )}

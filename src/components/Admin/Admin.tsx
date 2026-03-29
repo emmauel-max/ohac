@@ -13,7 +13,8 @@ import {
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
 import { db, storage } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
-import type { Announcement, User, Course, CourseModule, Event, Officer, OfficerRank } from "../../types";
+import type { Announcement, User, Course, CourseModule, Event, Officer, OfficerRank, OfficerPortfolio } from "../../types";
+import { PORTFOLIOS_BY_RANK } from "../../types";
 import "./Admin.css";
 
 type AdminTab = "overview" | "users" | "announcements" | "courses" | "events" | "officers";
@@ -23,6 +24,7 @@ const OFFICER_RANK_LIMITS: Record<OfficerRank, number> = {
   Captain: 2,
   Lieutenant: 8,
   "Warrant Officer Class 1": 1,
+  "Warrant Officer Class 2": 1,
 };
 
 export default function Admin() {
@@ -70,7 +72,7 @@ export default function Admin() {
   const [officerEmail, setOfficerEmail] = useState("");
   const [officerGender, setOfficerGender] = useState<"male" | "female">("male");
   const [officerRank, setOfficerRank] = useState<OfficerRank>("Lieutenant");
-  const [officerIsQuartermaster, setOfficerIsQuartermaster] = useState(false);
+  const [officerPortfolio, setOfficerPortfolio] = useState<OfficerPortfolio | "">("");
   const [officerRoleTitle, setOfficerRoleTitle] = useState("");
   const [officerBio, setOfficerBio] = useState("");
   const [officerImageFile, setOfficerImageFile] = useState<File | null>(null);
@@ -193,7 +195,7 @@ export default function Admin() {
     setOfficerEmail("");
     setOfficerGender("male");
     setOfficerRank("Lieutenant");
-    setOfficerIsQuartermaster(false);
+    setOfficerPortfolio("");
     setOfficerRoleTitle("");
     setOfficerBio("");
     setOfficerImageFile(null);
@@ -219,7 +221,7 @@ export default function Admin() {
     setOfficerEmail(officer.email || officer.emailLower || "");
     setOfficerGender(officer.gender || "male");
     setOfficerRank(officer.rank);
-    setOfficerIsQuartermaster(Boolean(officer.isQuartermaster));
+    setOfficerPortfolio(officer.portfolio || "");
     setOfficerRoleTitle(officer.roleTitle || officer.appointment || "");
     setOfficerBio(officer.bio || "");
     setOfficerImageFile(null);
@@ -399,12 +401,12 @@ export default function Admin() {
       return;
     }
 
-    if (officerIsQuartermaster && officers.some((officer) => officer.isQuartermaster)) {
-      alert("A Quartermaster profile already exists. Edit or remove it before adding another.");
+    if (!officerPortfolio) {
+      alert("Please select a portfolio.");
       return;
     }
 
-    const roleTitleToSave = officerRoleTitle.trim() || (officerIsQuartermaster ? "Quartermaster" : "");
+    const roleTitleToSave = officerRoleTitle.trim() || officerPortfolio;
 
     const allowed = OFFICER_RANK_LIMITS[officerRank];
     if (officerCounts[officerRank] >= allowed) {
@@ -434,7 +436,7 @@ export default function Admin() {
       email: normalizedOfficerEmail,
       emailLower: normalizedOfficerEmail,
       rank: officerRank,
-      isQuartermaster: officerIsQuartermaster,
+      portfolio: officerPortfolio,
       roleTitle: roleTitleToSave,
       bio: officerBio.trim(),
       createdAt: Date.now(),
@@ -459,17 +461,17 @@ export default function Admin() {
       return;
     }
 
+    if (!officerPortfolio) {
+      alert("Please select a portfolio.");
+      return;
+    }
+
     const remainingOfficers = officers.filter((officer) => officer.id !== editingOfficerId);
 
     const rankCountWithoutCurrent = remainingOfficers.filter((officer) => officer.rank === officerRank).length;
     const allowed = OFFICER_RANK_LIMITS[officerRank];
     if (rankCountWithoutCurrent >= allowed) {
       alert(`You already have the maximum number of ${officerRank} profiles (${allowed}).`);
-      return;
-    }
-
-    if (officerIsQuartermaster && remainingOfficers.some((officer) => officer.isQuartermaster)) {
-      alert("A Quartermaster profile already exists. Edit or remove it before assigning another.");
       return;
     }
 
@@ -489,7 +491,7 @@ export default function Admin() {
       }
     }
 
-    const roleTitleToSave = officerRoleTitle.trim() || (officerIsQuartermaster ? "Quartermaster" : "");
+    const roleTitleToSave = officerRoleTitle.trim() || officerPortfolio;
 
     const updatePayload: Record<string, unknown> = {
       name: officerName.trim(),
@@ -497,7 +499,7 @@ export default function Admin() {
       email: normalizedOfficerEmail,
       emailLower: normalizedOfficerEmail,
       rank: officerRank,
-      isQuartermaster: officerIsQuartermaster,
+      portfolio: officerPortfolio,
       roleTitle: roleTitleToSave,
       bio: officerBio.trim(),
     };
@@ -625,6 +627,8 @@ export default function Admin() {
                               value={user.role}
                               onChange={(e) => updateUserRole(user.uid, e.target.value as User["role"])}
                               className="role-select"
+                              title="Select member role"
+                              aria-label={`Role for ${user.displayName || "member"}`}
                             >
                               <option value="cadet">Cadet</option>
                               <option value="member">Member</option>
@@ -675,6 +679,8 @@ export default function Admin() {
                   value={annPriority}
                   onChange={(e) => setAnnPriority(e.target.value as Announcement["priority"])}
                   className="form-select"
+                  title="Select announcement priority level"
+                  aria-label="Announcement priority"
                 >
                   <option value="low">Low Priority</option>
                   <option value="normal">Normal</option>
@@ -787,6 +793,8 @@ export default function Admin() {
                     value={newCourse.level}
                     onChange={(e) => setNewCourse({ ...newCourse, level: e.target.value as Course["level"] })}
                     className="form-select"
+                    title="Select course difficulty level"
+                    aria-label="Course level"
                   >
                     <option value="Beginner">Beginner</option>
                     <option value="Intermediate">Intermediate</option>
@@ -926,12 +934,16 @@ export default function Admin() {
                     value={evDate}
                     onChange={(e) => setEvDate(e.target.value)}
                     className="form-input"
+                    title="Select event date"
+                    aria-label="Event date"
                   />
                   <input
                     type="time"
                     value={evTime}
                     onChange={(e) => setEvTime(e.target.value)}
                     className="form-input"
+                    title="Select event time"
+                    aria-label="Event time"
                   />
                 </div>
                 <div className="form-row">
@@ -1061,19 +1073,42 @@ export default function Admin() {
                     value={officerGender}
                     onChange={(e) => setOfficerGender(e.target.value as "male" | "female")}
                     className="form-select"
+                    title="Select officer gender"
+                    aria-label="Officer gender"
                   >
                     <option value="male">Male</option>
                     <option value="female">Female</option>
                   </select>
                   <select
                     value={officerRank}
-                    onChange={(e) => setOfficerRank(e.target.value as OfficerRank)}
+                    onChange={(e) => {
+                      const newRank = e.target.value as OfficerRank;
+                      setOfficerRank(newRank);
+                      setOfficerPortfolio(""); // Reset portfolio when rank changes
+                    }}
                     className="form-select"
+                    title="Select officer rank"
+                    aria-label="Officer rank"
                   >
                     <option value="Major">Major</option>
                     <option value="Captain">Captain</option>
                     <option value="Lieutenant">Lieutenant</option>
                     <option value="Warrant Officer Class 1">Warrant Officer Class 1</option>
+                    <option value="Warrant Officer Class 2">Warrant Officer Class 2</option>
+                  </select>
+                  <select
+                    value={officerPortfolio}
+                    onChange={(e) => setOfficerPortfolio(e.target.value as OfficerPortfolio)}
+                    className="form-select"
+                    title="Select officer portfolio"
+                    aria-label="Officer portfolio"
+                  >
+                    <option value="">Select Portfolio</option>
+                    {PORTFOLIOS_BY_RANK[officerRank].map((portfolio) => (
+                      <option key={portfolio} value={portfolio}>
+                        {portfolio}
+                      </option>
+                    ))}
                   </select>
                   <input
                     type="text"
@@ -1083,14 +1118,6 @@ export default function Admin() {
                     className="form-input"
                   />
                 </div>
-                <label className="officer-qm-checkbox">
-                  <input
-                    type="checkbox"
-                    checked={officerIsQuartermaster}
-                    onChange={(e) => setOfficerIsQuartermaster(e.target.checked)}
-                  />
-                  Mark this officer as Quartermaster
-                </label>
                 <textarea
                   placeholder="Officer bio (optional)"
                   value={officerBio}

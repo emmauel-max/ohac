@@ -11,6 +11,7 @@ const EXPECTED_STRENGTH: Record<Officer["rank"], number> = {
   Captain: 2,
   Lieutenant: 8,
   "Warrant Officer Class 1": 1,
+  "Warrant Officer Class 2": 1,
 };
 
 const RANK_ORDER: Officer["rank"][] = [
@@ -18,6 +19,7 @@ const RANK_ORDER: Officer["rank"][] = [
   "Captain",
   "Lieutenant",
   "Warrant Officer Class 1",
+  "Warrant Officer Class 2",
 ];
 
 export default function Officers() {
@@ -91,6 +93,7 @@ export default function Officers() {
       Captain: [],
       Lieutenant: [],
       "Warrant Officer Class 1": [],
+      "Warrant Officer Class 2": [],
     };
 
     officers.forEach((officer) => {
