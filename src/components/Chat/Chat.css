@@ -1,8 +1,8 @@
 /* ============================================================
-   Direct Messages – Chat Page
+   Chat – Groups & Direct Messages
    ============================================================ */
 
-/* ── User List (DM inbox page) ───────────────────────────── */
+/* ── Chat List Page ──────────────────────────────────────── */
 .dm-page {
   max-width: 700px;
   margin: 0 auto;
@@ -25,6 +25,119 @@
   font-size: 0.88rem;
   color: rgba(255, 255, 255, 0.65);
   margin-bottom: 0.85rem;
+}
+
+/* ── Sections (Group Chats / Direct Messages) ────────────── */
+.dm-section {
+  margin-bottom: 1.5rem;
+}
+
+.dm-section-title {
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(200, 255, 200, 0.55);
+  margin: 0 0 0.6rem 0.25rem;
+}
+
+/* ── Group Room Items ────────────────────────────────────── */
+.dm-room-item {
+  border-color: rgba(144, 238, 144, 0.2) !important;
+}
+
+.dm-room-item:hover,
+.dm-room-item:active {
+  border-color: rgba(144, 238, 144, 0.45) !important;
+  background-color: transparent !important;
+  filter: brightness(1.08);
+}
+
+.dm-room-icon {
+  font-size: 1.5rem;
+  width: 46px;
+  height: 46px;
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Room icon in chat header */
+.dm-header-room-icon {
+  font-size: 1.6rem;
+  width: 38px;
+  height: 38px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(255, 255, 255, 0.12);
+  border-radius: 50%;
+  flex-shrink: 0;
+  border: 2px solid rgba(144, 238, 144, 0.35);
+}
+
+/* ── DM Inbox Items ──────────────────────────────────────── */
+.dm-avatar-wrap {
+  position: relative;
+  flex-shrink: 0;
+}
+
+.dm-unread-dot {
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 11px;
+  height: 11px;
+  background: #4cde4c;
+  border-radius: 50%;
+  border: 2px solid rgba(15, 46, 15, 0.9);
+  box-shadow: 0 0 4px rgba(76, 222, 76, 0.6);
+}
+
+.dm-user-item--unread .dm-user-name {
+  color: #ffffff;
+  font-weight: 800;
+}
+
+.dm-last-message {
+  font-size: 0.75rem;
+  color: rgba(200, 255, 200, 0.55);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  /* Constrained to leave room for the timestamp/arrow metadata */
+  max-width: 200px;
+}
+
+.dm-meta {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 0.3rem;
+  flex-shrink: 0;
+  margin-left: auto;
+}
+
+.dm-time {
+  font-size: 0.68rem;
+  color: rgba(200, 255, 200, 0.45);
+  white-space: nowrap;
+}
+
+/* Sender name in group chat message bubbles */
+.msg-sender-name {
+  display: block;
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: #2d6a2d;
+  margin-bottom: 0.2rem;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .dm-search {
