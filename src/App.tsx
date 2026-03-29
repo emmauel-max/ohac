@@ -13,6 +13,7 @@ import Announcements from "./components/Announcements";
 import Events from "./components/Events";
 import CodeOfConduct from "./components/CodeOfConduct";
 import TermsOfService from "./components/TermsOfService";
+import PrivacyPolicy from "./components/PrivacyPolicy";
 import Faq from "./components/Faq";
 import TourGuide from "./components/TourGuide";
 import NotificationBridge from "./components/NotificationBridge";
@@ -157,6 +158,14 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <TermsOfService />
+          </ProtectedRoute>
+        }
+      />
+      <Route
+        path="/privacy-policy"
+        element={
+          <ProtectedRoute>
+            <PrivacyPolicy />
           </ProtectedRoute>
         }
       />

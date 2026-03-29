@@ -208,6 +208,9 @@ export default function Profile() {
           <button className="secondary-btn" onClick={() => navigate("/terms-of-service")}>
             Terms of Service
           </button>
+          <button className="secondary-btn" onClick={() => navigate("/privacy-policy")}>
+            Privacy Policy
+          </button>
           <button className="secondary-btn" onClick={() => navigate("/faq")}>
             Frequently Asked Questions
           </button>
