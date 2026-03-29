@@ -22,6 +22,17 @@ const navItems: NavItem[] = [
   { path: "/admin", label: "Admin Panel", icon: "⚙️", adminOnly: true },
 ];
 
+// Items shown in the mobile bottom navigation bar (left to right)
+const bottomNavItems: NavItem[] = [
+  { path: "/", label: "Dashboard", icon: "🏠" },
+  { path: "/courses", label: "Courses", icon: "📚" },
+  { path: "/chat", label: "Chat", icon: "💬" },
+  { path: "/profile", label: "Profile", icon: "👤" },
+];
+
+// Paths that appear in the bottom nav – these are hidden from the sidebar on mobile
+const BOTTOM_NAV_PATHS = new Set(bottomNavItems.map((i) => i.path));
+
 export default function Layout({ children }: { children: React.ReactNode }) {
   const { currentUser, userProfile, logout, isAdmin } = useAuth();
   const location = useLocation();
@@ -113,7 +124,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
               <li key={item.path}>
                 <Link
                   to={item.path}
-                  className={`nav-item ${location.pathname === item.path ? "active" : ""}`}
+                  className={`nav-item ${location.pathname === item.path ? "active" : ""} ${BOTTOM_NAV_PATHS.has(item.path) ? "nav-item--bottom-nav" : ""}`}
                   onClick={() => setSidebarOpen(false)}
                   data-tour-id={item.path === "/" ? "nav-dashboard" : undefined}
                 >
@@ -152,6 +163,36 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       >
         {children}
       </main>
+
+      {/* Bottom Navigation (mobile only) */}
+      <nav className="bottom-nav" aria-label="Bottom navigation">
+        {bottomNavItems.map((item) => {
+          const count = badgeCount(item.path);
+          const isActive =
+            item.path === "/"
+              ? location.pathname === "/"
+              : location.pathname.startsWith(item.path);
+          return (
+            <Link
+              key={item.path}
+              to={item.path}
+              className={`bottom-nav-item ${isActive ? "active" : ""}`}
+              onClick={() => {
+                setSidebarOpen(false);
+                if (item.path === "/chat") markChatRead();
+              }}
+            >
+              <span className="bottom-nav-icon">{item.icon}</span>
+              <span className="bottom-nav-label">{item.label}</span>
+              {count > 0 && (
+                <span className="bottom-nav-badge" aria-label={`${count} unread`}>
+                  {count > 99 ? "99+" : count}
+                </span>
+              )}
+            </Link>
+          );
+        })}
+      </nav>
     </div>
   );
 }

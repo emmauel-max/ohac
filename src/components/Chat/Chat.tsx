@@ -37,6 +37,10 @@ export default function Chat() {
   const [showRoomMenu, setShowRoomMenu] = useState(false);
   const [showChatTour, setShowChatTour] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
+  // On mobile (<640px) we show the room-selection screen first; false = show chat window
+  const [showMobileRoomList, setShowMobileRoomList] = useState(
+    typeof window !== "undefined" && window.innerWidth < 640
+  );
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
@@ -147,7 +151,37 @@ export default function Chat() {
 
   return (
     <div className="chat-page">
-      {/* Room List (Sidebar for Desktop) */}
+      {/* Mobile Room Selection Screen (shown first on small screens) */}
+      {showMobileRoomList && (
+        <div className="mobile-room-selection">
+          <div className="mobile-room-selection-header">
+            <h2>💬 Chat Rooms</h2>
+            <p>Choose a room to start chatting</p>
+          </div>
+          <div className="mobile-room-cards">
+            {CHAT_ROOMS.map((room) => (
+              <button
+                key={room.id}
+                className={`mobile-room-card ${activeRoom.id === room.id ? "active" : ""}`}
+                onClick={() => {
+                  setActiveRoom(room);
+                  setMessages([]);
+                  setShowMobileRoomList(false);
+                }}
+              >
+                <span className="mobile-room-card-icon">{room.icon}</span>
+                <div className="mobile-room-card-info">
+                  <span className="mobile-room-card-name">{room.name}</span>
+                  <span className="mobile-room-card-desc">{room.description}</span>
+                </div>
+                <span className="mobile-room-card-arrow">›</span>
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
+
+      {/* Room List (Desktop Sidebar) */}
       <aside className="room-list">
         <h3>Chat Rooms</h3>
         {CHAT_ROOMS.map((room) => (
@@ -166,9 +200,17 @@ export default function Chat() {
       </aside>
 
       {/* Chat Window */}
-      <div className="chat-window">
+      <div className={`chat-window ${showMobileRoomList ? "chat-window--hidden-mobile" : ""}`}>
         {/* Header with Mobile Dropdown Toggle */}
         <div className="chat-header">
+          {/* Back button – mobile only */}
+          <button
+            className="back-to-rooms-btn"
+            onClick={() => setShowMobileRoomList(true)}
+            aria-label="Back to rooms"
+          >
+            ‹
+          </button>
           <div
             className="chat-header-content"
             onClick={() => setShowRoomMenu(!showRoomMenu)}
@@ -183,7 +225,6 @@ export default function Chat() {
               </h2>
               <p style={{ margin: 0 }}>{activeRoom.description}</p>
             </div>
-            <span className="mobile-switch-hint">Tap to switch</span>
           </div>
 
           {/* Mobile Dropdown Menu */}
@@ -227,7 +268,7 @@ export default function Chat() {
           <div className="chat-tour-banner">
             <span className="chat-tour-icon">💡</span>
             <span className="chat-tour-text">
-              Tap the <strong>header above</strong> (showing the current room name) to switch between chat rooms — General, Training, Courses, and Notices.
+              Tap the <strong>‹ back button</strong> in the header to return to the room list and switch between General, Training, Courses, and Notices.
             </span>
             <button className="chat-tour-dismiss" onClick={dismissChatTour}>Got it</button>
           </div>
