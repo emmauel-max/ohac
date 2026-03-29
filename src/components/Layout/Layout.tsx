@@ -16,7 +16,7 @@ const navItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: "🏠" },
   { path: "/profile", label: "Profile", icon: "👤" },
   { path: "/courses", label: "Courses", icon: "📚" },
-  { path: "/chat", label: "Chat", icon: "💬" },
+  { path: "/chat", label: "Messages", icon: "💬" },
   { path: "/events", label: "Events", icon: "📅" },
   { path: "/announcements", label: "Announcements", icon: "📢" },
   { path: "/admin", label: "Admin Panel", icon: "⚙️", adminOnly: true },
@@ -26,7 +26,7 @@ const navItems: NavItem[] = [
 const bottomNavItems: NavItem[] = [
   { path: "/", label: "Dashboard", icon: "🏠" },
   { path: "/courses", label: "Courses", icon: "📚" },
-  { path: "/chat", label: "Chat", icon: "💬" },
+  { path: "/chat", label: "Messages", icon: "💬" },
   { path: "/profile", label: "Profile", icon: "👤" },
 ];
 
@@ -155,7 +155,6 @@ export default function Layout({ children }: { children: React.ReactNode }) {
       <main
         className={[
           "main-content",
-          location.pathname === "/chat" && "main-content--chat",
           sidebarOpen && "main-content--blurred",
         ]
           .filter(Boolean)

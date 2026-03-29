@@ -1,74 +1,62 @@
 import { useState, useEffect, useRef } from "react";
-import { ref, push, onValue, off } from "firebase/database";
+import { ref, push, onValue, off, set } from "firebase/database";
 import { ref as storageRef, uploadBytes, getDownloadURL } from "firebase/storage";
-import { rtdb, storage } from "../../firebase";
+import { collection, getDocs } from "firebase/firestore";
+import { rtdb, storage, db } from "../../firebase";
 import { useAuth } from "../../hooks/useAuth";
 import { linkify } from "../../utils/linkify";
-import type { ChatMessage, ChatRoom } from "../../types";
+import type { User, DirectMessage } from "../../types";
 import "./Chat.css";
 
-// Import Backgrounds
-import generalBg from "../../assets/background/general-chat-wallpaper.jpg";
-import trainingBg from "../../assets/background/training-chat-wallpaper.jpg";
-// Note: You didn't have a 'courses-chat-wallpaper.jpg' in the screenshot, so I am falling back to general. 
-// If you add one later, you can import it here!
-import noticesBg from "../../assets/background/notices-chat-wallpaper.jpg";
-
-// Extended ChatRoom type to include the local image path
-interface ThemedChatRoom extends ChatRoom {
-  wallpaper: string;
+function getConversationId(uid1: string, uid2: string): string {
+  return [uid1, uid2].sort().join("_");
 }
-
-const CHAT_ROOMS: ThemedChatRoom[] = [
-  { id: "general", name: "General", description: "General cadet discussions", icon: "💬", wallpaper: generalBg },
-  { id: "training", name: "Training", description: "PT and training talk", icon: "🏋️", wallpaper: trainingBg },
-  { id: "courses", name: "Courses", description: "Course help and discussion", icon: "📚", wallpaper: generalBg }, 
-  { id: "announcements-chat", name: "Notices", description: "Unit notices", icon: "📢", wallpaper: noticesBg },
-];
-
-const CHAT_TOUR_KEY_PREFIX = "ohac:chat-tour:done:";
 
 export default function Chat() {
   const { currentUser, userProfile } = useAuth();
-  const [activeRoom, setActiveRoom] = useState<ThemedChatRoom>(CHAT_ROOMS[0]);
-  const [messages, setMessages] = useState<ChatMessage[]>([]);
+  const [users, setUsers] = useState<User[]>([]);
+  const [loadingUsers, setLoadingUsers] = useState(true);
+  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [messages, setMessages] = useState<DirectMessage[]>([]);
   const [newMessage, setNewMessage] = useState("");
   const [sending, setSending] = useState(false);
-  const [showRoomMenu, setShowRoomMenu] = useState(false);
-  const [showChatTour, setShowChatTour] = useState(false);
   const [uploadingImage, setUploadingImage] = useState(false);
-  // On mobile (<640px) we show the room-selection screen first; false = show chat window
-  const [showMobileRoomList, setShowMobileRoomList] = useState(
-    typeof window !== "undefined" && window.innerWidth < 640
-  );
+  const [searchQuery, setSearchQuery] = useState("");
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const imageInputRef = useRef<HTMLInputElement>(null);
 
-  // Show mobile chat tour once per user
+  // Load all users from Firestore
   useEffect(() => {
     if (!currentUser) return;
-    const key = `${CHAT_TOUR_KEY_PREFIX}${currentUser.uid}`;
-    const isMobile = window.innerWidth < 640;
-    if (isMobile && !window.localStorage.getItem(key)) {
-      setShowChatTour(true);
-    }
+    getDocs(collection(db, "users"))
+      .then((snap) => {
+        const allUsers: User[] = [];
+        snap.forEach((doc) => {
+          const data = doc.data() as User;
+          if (data.uid !== currentUser.uid && !data.banned) {
+            allUsers.push(data);
+          }
+        });
+        allUsers.sort((a, b) =>
+          (a.displayName || "").localeCompare(b.displayName || "")
+        );
+        setUsers(allUsers);
+        setLoadingUsers(false);
+      })
+      .catch(() => setLoadingUsers(false));
   }, [currentUser]);
 
-  const dismissChatTour = () => {
-    if (currentUser) {
-      window.localStorage.setItem(`${CHAT_TOUR_KEY_PREFIX}${currentUser.uid}`, "1");
-    }
-    setShowChatTour(false);
-  };
-
+  // Subscribe to DM messages when a conversation is open
   useEffect(() => {
-    const messagesRef = ref(rtdb, `chat/${activeRoom.id}`);
-    const unsubscribe = onValue(messagesRef, (snapshot) => {
+    if (!selectedUser || !currentUser) return;
+    const convId = getConversationId(currentUser.uid, selectedUser.uid);
+    const msgsRef = ref(rtdb, `dm/${convId}/messages`);
+    const unsubscribe = onValue(msgsRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const msgs = Object.entries(data).map(([id, val]) => ({
           id,
-          ...(val as Omit<ChatMessage, "id">),
+          ...(val as Omit<DirectMessage, "id">),
         }));
         msgs.sort((a, b) => a.timestamp - b.timestamp);
         setMessages(msgs.slice(-100));
@@ -76,9 +64,10 @@ export default function Chat() {
         setMessages([]);
       }
     });
-    return () => off(messagesRef, "value", unsubscribe);
-  }, [activeRoom.id]);
+    return () => off(msgsRef, "value", unsubscribe);
+  }, [selectedUser, currentUser]);
 
+  // Auto-scroll to latest message
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -86,18 +75,28 @@ export default function Chat() {
   const sendMessage = async (imageUrl?: string) => {
     const text = newMessage.trim();
     if (!text && !imageUrl) return;
-    if (!currentUser || sending) return;
+    if (!currentUser || !selectedUser || sending) return;
     setSending(true);
     try {
-      await push(ref(rtdb, `chat/${activeRoom.id}`), {
+      const convId = getConversationId(currentUser.uid, selectedUser.uid);
+      const timestamp = Date.now();
+      await push(ref(rtdb, `dm/${convId}/messages`), {
         uid: currentUser.uid,
         displayName: currentUser.displayName || "Cadet",
         photoURL: currentUser.photoURL || null,
         rank: userProfile?.rank || null,
         text: text || "",
         imageUrl: imageUrl || null,
-        timestamp: Date.now(),
-        room: activeRoom.id,
+        timestamp,
+      });
+      // Update recipient's DM inbox so they get an unread badge
+      await set(ref(rtdb, `dm_inbox/${selectedUser.uid}/${currentUser.uid}`), {
+        latestTs: timestamp,
+        latestText: text || "📷 Image",
+        latestUid: currentUser.uid,
+        senderName: currentUser.displayName || "Cadet",
+        senderPhoto: currentUser.photoURL || null,
+        convId,
       });
       setNewMessage("");
     } catch (err) {
@@ -109,8 +108,7 @@ export default function Chat() {
 
   const handleImageUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
-    if (!file || !currentUser) return;
-
+    if (!file || !currentUser || !selectedUser) return;
     const validTypes = ["image/jpeg", "image/png", "image/gif", "image/webp"];
     if (!validTypes.includes(file.type)) {
       alert("Please select a valid image (JPEG, PNG, GIF, or WebP).");
@@ -120,10 +118,10 @@ export default function Chat() {
       alert("Image must be smaller than 5 MB.");
       return;
     }
-
     setUploadingImage(true);
     try {
-      const path = `chat/${activeRoom.id}/${currentUser.uid}_${Date.now()}_${file.name}`;
+      const convId = getConversationId(currentUser.uid, selectedUser.uid);
+      const path = `dm/${convId}/${currentUser.uid}_${Date.now()}_${file.name}`;
       const sRef = storageRef(storage, path);
       await uploadBytes(sRef, file);
       const url = await getDownloadURL(sRef);
@@ -149,151 +147,66 @@ export default function Chat() {
     return d.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
   };
 
-  return (
-    <div className="chat-page">
-      {/* Mobile Room Selection Screen (shown first on small screens) */}
-      {showMobileRoomList && (
-        <div className="mobile-room-selection">
-          <div className="mobile-room-selection-header">
-            <h2>💬 Chat Rooms</h2>
-            <p>Choose a room to start chatting</p>
-          </div>
-          <div className="mobile-room-cards">
-            {CHAT_ROOMS.map((room) => (
-              <button
-                key={room.id}
-                className={`mobile-room-card ${activeRoom.id === room.id ? "active" : ""}`}
-                onClick={() => {
-                  setActiveRoom(room);
-                  setMessages([]);
-                  setShowMobileRoomList(false);
-                }}
-              >
-                <span className="mobile-room-card-icon">{room.icon}</span>
-                <div className="mobile-room-card-info">
-                  <span className="mobile-room-card-name">{room.name}</span>
-                  <span className="mobile-room-card-desc">{room.description}</span>
-                </div>
-                <span className="mobile-room-card-arrow">›</span>
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
+  const filteredUsers = users.filter((u) => {
+    if (!searchQuery) return true;
+    const q = searchQuery.toLowerCase();
+    return (
+      u.displayName?.toLowerCase().includes(q) ||
+      u.rank?.toLowerCase().includes(q) ||
+      u.unit?.toLowerCase().includes(q)
+    );
+  });
 
-      {/* Room List (Desktop Sidebar) */}
-      <aside className="room-list">
-        <h3>Chat Rooms</h3>
-        {CHAT_ROOMS.map((room) => (
-          <button
-            key={room.id}
-            className={`room-btn ${activeRoom.id === room.id ? "active" : ""}`}
-            onClick={() => { setActiveRoom(room); setMessages([]); }}
-          >
-            <span className="room-icon">{room.icon}</span>
-            <div className="room-info">
-              <span className="room-name">{room.name}</span>
-              <span className="room-desc">{room.description}</span>
-            </div>
-          </button>
-        ))}
-      </aside>
-
-      {/* Chat Window */}
-      <div className={`chat-window ${showMobileRoomList ? "chat-window--hidden-mobile" : ""}`}>
-        {/* Header with Mobile Dropdown Toggle */}
+  // ── DM Conversation View (fullscreen, covers bottom nav) ──
+  if (selectedUser) {
+    return (
+      <div className="dm-fullscreen">
+        {/* Header */}
         <div className="chat-header">
-          {/* Back button – mobile only */}
           <button
-            className="back-to-rooms-btn"
-            onClick={() => setShowMobileRoomList(true)}
-            aria-label="Back to rooms"
+            className="dm-back-btn"
+            onClick={() => {
+              setSelectedUser(null);
+              setMessages([]);
+            }}
+            aria-label="Back to messages"
           >
             ‹
           </button>
-          <div
-            className="chat-header-content"
-            onClick={() => setShowRoomMenu(!showRoomMenu)}
-            style={{ display: 'flex', alignItems: 'center', gap: '1rem', cursor: 'pointer', width: '100%' }}
-            title="Tap to switch rooms"
-          >
-            <span style={{ fontSize: '1.8rem' }}>{activeRoom.icon}</span>
-            <div style={{ flex: 1 }}>
-              <h2 style={{ display: 'flex', alignItems: 'center', gap: '8px', margin: 0 }}>
-                {activeRoom.name}
-                <span className="mobile-caret" style={{ fontSize: '0.8rem', color: 'rgba(200,255,200,0.65)', transition: 'transform 0.3s', transform: showRoomMenu ? 'rotate(180deg)' : 'rotate(0deg)' }}>▼</span>
-              </h2>
-              <p style={{ margin: 0 }}>{activeRoom.description}</p>
-            </div>
+          <img
+            src={selectedUser.photoURL || "/icons/icon-192.png"}
+            alt={selectedUser.displayName || "User"}
+            className="dm-header-avatar"
+          />
+          <div className="dm-header-info">
+            <h2>{selectedUser.displayName || "Cadet"}</h2>
+            {selectedUser.rank && <p>{selectedUser.rank}</p>}
           </div>
-
-          {/* Mobile Dropdown Menu */}
-          {showRoomMenu && (
-            <div className="mobile-dropdown">
-              {CHAT_ROOMS.map((room) => (
-                <button
-                  key={room.id}
-                  onClick={() => {
-                    setActiveRoom(room);
-                    setMessages([]);
-                    setShowRoomMenu(false);
-                  }}
-                  style={{
-                    display: 'flex',
-                    alignItems: 'center',
-                    gap: '1rem',
-                    padding: '1rem',
-                    border: 'none',
-                    backgroundColor: activeRoom.id === room.id ? 'rgba(144,238,144,0.12)' : 'transparent',
-                    borderBottom: '1px solid rgba(255,255,255,0.07)',
-                    cursor: 'pointer',
-                    textAlign: 'left',
-                    color: activeRoom.id === room.id ? '#c8ffc8' : 'rgba(255,255,255,0.75)',
-                    width: '100%',
-                  }}
-                >
-                  <span style={{ fontSize: '1.5rem' }}>{room.icon}</span>
-                  <div>
-                    <div style={{ fontWeight: 'bold' }}>{room.name}</div>
-                    <div style={{ fontSize: '0.8rem', opacity: 0.6 }}>{room.description}</div>
-                  </div>
-                </button>
-              ))}
-            </div>
-          )}
         </div>
 
-        {/* First-time mobile tour banner */}
-        {showChatTour && (
-          <div className="chat-tour-banner">
-            <span className="chat-tour-icon">💡</span>
-            <span className="chat-tour-text">
-              Tap the <strong>‹ back button</strong> in the header to return to the room list and switch between General, Training, Courses, and Notices.
-            </span>
-            <button className="chat-tour-dismiss" onClick={dismissChatTour}>Got it</button>
-          </div>
-        )}
-
         {/* Messages */}
-        <div 
-          className="messages-area" 
-          style={{ 
-            backgroundImage: `url(${activeRoom.wallpaper})`,
-            backgroundSize: 'cover',
-            backgroundPosition: 'center',
-            backgroundRepeat: 'no-repeat'
-          }}
-        >
+        <div className="messages-area">
           {messages.length === 0 && (
             <div className="empty-chat">
-              <p>{activeRoom.icon}</p>
-              <p style={{background: 'rgba(255,255,255,0.7)', padding: '0.5rem 1rem', borderRadius: '12px'}}>No messages yet. Be the first to say hello!</p>
+              <p>💬</p>
+              <p
+                style={{
+                  background: "rgba(255,255,255,0.7)",
+                  padding: "0.5rem 1rem",
+                  borderRadius: "12px",
+                }}
+              >
+                No messages yet. Say hello to {selectedUser.displayName}!
+              </p>
             </div>
           )}
           {messages.map((msg) => {
             const isOwn = msg.uid === currentUser?.uid;
             return (
-              <div key={msg.id} className={`message ${isOwn ? "own" : "other"}`}>
+              <div
+                key={msg.id}
+                className={`message ${isOwn ? "own" : "other"}`}
+              >
                 {!isOwn && (
                   <img
                     src={msg.photoURL || "/icons/icon-192.png"}
@@ -302,12 +215,6 @@ export default function Chat() {
                   />
                 )}
                 <div className="msg-bubble">
-                  {!isOwn && (
-                    <span className="msg-author">
-                      {msg.displayName}
-                      {msg.rank && <span className="msg-rank">{msg.rank}</span>}
-                    </span>
-                  )}
                   {msg.imageUrl && (
                     <a
                       href={msg.imageUrl}
@@ -321,7 +228,9 @@ export default function Chat() {
                       />
                     </a>
                   )}
-                  {msg.text && <p className="msg-text">{linkify(msg.text)}</p>}
+                  {msg.text && (
+                    <p className="msg-text">{linkify(msg.text)}</p>
+                  )}
                   <span className="msg-time">{formatTime(msg.timestamp)}</span>
                 </div>
               </div>
@@ -350,7 +259,7 @@ export default function Chat() {
           </button>
           <textarea
             className="chat-input"
-            placeholder={`Message #${activeRoom.name.toLowerCase()}...`}
+            placeholder={`Message ${selectedUser.displayName || "Cadet"}…`}
             value={newMessage}
             onChange={(e) => setNewMessage(e.target.value)}
             onKeyDown={handleKeyDown}
@@ -364,6 +273,63 @@ export default function Chat() {
             ➤
           </button>
         </div>
+      </div>
+    );
+  }
+
+  // ── User List View ────────────────────────────────────────
+  return (
+    <div className="dm-page">
+      <div className="dm-list-header">
+        <h2>💬 Direct Messages</h2>
+        <p>Send private messages to other cadets</p>
+        <input
+          type="search"
+          className="dm-search"
+          placeholder="Search cadets…"
+          value={searchQuery}
+          onChange={(e) => setSearchQuery(e.target.value)}
+        />
+      </div>
+      <div className="dm-user-list">
+        {loadingUsers ? (
+          <div className="dm-status">Loading cadets…</div>
+        ) : filteredUsers.length === 0 ? (
+          <div className="dm-status">
+            {searchQuery
+              ? `No cadets found for "${searchQuery}"`
+              : "No other cadets found"}
+          </div>
+        ) : (
+          filteredUsers.map((user) => (
+            <button
+              key={user.uid}
+              className="dm-user-item"
+              onClick={() => {
+                setSelectedUser(user);
+                setMessages([]);
+              }}
+            >
+              <img
+                src={user.photoURL || "/icons/icon-192.png"}
+                alt={user.displayName || "User"}
+                className="dm-user-avatar"
+              />
+              <div className="dm-user-info">
+                <span className="dm-user-name">
+                  {user.displayName || "Unknown"}
+                </span>
+                {user.rank && (
+                  <span className="dm-user-rank">{user.rank}</span>
+                )}
+                {user.unit && (
+                  <span className="dm-user-unit">{user.unit}</span>
+                )}
+              </div>
+              <span className="dm-user-arrow">›</span>
+            </button>
+          ))
+        )}
       </div>
     </div>
   );
