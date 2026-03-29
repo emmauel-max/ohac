@@ -18,6 +18,7 @@ const navItems: NavItem[] = [
   { path: "/courses", label: "Courses", icon: "📚" },
   { path: "/chat", label: "Messages", icon: "💬" },
   { path: "/events", label: "Events", icon: "📅" },
+  { path: "/officers", label: "Officers", icon: "🎖️" },
   { path: "/announcements", label: "Announcements", icon: "📢" },
   { path: "/admin", label: "Admin Panel", icon: "⚙️", adminOnly: true },
 ];
