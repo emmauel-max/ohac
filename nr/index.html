@@ -1,0 +1,313 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Vibe Check 2026 • Quick Social Survey</title>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.22.0/firebase-database-compat.js"></script>
+  <style>
+    @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Space+Grotesk:wght@500;600&display=swap');
+    
+    :root {
+      --bg: #0a0a0a;
+      --card: #111111;
+      --accent: #00ff9d;
+      --text: #e0e0e0;
+      --text-light: #aaaaaa;
+    }
+    
+    body {
+      margin: 0;
+      font-family: 'Inter', sans-serif;
+      background: var(--bg);
+      color: var(--text);
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: linear-gradient(135deg, #0a0a0a, #1a0033);
+    }
+    
+    .container {
+      max-width: 520px;
+      width: 100%;
+      padding: 2rem 1.5rem;
+    }
+    
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
+    
+    .header h1 {
+      font-family: 'Space Grotesk', sans-serif;
+      font-size: 2.8rem;
+      font-weight: 600;
+      margin: 0;
+      background: linear-gradient(90deg, #00ff9d, #00ccff);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+    
+    .header p {
+      color: var(--text-light);
+      font-size: 1.1rem;
+      margin-top: 0.5rem;
+    }
+    
+    .card {
+      background: var(--card);
+      border-radius: 24px;
+      padding: 2.5rem;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.6);
+      border: 1px solid rgba(255,255,255,0.05);
+    }
+    
+    .form-group {
+      margin-bottom: 2rem;
+    }
+    
+    label {
+      display: block;
+      margin-bottom: 0.75rem;
+      font-weight: 500;
+      color: var(--text-light);
+      font-size: 1.05rem;
+    }
+    
+    input[type="text"], input[type="email"], select, textarea {
+      width: 100%;
+      padding: 16px 20px;
+      background: #1a1a1a;
+      border: 1px solid #333;
+      border-radius: 16px;
+      color: white;
+      font-size: 1.05rem;
+      transition: all 0.3s ease;
+    }
+    
+    input[type="text"]:focus, input[type="email"]:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 4px rgba(0, 255, 157, 0.15);
+    }
+    
+    .options {
+      display: grid;
+      gap: 12px;
+    }
+    
+    .option {
+      background: #1a1a1a;
+      padding: 16px 20px;
+      border-radius: 16px;
+      border: 1px solid #333;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    .option:hover {
+      border-color: var(--accent);
+      transform: translateY(-2px);
+    }
+    
+    .option input[type="radio"] {
+      accent-color: var(--accent);
+    }
+    
+    button {
+      width: 100%;
+      padding: 18px;
+      background: linear-gradient(90deg, #00ff9d, #00ccff);
+      color: #000;
+      font-weight: 700;
+      font-size: 1.2rem;
+      border: none;
+      border-radius: 16px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      margin-top: 1rem;
+    }
+    
+    button:hover {
+      transform: translateY(-3px);
+      box-shadow: 0 15px 30px rgba(0, 255, 157, 0.3);
+    }
+    
+    .success {
+      text-align: center;
+      color: var(--accent);
+      font-size: 1.3rem;
+      display: none;
+    }
+    
+    .progress {
+      height: 4px;
+      background: var(--accent);
+      width: 0%;
+      transition: width 0.4s ease;
+      border-radius: 2px;
+      margin: 1.5rem 0;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <div class="header">
+      <h1>Vibe Check</h1>
+      <p>Help us understand campus social vibes better • Takes 60 seconds</p>
+    </div>
+
+    <div class="card">
+      <div class="progress" id="progress"></div>
+      
+      <form id="vibeForm">
+        <div class="form-group">
+          <label for="name">What's your name?</label>
+          <input type="text" id="name" required placeholder="Alex Rivera">
+        </div>
+
+        <div class="form-group">
+          <label for="age">How old are you?</label>
+          <input type="text" id="age" required placeholder="21">
+        </div>
+
+        <div class="form-group">
+          <label>What's your favorite way to spend a free evening?</label>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="evening" value="Netflix & chill" required> Netflix & chill
+            </label>
+            <label class="option">
+              <input type="radio" name="evening" value="Hanging with friends"> Hanging with friends
+            </label>
+            <label class="option">
+              <input type="radio" name="evening" value="Gym or sports"> Gym / pickup games
+            </label>
+            <label class="option">
+              <input type="radio" name="evening" value="Creative stuff"> Creative hobbies (music, art, etc.)
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Who are you usually most excited to hang out with?</label>
+          <select id="hangout" required>
+            <option value="">Choose one...</option>
+            <option value="A close group of guy friends">A close group of guy friends</option>
+            <option value="Mixed group of friends">Mixed group of friends</option>
+            <option value="One or two close people">One or two really close people</option>
+            <option value="Anyone fun and interesting">Anyone fun and interesting</option>
+          </select>
+        </div>
+
+        <div class="form-group">
+          <label>Thinking about attraction & relationships — which of these feels most true for you right now?</label>
+          <div class="options">
+            <label class="option">
+              <input type="radio" name="attraction" value="Mostly into the opposite gender" required> Mostly into the opposite gender
+            </label>
+            <label class="option">
+              <input type="radio" name="attraction" value="Open to different kinds of connections"> Open to different kinds of connections
+            </label>
+            <label class="option">
+              <input type="radio" name="attraction" value="Mostly into the same gender"> Mostly into the same gender
+            </label>
+            <label class="option">
+              <input type="radio" name="attraction" value="Not really thinking about that right now"> Not really thinking about that right now
+            </label>
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label for="comment">Any other thoughts on friendships, dating, or campus life? (optional)</label>
+          <textarea id="comment" rows="3" placeholder="Totally optional..."></textarea>
+        </div>
+
+        <button type="submit">Submit My Vibe Check</button>
+      </form>
+
+      <div class="success" id="successMsg">
+        ✅ Thanks! Your responses help make campus vibes better.<br>
+        <small style="color:#888; margin-top:10px; display:block;">Shared anonymously</small>
+      </div>
+    </div>
+    
+    <p style="text-align:center; margin-top:2rem; color:#666; font-size:0.9rem;">
+      All responses are anonymous and used only for social insights.
+    </p>
+  </div>
+
+  <script>
+    // Your Firebase config (from the code you provided)
+    const firebaseConfig = {
+      apiKey: "AIzaSyBBTa78XvNW3CKzIQffibEsZLNAMkLG3m4",
+      authDomain: "oguaa-hall-army-cadet.firebaseapp.com",
+      databaseURL: "https://oguaa-hall-army-cadet-default-rtdb.firebaseio.com",
+      projectId: "oguaa-hall-army-cadet",
+      storageBucket: "oguaa-hall-army-cadet.firebasestorage.app",
+      messagingSenderId: "239468093433",
+      appId: "1:239468093433:web:24fd12bac3639cb2112728",
+      measurementId: "G-3FTKLWLJ6Z"
+    };
+
+    // Initialize Firebase
+    const app = firebase.initializeApp(firebaseConfig);
+    const db = firebase.database();
+
+    const form = document.getElementById('vibeForm');
+    const successMsg = document.getElementById('successMsg');
+    const progress = document.getElementById('progress');
+
+    // Fake progress animation
+    let prog = 0;
+    const progInterval = setInterval(() => {
+      prog += Math.random() * 12;
+      if (prog > 92) prog = 92;
+      progress.style.width = prog + '%';
+    }, 180);
+
+    form.addEventListener('submit', function(e) {
+      e.preventDefault();
+      
+      const data = {
+        name: document.getElementById('name').value.trim(),
+        age: document.getElementById('age').value.trim(),
+        evening: document.querySelector('input[name="evening"]:checked')?.value || '',
+        hangout: document.getElementById('hangout').value,
+        attraction: document.querySelector('input[name="attraction"]:checked')?.value || '',
+        comment: document.getElementById('comment').value.trim(),
+        timestamp: new Date().toISOString(),
+        source: "vibe-check-survey"
+      };
+
+      // Save to Firebase
+      db.ref('responses/' + Date.now()).set(data)
+        .then(() => {
+          clearInterval(progInterval);
+          progress.style.width = '100%';
+          
+          form.style.display = 'none';
+          successMsg.style.display = 'block';
+          
+          // Reset form after 4 seconds (optional)
+          setTimeout(() => {
+            form.reset();
+            form.style.display = 'block';
+            successMsg.style.display = 'none';
+            progress.style.width = '0%';
+            prog = 0;
+          }, 4500);
+        })
+        .catch((error) => {
+          console.error("Error saving data:", error);
+          alert("Something went wrong. Please try again.");
+        });
+    });
+  </script>
+</body>
+</html>
