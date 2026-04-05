@@ -1,23 +1,26 @@
-# OHAC - Oguaa Hall Army Cadet Portal
+# OHAC — Oguaa Hall Army Cadet Website
 
-A Progressive Web App (PWA) for the Oguaa Hall Army Cadet (OHAC) at the University of Cape Coast.
+The official public website for the **Oguaa Hall Army Cadet (OHAC)** at the University of Cape Coast, Ghana. Built as a Progressive Web App (PWA).
 
-## Features
+## Pages
 
-- 🔐 **Google Sign-In / Sign-Up** — Secure authentication via Firebase Auth
-- 📚 **Military Courses** — Training modules covering Ghana Armed Forces history, drill, navigation, first aid, leadership, and fitness
-- 💬 **In-App Chat** — Real-time chat rooms (General, Training, Courses, Notices) powered by Firebase Realtime Database
-- ⚙️ **Admin Panel** — Manage members/roles, post announcements, oversee courses and events
-- 📢 **Announcements** — Official notices with priority levels (Urgent/High/Normal/Low)
-- 📅 **Events** — Upcoming parades, exercises, and cadet activities
-- 📱 **PWA** — Installable on mobile and desktop, with offline support via service worker
+| Route | Description |
+|---|---|
+| `/` | Home — hero banner, latest announcements, quick-access cards, achievements, join CTA |
+| `/about` | History, mission statement, core values, organisational structure, and affiliations |
+| `/officers` | Current commissioned officers and warrant officers sourced from Firestore |
+| `/events` | Upcoming parades, exercises, and cadet activities sourced from Firestore |
+| `/announcements` | Official notices with priority levels (Urgent / High / Normal / Low) from Firestore |
+| `/join` | Eligibility requirements, enlistment process steps, FAQ, and enlistment form |
+| `/gallery` | Photo gallery with category filtering and lightbox viewer |
+| `/contact` | Unit contact details and general enquiry form |
 
 ## Tech Stack
 
-- React 19 + TypeScript + Vite
-- Firebase (Auth, Firestore, Realtime Database, Storage)
-- React Router v7
-- Vite PWA Plugin
+- **React 19** + **TypeScript** + **Vite**
+- **Firebase** (Firestore for public data reads)
+- **React Router v7**
+- **Vite PWA Plugin** — installable on mobile and desktop with service-worker caching
 
 ## Getting Started
 
@@ -32,80 +35,50 @@ npm run dev
 npm run build
 ```
 
+## Preview production build
+
+```bash
+npm run preview
+```
+
+## Lint
+
+```bash
+npm run lint
+```
+
 ## Firebase Setup
 
-The app uses the OHAC Firebase project by default. To use your own Firebase project:
+The site reads public data (announcements, events, officers) from Firestore. The OHAC Firebase project credentials are bundled by default. To use your own Firebase project:
 
 1. Copy `.env.example` to `.env.local`
-2. Fill in your Firebase credentials
-3. Enable Google Sign-In in Firebase Auth
-4. Set up Firestore and Realtime Database security rules
-
-## Promoting Users to Admin
-
-The app has three user roles: **cadet** (default), **member**, and **admin**. Only admins can access the Admin Panel, post announcements, manage courses, and change roles.
-
-### Method 1: Via the Admin Panel (recommended)
-
-If you already have at least one admin account:
-
-1. Sign in with the admin account.
-2. Navigate to the **Admin Panel** (⚙️ icon in the navigation bar).
-3. Click the **Members** tab.
-4. Find the user you want to promote in the members table.
-5. In the **Actions** column, open the role dropdown next to their name.
-6. Select **Admin** from the dropdown (`Cadet` → `Member` → `Admin`).
-7. The change is saved immediately to Firestore.
-
-### Method 2: Via Firebase Console (for the first admin)
-
-Use this method to bootstrap the very first admin when no admin account exists yet:
-
-1. Open the [Firebase Console](https://console.firebase.google.com/) and select your project.
-2. Go to **Firestore Database** → **Data**.
-3. Open the **`users`** collection.
-4. Find the document whose ID matches the UID of the user you want to promote (the UID is shown in **Authentication** → **Users**).
-5. Click the `role` field and change its value from `"cadet"` to `"admin"`.
-6. Click **Update**.
-
-The user will have admin access the next time they load the app.
+2. Fill in your Firebase project credentials
+3. Set up Firestore security rules (see below)
 
 ## Firebase Security Rules
 
 ### Firestore
+
+Allow unauthenticated reads for public collections; restrict writes to authenticated admins.
+
 ```
 rules_version = '2';
 service cloud.firestore {
   match /databases/{database}/documents {
-    match /users/{userId} {
-      allow read: if request.auth != null;
-      allow write: if request.auth.uid == userId;
-    }
     match /announcements/{id} {
-      allow read: if request.auth != null;
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
-    }
-    match /courses/{id} {
-      allow read: if request.auth != null;
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if true;
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
     match /events/{id} {
-      allow read: if request.auth != null;
-      allow write: if get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
+      allow read: if true;
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
-  }
-}
-```
-
-### Realtime Database
-```json
-{
-  "rules": {
-    "chat": {
-      "$room": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
+    match /officers/{id} {
+      allow read: if true;
+      allow write: if request.auth != null
+        && get(/databases/$(database)/documents/users/$(request.auth.uid)).data.role == 'admin';
     }
   }
 }
