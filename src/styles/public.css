@@ -1,0 +1,156 @@
+/* Shared styles for public pages that use Officers/Events/Announcements components */
+
+/* Override the dark glassmorphism backgrounds with light versions for public views */
+.public-layout .officers-page,
+.public-layout .events-page,
+.public-layout .announcements-page {
+  background: var(--color-bg);
+  color: var(--color-text);
+  max-width: 1100px;
+  margin: 0 auto;
+  padding: 3rem 1.25rem;
+}
+
+.public-layout .officers-header,
+.public-layout .page-header {
+  margin-bottom: 2.5rem;
+  padding: 3rem 1.25rem 2rem;
+  background: var(--color-primary);
+  border-radius: var(--radius-lg);
+  margin-bottom: 2.5rem;
+}
+
+.public-layout .officers-header h1,
+.public-layout .page-header h1 {
+  font-family: var(--font-heading);
+  font-size: clamp(1.8rem, 5vw, 2.8rem);
+  color: #fff;
+  margin-bottom: 0.5rem;
+}
+
+.public-layout .officers-header p,
+.public-layout .page-header p {
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 1rem;
+}
+
+/* Officer strength card */
+.public-layout .officer-strength-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.public-layout .officer-strength-card h2 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+}
+
+.public-layout .strength-rank {
+  color: var(--color-text-muted);
+}
+
+.public-layout .strength-count {
+  color: var(--color-primary-light);
+  font-weight: 700;
+}
+
+/* Officer cards */
+.public-layout .officers-rank-section h2 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 0.5rem;
+}
+
+.public-layout .officer-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.public-layout .officer-card h3 {
+  color: var(--color-primary);
+}
+
+.public-layout .officer-role {
+  color: var(--color-accent) !important;
+}
+
+.public-layout .officer-bio {
+  color: var(--color-text-muted) !important;
+}
+
+/* Events */
+.public-layout .events-section h2 {
+  color: var(--color-primary);
+  font-family: var(--font-heading);
+  font-size: 1.5rem;
+  margin-bottom: 1.25rem;
+  border-bottom: 2px solid var(--color-accent);
+  padding-bottom: 0.5rem;
+}
+
+.public-layout .event-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.public-layout .event-card h3 {
+  color: var(--color-primary);
+}
+
+.public-layout .event-description,
+.public-layout .event-detail span:last-child {
+  color: var(--color-text-muted) !important;
+}
+
+.public-layout .event-countdown {
+  background: var(--color-primary) !important;
+  color: var(--color-accent) !important;
+}
+
+/* Announcements */
+.public-layout .ann-card {
+  background: var(--color-bg-card);
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+}
+
+.public-layout .ann-card h3 {
+  color: var(--color-primary) !important;
+}
+
+.public-layout .ann-card p {
+  color: var(--color-text-muted) !important;
+}
+
+.public-layout .ann-author {
+  color: rgba(0, 0, 0, 0.45) !important;
+}
+
+.public-layout .filter-tab {
+  border: 1px solid var(--color-border);
+  color: var(--color-text-muted);
+}
+
+.public-layout .filter-tab:hover {
+  border-color: var(--color-primary);
+  color: var(--color-primary);
+}
+
+.public-layout .filter-tab.active {
+  background: var(--color-primary) !important;
+  color: #fff;
+  border-color: var(--color-primary);
+}
+
+.public-layout .loading,
+.public-layout .empty {
+  color: var(--color-text-muted) !important;
+}
+
+.public-layout .ann-date {
+  color: rgba(0, 0, 0, 0.45) !important;
+}

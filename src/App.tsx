@@ -2,6 +2,7 @@ import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { AuthProvider, useAuth } from "./hooks/useAuth";
 import { UnreadCountsProvider } from "./hooks/useUnreadCounts";
 import Layout from "./components/Layout/Layout";
+import PublicLayout from "./components/PublicLayout/PublicLayout";
 import Login from "./components/Auth/Login";
 import Dashboard from "./components/Dashboard";
 import Profile from "./components/Profile";
@@ -19,10 +20,17 @@ import PrivacyPolicy from "./components/PrivacyPolicy";
 import Faq from "./components/Faq";
 import TourGuide from "./components/TourGuide";
 import NotificationBridge from "./components/NotificationBridge";
+// Public pages
+import Home from "./pages/Home/Home";
+import About from "./pages/About/About";
+import Join from "./pages/Join/Join";
+import Gallery from "./pages/Gallery/Gallery";
+import Contact from "./pages/Contact/Contact";
 import logo from "./assets/logo.png";
 import splashBg from "./assets/background/splash-screen-background.jpg";
 import "./index.css";
 import "./styles/linkify.css";
+import "./styles/public.css";
 
 const loadingStyle: React.CSSProperties = {
   display: "flex",
@@ -79,12 +87,103 @@ function AppRoutes() {
 
   return (
     <Routes>
-      <Route
-        path="/login"
-        element={currentUser ? <Navigate to="/" replace /> : <Login />}
-      />
+      {/* ── Public routes (no auth required) ── */}
       <Route
         path="/"
+        element={
+          currentUser ? (
+            <Navigate to="/portal" replace />
+          ) : (
+            <PublicLayout>
+              <Home />
+            </PublicLayout>
+          )
+        }
+      />
+      <Route
+        path="/about"
+        element={
+          <PublicLayout>
+            <About />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/officers"
+        element={
+          currentUser ? (
+            <ProtectedRoute>
+              <Officers />
+            </ProtectedRoute>
+          ) : (
+            <PublicLayout>
+              <Officers />
+            </PublicLayout>
+          )
+        }
+      />
+      <Route
+        path="/events"
+        element={
+          currentUser ? (
+            <ProtectedRoute>
+              <Events />
+            </ProtectedRoute>
+          ) : (
+            <PublicLayout>
+              <Events />
+            </PublicLayout>
+          )
+        }
+      />
+      <Route
+        path="/announcements"
+        element={
+          currentUser ? (
+            <ProtectedRoute>
+              <Announcements />
+            </ProtectedRoute>
+          ) : (
+            <PublicLayout>
+              <Announcements />
+            </PublicLayout>
+          )
+        }
+      />
+      <Route
+        path="/join"
+        element={
+          <PublicLayout>
+            <Join />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/gallery"
+        element={
+          <PublicLayout>
+            <Gallery />
+          </PublicLayout>
+        }
+      />
+      <Route
+        path="/contact"
+        element={
+          <PublicLayout>
+            <Contact />
+          </PublicLayout>
+        }
+      />
+
+      {/* ── Auth ── */}
+      <Route
+        path="/login"
+        element={currentUser ? <Navigate to="/portal" replace /> : <Login />}
+      />
+
+      {/* ── Authenticated portal ── */}
+      <Route
+        path="/portal"
         element={
           <ProtectedRoute>
             <Dashboard />
@@ -128,30 +227,6 @@ function AppRoutes() {
         element={
           <ProtectedRoute>
             <Admin />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/announcements"
-        element={
-          <ProtectedRoute>
-            <Announcements />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/events"
-        element={
-          <ProtectedRoute>
-            <Events />
-          </ProtectedRoute>
-        }
-      />
-      <Route
-        path="/officers"
-        element={
-          <ProtectedRoute>
-            <Officers />
           </ProtectedRoute>
         }
       />

@@ -1,3 +1,26 @@
+:root {
+  /* Brand colours */
+  --color-primary: #0f1f0f;
+  --color-primary-mid: #1a3a1a;
+  --color-primary-light: #2d5a2d;
+  --color-accent: #c8a84b;
+  --color-accent-light: #e0c56e;
+  --color-accent-dim: rgba(200, 168, 75, 0.15);
+  --color-bg: #f5f5f0;
+  --color-bg-card: #ffffff;
+  --color-text: #1a1a1a;
+  --color-text-muted: #5a5a5a;
+  --color-border: rgba(200, 168, 75, 0.25);
+
+  /* Typography */
+  --font-heading: "Playfair Display", Georgia, serif;
+  --font-body: "Inter", -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+
+  /* Spacing */
+  --radius: 8px;
+  --radius-lg: 16px;
+}
+
 * {
   box-sizing: border-box;
   margin: 0;
@@ -5,13 +28,19 @@
 }
 
 body {
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-  background: linear-gradient(135deg, #0f2e0f 0%, #1a4a1a 40%, #2d6a2d 100%);
-  background-attachment: fixed;
-  color: #222;
+  font-family: var(--font-body);
+  background: var(--color-bg);
+  color: var(--color-text);
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   min-height: 100vh;
+}
+
+/* Authenticated portal keeps the dark green gradient */
+body.portal-mode {
+  background: linear-gradient(135deg, #0f2e0f 0%, #1a4a1a 40%, #2d6a2d 100%);
+  background-attachment: fixed;
+  color: #222;
 }
 
 #root {
