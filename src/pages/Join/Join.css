@@ -13,7 +13,7 @@
 }
 
 .join-section:nth-child(even) {
-  background: #eeeee9;
+  background: var(--color-bg-alt);
 }
 
 .join-section__inner {
@@ -138,7 +138,7 @@
 
 .join-faq-question:hover,
 .join-faq-question--open {
-  background: #f0efea;
+  background: var(--color-bg-hover);
 }
 
 .join-faq-chevron {

@@ -58,7 +58,7 @@
 }
 
 .about-section:nth-child(even) {
-  background: #eeeee9;
+  background: var(--color-bg-alt);
 }
 
 .about-section__inner {
