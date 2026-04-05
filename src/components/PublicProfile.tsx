@@ -59,7 +59,7 @@ export default function PublicProfile() {
   if (loadState === "notfound" || !profile) {
     return (
       <div className="public-profile-page">
-        <Link to="/" className="profile-back-link">← Back to Dashboard</Link>
+        <Link to="/portal" className="profile-back-link">← Back to Dashboard</Link>
         <div className="profile-card">
           <p className="profile-not-found">Cadet profile not found.</p>
         </div>
@@ -69,7 +69,7 @@ export default function PublicProfile() {
 
   return (
     <div className="public-profile-page">
-      <Link to="/" className="profile-back-link">← Back to Dashboard</Link>
+      <Link to="/portal" className="profile-back-link">← Back to Dashboard</Link>
 
       <section className="profile-card">
         <img

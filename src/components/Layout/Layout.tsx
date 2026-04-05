@@ -14,7 +14,7 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: "🏠" },
+  { path: "/portal", label: "Dashboard", icon: "🏠" },
   { path: "/profile", label: "Profile", icon: "👤" },
   { path: "/courses", label: "Courses", icon: "📚" },
   { path: "/chat", label: "Messages", icon: "💬" },
@@ -27,7 +27,7 @@ const navItems: NavItem[] = [
 
 // Items shown in the mobile bottom navigation bar (left to right)
 const bottomNavItems: NavItem[] = [
-  { path: "/", label: "Dashboard", icon: "🏠" },
+  { path: "/portal", label: "Dashboard", icon: "🏠" },
   { path: "/courses", label: "Courses", icon: "📚" },
   { path: "/chat", label: "Messages", icon: "💬" },
   { path: "/profile", label: "Profile", icon: "👤" },
@@ -49,6 +49,11 @@ export default function Layout({ children }: { children: React.ReactNode }) {
     markEventsRead,
     markChatRead,
   } = useUnreadCounts();
+
+  useEffect(() => {
+    document.body.classList.add("portal-mode");
+    return () => document.body.classList.remove("portal-mode");
+  }, []);
 
   useEffect(() => {
     const handleOpenSidebar = () => setSidebarOpen(true);
@@ -89,7 +94,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
             ☰
             {totalCount > 0 && <span className="menu-badge-dot" aria-hidden="true" />}
           </button>
-          <Link to="/" className="brand" data-tour-id="brand-link">
+          <Link to="/portal" className="brand" data-tour-id="brand-link">
             <img src={logo} alt="OHAC logo" className="brand-logo" />
             <span className="brand-name">OHAC</span>
           </Link>
@@ -131,7 +136,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
                   to={item.path}
                   className={`nav-item ${location.pathname === item.path ? "active" : ""} ${BOTTOM_NAV_PATHS.has(item.path) ? "nav-item--bottom-nav" : ""}`}
                   onClick={() => setSidebarOpen(false)}
-                  data-tour-id={item.path === "/" ? "nav-dashboard" : undefined}
+                  data-tour-id={item.path === "/portal" ? "nav-dashboard" : undefined}
                 >
                   <span className="nav-icon">{item.icon}</span>
                   <span className="nav-label">{item.label}</span>
@@ -173,8 +178,8 @@ export default function Layout({ children }: { children: React.ReactNode }) {
         {bottomNavItems.map((item) => {
           const count = badgeCount(item.path);
           const isActive =
-            item.path === "/"
-              ? location.pathname === "/"
+            item.path === "/portal"
+              ? location.pathname === "/portal"
               : location.pathname.startsWith(item.path);
           return (
             <Link

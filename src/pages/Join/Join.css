@@ -1,0 +1,260 @@
+.join-page {
+  background: var(--color-bg);
+}
+
+.page-hero--join {
+  background-image: url("../../assets/background/header-image.jpg");
+}
+
+/* ── Shared section wrapper ─────────────────────────────── */
+.join-section {
+  padding: 5rem 1.25rem;
+  background: var(--color-bg);
+}
+
+.join-section:nth-child(even) {
+  background: var(--color-bg-alt);
+}
+
+.join-section__inner {
+  max-width: 1100px;
+  margin: 0 auto;
+}
+
+.join-section__inner--narrow {
+  max-width: 700px;
+}
+
+/* ── Eligibility list ───────────────────────────────────── */
+.join-eligibility-list {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  max-width: 680px;
+}
+
+.join-eligibility-list li {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  font-size: 0.975rem;
+  color: var(--color-text-muted);
+  line-height: 1.6;
+}
+
+.join-eligibility-list li span[aria-hidden] {
+  flex-shrink: 0;
+  font-size: 1.05rem;
+  margin-top: 0.05rem;
+}
+
+/* ── Steps ──────────────────────────────────────────────── */
+.join-steps-section {
+  background: var(--color-primary);
+  padding: 5rem 1.25rem;
+}
+
+.join-steps {
+  list-style: none;
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+  counter-reset: none;
+  max-width: 720px;
+}
+
+.join-step {
+  display: flex;
+  align-items: flex-start;
+  gap: 1.25rem;
+}
+
+.join-step__num {
+  flex-shrink: 0;
+  width: 44px;
+  height: 44px;
+  background: var(--color-accent);
+  color: var(--color-primary);
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: var(--font-heading);
+  font-size: 1.15rem;
+  font-weight: 800;
+  line-height: 1;
+}
+
+.join-step__title {
+  font-family: var(--font-heading);
+  font-size: 1rem;
+  font-weight: 700;
+  color: #fff;
+  margin-bottom: 0.3rem;
+}
+
+.join-step__desc {
+  font-size: 0.875rem;
+  color: rgba(255, 255, 255, 0.65);
+  line-height: 1.6;
+}
+
+/* ── FAQ ────────────────────────────────────────────────── */
+.join-faq-list {
+  display: flex;
+  flex-direction: column;
+  border: 1px solid var(--color-border);
+  border-radius: var(--radius-lg);
+  overflow: hidden;
+  max-width: 760px;
+}
+
+.join-faq-item {
+  border-bottom: 1px solid var(--color-border);
+}
+
+.join-faq-item:last-child {
+  border-bottom: none;
+}
+
+.join-faq-question {
+  width: 100%;
+  background: var(--color-bg-card);
+  border: none;
+  padding: 1.1rem 1.5rem;
+  text-align: left;
+  font-family: var(--font-body);
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: var(--color-primary);
+  cursor: pointer;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 1rem;
+  transition: background 0.2s;
+}
+
+.join-faq-question:hover,
+.join-faq-question--open {
+  background: var(--color-bg-hover);
+}
+
+.join-faq-chevron {
+  flex-shrink: 0;
+  font-size: 0.7rem;
+  color: var(--color-accent);
+}
+
+.join-faq-answer {
+  background: var(--color-bg-card);
+  padding: 0 1.5rem 1.25rem;
+  font-size: 0.9rem;
+  color: var(--color-text-muted);
+  line-height: 1.7;
+  border-top: 1px solid var(--color-border);
+}
+
+/* ── Form section ───────────────────────────────────────── */
+.join-form-section {
+  background: var(--color-primary-mid);
+  padding: 5rem 1.25rem;
+}
+
+.join-form-section .section-heading {
+  color: #fff;
+}
+
+.join-form-section .section-heading::after {
+  background: var(--color-accent);
+}
+
+.join-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.25rem;
+}
+
+.join-form__row {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1.25rem;
+}
+
+@media (min-width: 560px) {
+  .join-form__row {
+    grid-template-columns: 1fr 1fr;
+  }
+}
+
+.join-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.45rem;
+}
+
+.join-field label {
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.85);
+}
+
+.required {
+  color: var(--color-accent);
+}
+
+.join-field input,
+.join-field select,
+.join-field textarea {
+  padding: 0.7rem 1rem;
+  border: 1px solid rgba(200, 168, 75, 0.3);
+  border-radius: var(--radius);
+  background: rgba(255, 255, 255, 0.07);
+  color: #fff;
+  font-size: 0.9rem;
+  outline: none;
+  transition: border-color 0.2s, background 0.2s;
+  resize: vertical;
+}
+
+.join-field input::placeholder,
+.join-field textarea::placeholder {
+  color: rgba(255, 255, 255, 0.3);
+}
+
+.join-field input:focus,
+.join-field select:focus,
+.join-field textarea:focus {
+  border-color: var(--color-accent);
+  background: rgba(200, 168, 75, 0.08);
+}
+
+.join-field select option {
+  background: var(--color-primary);
+  color: #fff;
+}
+
+.join-submit-btn {
+  align-self: flex-start;
+  margin-top: 0.5rem;
+}
+
+/* Success */
+.join-success {
+  background: rgba(200, 168, 75, 0.1);
+  border: 1px solid rgba(200, 168, 75, 0.4);
+  border-radius: var(--radius-lg);
+  padding: 2rem 1.5rem;
+  display: flex;
+  align-items: flex-start;
+  gap: 1rem;
+  color: rgba(255, 255, 255, 0.9);
+  font-size: 0.975rem;
+  line-height: 1.7;
+}
+
+.join-success span {
+  font-size: 1.5rem;
+  flex-shrink: 0;
+}

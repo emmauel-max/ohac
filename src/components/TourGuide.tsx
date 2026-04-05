@@ -104,7 +104,7 @@ export default function TourGuide() {
   }, [storageKey]);
 
   useEffect(() => {
-    if (!currentUser || location.pathname !== "/") return;
+    if (!currentUser || location.pathname !== "/portal") return;
     const seen = window.localStorage.getItem(storageKey) === "1";
     if (!seen) {
       startTour();
