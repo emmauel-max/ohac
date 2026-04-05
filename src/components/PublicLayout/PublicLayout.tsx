@@ -51,9 +51,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           </nav>
 
           <div className="pub-navbar__actions">
-            <Link to="/login" className="pub-btn-login">
-              Member Login
-            </Link>
             <button
               className="pub-navbar__hamburger"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -80,9 +77,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {link.label}
               </Link>
             ))}
-            <Link to="/login" className="pub-mobile-login" onClick={closeMenu}>
-              Member Login
-            </Link>
+
           </nav>
         )}
       </header>
@@ -119,7 +114,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
             <div className="pub-footer__col">
               <p className="pub-footer__col-heading">Contact</p>
               <Link to="/contact">Contact Us</Link>
-              <Link to="/login">Member Portal</Link>
             </div>
           </nav>
         </div>
