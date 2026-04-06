@@ -1,5 +1,6 @@
 import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import { Helmet } from "react-helmet-async";
 import { collection, getDocs, query, orderBy, limit } from "firebase/firestore";
 import { db } from "../../firebase";
 import type { Announcement } from "../../types";
@@ -70,6 +71,14 @@ export default function Home() {
 
   return (
     <div className="home">
+      <Helmet>
+        <title>OHAC — Oguaa Hall Army Cadet</title>
+        <meta name="description" content="Oguaa Hall Army Cadet (OHAC) — Discipline. Leadership. Service. Based at the University of Cape Coast, Ghana." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/" />
+        <meta property="og:title" content="OHAC — Oguaa Hall Army Cadet" />
+        <meta property="og:description" content="Discipline. Leadership. Service. The official website of the Oguaa Hall Army Cadet unit at the University of Cape Coast, Ghana." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/" />
+      </Helmet>
       {/* ── Hero ─────────────────────────────────────── */}
       <section
         className="home-hero"

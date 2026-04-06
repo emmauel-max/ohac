@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://oguaa-hall-army-cadet.web.app/sitemap.xml

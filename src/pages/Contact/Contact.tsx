@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Contact.css";
+import { Helmet } from "react-helmet-async";
 
 interface ContactForm {
   name: string;
@@ -26,6 +27,14 @@ export default function Contact() {
 
   return (
     <div className="contact-page">
+      <Helmet>
+        <title>Contact OHAC — Get in Touch</title>
+        <meta name="description" content="Contact the Oguaa Hall Army Cadet unit at UCC. Find our location on campus, reach the unit office, or send a message." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/contact" />
+        <meta property="og:title" content="Contact OHAC — Get in Touch" />
+        <meta property="og:description" content="Reach the OHAC unit office at the University of Cape Coast. Find our campus location and send us a message." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/contact" />
+      </Helmet>
       {/* Hero */}
       <section className="page-hero page-hero--contact" aria-labelledby="contact-hero-heading">
         <div className="page-hero__overlay" aria-hidden="true" />

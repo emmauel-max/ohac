@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Gallery.css";
+import { Helmet } from "react-helmet-async";
 
 // Placeholder gallery items — replace src values with real images when available
 const galleryItems = [
@@ -46,6 +47,14 @@ export default function Gallery() {
 
   return (
     <div className="gallery-page">
+      <Helmet>
+        <title>Gallery — OHAC</title>
+        <meta name="description" content="Photos and highlights from OHAC parades, training sessions, competitions, and community service activities." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/gallery" />
+        <meta property="og:title" content="Gallery — OHAC" />
+        <meta property="og:description" content="Browse photos from OHAC parades, training, competitions, and community service at UCC." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/gallery" />
+      </Helmet>
       {/* Hero */}
       <section className="page-hero page-hero--gallery" aria-labelledby="gallery-hero-heading">
         <div className="page-hero__overlay" aria-hidden="true" />

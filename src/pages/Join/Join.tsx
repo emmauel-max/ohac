@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "./Join.css";
+import { Helmet } from "react-helmet-async";
 
 const steps = [
   { num: 1, title: "Check Eligibility", desc: "Confirm you meet the academic and physical requirements listed below." },
@@ -75,6 +76,14 @@ export default function Join() {
 
   return (
     <div className="join-page">
+      <Helmet>
+        <title>Join OHAC — Enlist as a Cadet</title>
+        <meta name="description" content="Join the Oguaa Hall Army Cadet corps at UCC. Check eligibility, attend orientation, and start your application today." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/join" />
+        <meta property="og:title" content="Join OHAC — Enlist as a Cadet" />
+        <meta property="og:description" content="Open to all UCC undergraduate students. No prior military experience required. Start your OHAC application today." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/join" />
+      </Helmet>
       {/* ── Page hero ───────────────────────────────── */}
       <section className="page-hero page-hero--join" aria-labelledby="join-hero-heading">
         <div className="page-hero__overlay" aria-hidden="true" />
