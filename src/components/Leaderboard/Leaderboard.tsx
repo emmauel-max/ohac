@@ -37,9 +37,9 @@ export default function Leaderboard() {
           } as LeaderEntry;
         });
 
-        // Fetch enrollment counts per user
+        // Fetch enrollment counts per user (cap at 200 to keep reads reasonable)
         const enrollSnap = await getDocs(
-          query(collection(db, "enrollments"), orderBy("completedAt", "desc"))
+          query(collection(db, "enrollments"), orderBy("completedAt", "desc"), limit(200))
         );
         const countMap: Record<string, number> = {};
         enrollSnap.docs.forEach((d) => {
