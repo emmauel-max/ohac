@@ -20,6 +20,10 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   const [scrolled, setScrolled] = useState(false);
 
   useEffect(() => {
+    window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
