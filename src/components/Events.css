@@ -54,8 +54,8 @@
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
   border: 1px solid rgba(144, 238, 144, 0.15);
   border-top: 4px solid #2d6a2d;
-  backdrop-filter: blur(8px);
   -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
   display: flex;
   flex-direction: column;
   gap: 0.75rem;

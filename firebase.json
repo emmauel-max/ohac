@@ -1,4 +1,7 @@
 {
+  "firestore": {
+    "rules": "firestore.rules"
+  },
   "functions": {
     "source": "functions"
   },
@@ -6,6 +9,7 @@
     "rules": "storage.rules"
   },
   "hosting": {
+    "site": "oguaa-hall-army-cadet",
     "public": "dist",
     "ignore": [
       "firebase.json",
