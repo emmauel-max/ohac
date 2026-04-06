@@ -1,6 +1,7 @@
 import logo from "../../assets/logo.png";
 import uccLogo from "../../assets/ucc-logo.png";
 import "./About.css";
+import { Helmet } from "react-helmet-async";
 
 const values = [
   { icon: "🛡️", title: "Discipline", desc: "We uphold the highest standards of conduct, punctuality, and military bearing at all times." },
@@ -23,6 +24,14 @@ const structure = [
 export default function About() {
   return (
     <div className="about-page">
+      <Helmet>
+        <title>About OHAC — Oguaa Hall Army Cadet</title>
+        <meta name="description" content="Learn about OHAC's history, mission, core values, and organisational structure at the University of Cape Coast, Ghana." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/about" />
+        <meta property="og:title" content="About OHAC — Oguaa Hall Army Cadet" />
+        <meta property="og:description" content="History, mission, core values, and structure of the Oguaa Hall Army Cadet unit at UCC." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/about" />
+      </Helmet>
       {/* ── Page hero ──────────────────────────────── */}
       <section className="page-hero page-hero--about" aria-labelledby="about-hero-heading">
         <div className="page-hero__overlay" aria-hidden="true" />

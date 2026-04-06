@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useState } from "react";
 import { collection, getDocs, query, orderBy, where, limit, updateDoc, doc } from "firebase/firestore";
+import { Helmet } from "react-helmet-async";
 import { db } from "../firebase";
 import type { Officer } from "../types";
 import "./Officers.css";
@@ -105,6 +106,14 @@ export default function Officers() {
 
   return (
     <div className="officers-page">
+      <Helmet>
+        <title>Officers — OHAC</title>
+        <meta name="description" content="Meet the leadership team of the Oguaa Hall Army Cadet unit at the University of Cape Coast, Ghana." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/officers" />
+        <meta property="og:title" content="Officers — OHAC" />
+        <meta property="og:description" content="Meet the commissioned and non-commissioned officers leading the Oguaa Hall Army Cadet unit at UCC." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/officers" />
+      </Helmet>
       <div className="officers-header">
         <h1>Unit Officers</h1>
         <p>Meet the leadership team of the Oguaa Hall Army Cadet unit.</p>

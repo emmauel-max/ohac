@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { Helmet } from "react-helmet-async";
 import { db } from "../firebase";
 import { linkify } from "../utils/linkify";
 import type { Event } from "../types";
@@ -111,6 +112,14 @@ export default function Events() {
 
   return (
     <div className="events-page">
+      <Helmet>
+        <title>Events — OHAC</title>
+        <meta name="description" content="Upcoming parades, training exercises, and cadet activities organised by the Oguaa Hall Army Cadet unit at UCC." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/events" />
+        <meta property="og:title" content="Events — OHAC" />
+        <meta property="og:description" content="Browse upcoming OHAC parades, training exercises, and cadet activities at the University of Cape Coast." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/events" />
+      </Helmet>
       <div className="page-header">
         <h1>📅 Events & Training Schedule</h1>
         <p>Upcoming parades, exercises, and cadet activities</p>

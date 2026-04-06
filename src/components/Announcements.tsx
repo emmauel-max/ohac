@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { collection, getDocs, query, orderBy } from "firebase/firestore";
+import { Helmet } from "react-helmet-async";
 import { db } from "../firebase";
 import { linkify } from "../utils/linkify";
 import type { Announcement } from "../types";
@@ -37,6 +38,14 @@ export default function Announcements() {
 
   return (
     <div className="announcements-page">
+      <Helmet>
+        <title>Announcements — OHAC</title>
+        <meta name="description" content="Official notices and updates from OHAC leadership at the University of Cape Coast, Ghana." />
+        <link rel="canonical" href="https://oguaa-hall-army-cadet.web.app/announcements" />
+        <meta property="og:title" content="Announcements — OHAC" />
+        <meta property="og:description" content="Stay up to date with official notices, urgent updates, and communications from the Oguaa Hall Army Cadet leadership." />
+        <meta property="og:url" content="https://oguaa-hall-army-cadet.web.app/announcements" />
+      </Helmet>
       <div className="page-header">
         <h1>📢 Announcements</h1>
         <p>Official notices and updates from OHAC leadership</p>
