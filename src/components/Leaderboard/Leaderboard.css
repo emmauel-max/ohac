@@ -1,0 +1,131 @@
+.lb-card {
+  background: rgba(10, 30, 10, 0.72);
+  border-radius: 12px;
+  padding: 1.25rem 1.5rem;
+  margin-bottom: 1.5rem;
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+  border: 1px solid rgba(144, 238, 144, 0.15);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+}
+
+.lb-header {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  margin-bottom: 1rem;
+}
+
+.lb-icon {
+  font-size: 1.3rem;
+}
+
+.lb-title {
+  font-size: 1.05rem;
+  font-weight: 700;
+  color: #f5d800;
+  margin: 0;
+}
+
+.lb-loading,
+.lb-empty {
+  color: rgba(200, 255, 200, 0.6);
+  font-size: 0.88rem;
+  text-align: center;
+  padding: 0.5rem 0;
+}
+
+.lb-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.lb-row {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+  padding: 0.6rem 0.75rem;
+  border-radius: 8px;
+  background: rgba(15, 40, 15, 0.5);
+  border: 1px solid rgba(144, 238, 144, 0.1);
+  transition: background 0.15s;
+}
+
+.lb-row:hover {
+  background: rgba(15, 45, 15, 0.7);
+}
+
+.lb-row--top1 {
+  border-color: rgba(245, 215, 0, 0.4);
+  background: rgba(40, 30, 5, 0.55);
+}
+
+.lb-row--top2 {
+  border-color: rgba(180, 180, 200, 0.35);
+}
+
+.lb-row--top3 {
+  border-color: rgba(170, 90, 30, 0.35);
+}
+
+.lb-medal {
+  font-size: 1.2rem;
+  width: 24px;
+  text-align: center;
+  flex-shrink: 0;
+  color: rgba(200, 255, 200, 0.7);
+  font-weight: 700;
+  font-size: 0.85rem;
+}
+
+.lb-avatar {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(144, 238, 144, 0.25);
+}
+
+.lb-avatar--placeholder {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(45, 106, 45, 0.6);
+  color: rgba(200, 255, 200, 0.9);
+  font-size: 0.95rem;
+  font-weight: 700;
+}
+
+.lb-info {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 0.1rem;
+}
+
+.lb-name {
+  font-size: 0.9rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.lb-rank {
+  font-size: 0.72rem;
+  color: rgba(200, 255, 200, 0.55);
+}
+
+.lb-score {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: #f5d800;
+  flex-shrink: 0;
+}

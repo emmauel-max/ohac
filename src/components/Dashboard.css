@@ -202,6 +202,19 @@
   box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
 }
 
+.quick-link--mission {
+  background: linear-gradient(135deg, #1a5a1a, #2d8a2d);
+  border: 2px solid rgba(144, 238, 144, 0.45);
+  cursor: pointer;
+  font-family: inherit;
+  animation: mission-pulse 2.5s ease-in-out infinite;
+}
+
+@keyframes mission-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(144, 238, 144, 0); }
+  50% { box-shadow: 0 0 0 6px rgba(144, 238, 144, 0.18); }
+}
+
 .quick-link-icon {
   font-size: 1.75rem;
 }

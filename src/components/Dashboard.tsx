@@ -7,6 +7,10 @@ import logo from "../assets/logo.png";
 import uccLogo from "../assets/ucc-logo.png";
 import type { Announcement } from "../types";
 import "./Dashboard.css";
+import DailyMission from "./DailyMission/DailyMission";
+import QuoteOfDay from "./QuoteOfDay/QuoteOfDay";
+import PTTracker from "./PTTracker/PTTracker";
+import Leaderboard from "./Leaderboard/Leaderboard";
 
 import headerBg from "../assets/background/header-image.jpg";
 
@@ -16,6 +20,7 @@ export default function Dashboard() {
   const [loading, setLoading] = useState(true);
   const [activeCadets, setActiveCadets] = useState<string>("…");
   const [coursesAvailable, setCoursesAvailable] = useState<string>("…");
+  const [missionOpen, setMissionOpen] = useState(false);
 
   useEffect(() => {
     const fetchAnnouncements = async () => {
@@ -138,6 +143,14 @@ export default function Dashboard() {
               <span>{link.label}</span>
             </Link>
           ))}
+          <button
+            className="quick-link quick-link--mission"
+            onClick={() => setMissionOpen(true)}
+            data-tour-id="daily-mission-btn"
+          >
+            <span className="quick-link-icon">🎯</span>
+            <span>Daily Mission</span>
+          </button>
         </div>
       </section>
 
@@ -174,6 +187,12 @@ export default function Dashboard() {
         )}
       </section>
 
+      <QuoteOfDay />
+
+      <PTTracker />
+
+      <Leaderboard />
+
       <section className="section mission-section">
         <h2 className="section-title">Our Mission</h2>
         <p className="mission-text">
@@ -182,6 +201,8 @@ export default function Dashboard() {
           highest standards of military excellence, academic achievement, and national service.
         </p>
       </section>
+
+      {missionOpen && <DailyMission onClose={() => setMissionOpen(false)} />}
     </div>
   );
 }
