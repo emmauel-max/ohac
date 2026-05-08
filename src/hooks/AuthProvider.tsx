@@ -1,28 +1,11 @@
-import { createContext, useContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ReactNode } from "react";
 import { onAuthStateChanged, signInWithPopup, signOut } from "firebase/auth";
 import type { User as FirebaseUser } from "firebase/auth";
 import { collection, doc, getDoc, getDocs, query, setDoc, serverTimestamp, where } from "firebase/firestore";
 import { auth, googleProvider, db } from "../firebase";
 import type { Officer, User } from "../types";
-
-interface AuthContextType {
-  currentUser: FirebaseUser | null;
-  userProfile: User | null;
-  matchedOfficer: Officer | null;
-  loading: boolean;
-  isBanned: boolean;
-  signInWithGoogle: () => Promise<void>;
-  logout: () => Promise<void>;
-  isAdmin: boolean;
-  isQuartermaster: boolean;
-  isRqms: boolean;
-  isMajor: boolean;
-  canAccessLogistics: boolean;
-  canEditLogistics: boolean;
-}
-
-const AuthContext = createContext<AuthContextType | null>(null);
+import { AuthContext } from "./AuthContext";
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [currentUser, setCurrentUser] = useState<FirebaseUser | null>(null);
@@ -161,10 +144,4 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       {children}
     </AuthContext.Provider>
   );
-}
-
-export function useAuth() {
-  const context = useContext(AuthContext);
-  if (!context) throw new Error("useAuth must be used within AuthProvider");
-  return context;
 }

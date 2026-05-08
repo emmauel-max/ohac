@@ -1,7 +1,5 @@
 import {
-  createContext,
   useCallback,
-  useContext,
   useEffect,
   useRef,
   useState,
@@ -22,22 +20,11 @@ import {
 } from "firebase/database";
 import { db, rtdb } from "../firebase";
 import { useAuth } from "./useAuth";
+import { UnreadCountsContext } from "./UnreadCountsContext";
 
 const LS_ANN_TS = "ohac_ann_last_seen_at";
 const LS_EVENT_TS = "ohac_event_last_seen_at";
 const LS_CHAT_TS = "ohac_chat_last_seen_at";
-
-interface UnreadCountsContextType {
-  announcementCount: number;
-  eventCount: number;
-  chatCount: number;
-  totalCount: number;
-  markAnnouncementsRead: () => void;
-  markEventsRead: () => void;
-  markChatRead: () => void;
-}
-
-const UnreadCountsContext = createContext<UnreadCountsContextType | null>(null);
 
 export function UnreadCountsProvider({ children }: { children: ReactNode }) {
   const { currentUser } = useAuth();
@@ -199,10 +186,4 @@ export function UnreadCountsProvider({ children }: { children: ReactNode }) {
       {children}
     </UnreadCountsContext.Provider>
   );
-}
-
-export function useUnreadCounts() {
-  const ctx = useContext(UnreadCountsContext);
-  if (!ctx) throw new Error("useUnreadCounts must be used within UnreadCountsProvider");
-  return ctx;
 }

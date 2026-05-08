@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, useCallback } from "react";
 import {
   addDoc,
   collection,
@@ -207,7 +207,7 @@ export default function LogisticsManagement() {
         logExit(userSessionId);
       }
     };
-  }, [canAccessLogistics]);
+  }, [canAccessLogistics, logEntry, logExit, userSessionId, fetchLogisticsLogs]);
 
   const refreshPrograms = async () => {
     const programsSnap = await getDocs(query(collection(db, "logisticsPrograms"), orderBy("createdAt", "desc")));
@@ -430,7 +430,7 @@ export default function LogisticsManagement() {
     alert("User demoted from RQMS.");
   };
 
-  const logEntry = async () => {
+  const logEntry = useCallback(async () => {
     if (!canAccessLogistics || !currentUser || !userProfile) return;
 
     const sessionId = `${currentUser.uid}-${Date.now()}`;
@@ -448,9 +448,9 @@ export default function LogisticsManagement() {
       timestamp: Date.now(),
       date: dateStr,
     });
-  };
+  }, [canAccessLogistics, currentUser, userProfile, isQuartermaster, isRqms]);
 
-  const logExit = async (sessionId: string) => {
+  const logExit = useCallback(async (sessionId: string) => {
     if (!currentUser || !userProfile || !sessionId) return;
 
     const today = new Date();
@@ -465,14 +465,14 @@ export default function LogisticsManagement() {
       timestamp: Date.now(),
       date: dateStr,
     });
-  };
+  }, [currentUser, userProfile, isQuartermaster, isRqms]);
 
-  const fetchLogisticsLogs = async () => {
+  const fetchLogisticsLogs = useCallback(async () => {
     const logsSnap = await getDocs(
       query(collection(db, "logisticsLogs"), orderBy("timestamp", "desc"), limit(500))
     );
     setLogisticsLogs(logsSnap.docs.map((d) => ({ id: d.id, ...d.data() } as LogisticsLog)));
-  };
+  }, []);
 
   const dashboardStats = useMemo(() => {
     const weekStart = getWeekStart(new Date()).getTime();

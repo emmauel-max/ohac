@@ -304,7 +304,9 @@ export default function Courses() {
           await updateDoc(doc(db, "courses", selectedCourse.id), {
             completedCount: increment(1)
           });
-        } catch (e) { }
+        } catch {
+          // Silently handle error
+        }
       }
 
       setEnrollments(prev => ({

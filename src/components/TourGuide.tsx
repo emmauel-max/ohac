@@ -107,9 +107,13 @@ export default function TourGuide() {
     if (!currentUser || location.pathname !== "/portal") return;
     const seen = window.localStorage.getItem(storageKey) === "1";
     if (!seen) {
-      startTour();
+      // Defer opening the tour to avoid calling setState synchronously inside effect
+      window.requestAnimationFrame(() => {
+        setCurrentStepIndex(0);
+        setIsOpen(true);
+      });
     }
-  }, [currentUser, location.pathname, storageKey, startTour]);
+  }, [currentUser, location.pathname, storageKey]);
 
   useEffect(() => {
     if (!isOpen) return;

@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useCallback } from "react";
 import {
   collection,
   getDocs,
@@ -27,8 +27,7 @@ const OFFICER_RANK_LIMITS: Record<OfficerRank, number> = {
   "Warrant Officer Class 2": 1,
 };
 
-export default function Admin() {
-  const { isAdmin, userProfile } = useAuth();
+function AdminContent() {
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
   const [users, setUsers] = useState<User[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
@@ -79,19 +78,6 @@ export default function Admin() {
   const [removeOfficerPhoto, setRemoveOfficerPhoto] = useState(false);
   const officerImageRef = useRef<HTMLInputElement>(null);
 
-  if (!isAdmin) {
-    return (
-      <div className="admin-denied">
-        <div className="denied-content">
-          <span>🔒</span>
-          <h2>Access Restricted</h2>
-          <p>This area is reserved for OHAC administrators only.</p>
-          <p>Current role: <strong>{userProfile?.role || "cadet"}</strong></p>
-        </div>
-      </div>
-    );
-  }
-
   const tabs: { id: AdminTab; label: string; icon: string }[] = [
     { id: "overview", label: "Overview", icon: "📊" },
     { id: "users", label: "Members", icon: "👥" },
@@ -101,51 +87,54 @@ export default function Admin() {
     { id: "officers", label: "Officers", icon: "🎖️" },
   ];
 
-  const fetchUsers = async () => {
+  const fetchUsers = useCallback(async () => {
     setLoading(true);
     const snap = await getDocs(collection(db, "users"));
     setUsers(snap.docs.map((d) => ({ ...d.data() } as User)));
     setLoading(false);
-  };
+  }, []);
 
-  const fetchAnnouncements = async () => {
+  const fetchAnnouncements = useCallback(async () => {
     setLoading(true);
     const q = query(collection(db, "announcements"), orderBy("createdAt", "desc"));
     const snap = await getDocs(q);
     setAnnouncements(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Announcement)));
     setLoading(false);
-  };
+  }, []);
 
-  const fetchCourses = async () => {
+  const fetchCourses = useCallback(async () => {
     setLoading(true);
     const snap = await getDocs(collection(db, "courses"));
     setCourses(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Course)));
     setLoading(false);
-  };
+  }, []);
 
-  const fetchEvents = async () => {
+  const fetchEvents = useCallback(async () => {
     setLoading(true);
     const q = query(collection(db, "events"), orderBy("date"));
     const snap = await getDocs(q);
     setEvents(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Event)));
     setLoading(false);
-  };
+  }, []);
 
-  const fetchOfficers = async () => {
+  const fetchOfficers = useCallback(async () => {
     setLoading(true);
     const q = query(collection(db, "officers"), orderBy("createdAt", "asc"));
     const snap = await getDocs(q);
     setOfficers(snap.docs.map((d) => ({ id: d.id, ...d.data() } as Officer)));
     setLoading(false);
-  };
+  }, []);
 
   useEffect(() => {
-    if (activeTab === "users") fetchUsers();
-    if (activeTab === "announcements") fetchAnnouncements();
-    if (activeTab === "courses") fetchCourses();
-    if (activeTab === "events") fetchEvents();
-    if (activeTab === "officers") fetchOfficers();
-  }, [activeTab]);
+    const fetchData = async () => {
+      if (activeTab === "users") await fetchUsers();
+      else if (activeTab === "announcements") await fetchAnnouncements();
+      else if (activeTab === "courses") await fetchCourses();
+      else if (activeTab === "events") await fetchEvents();
+      else if (activeTab === "officers") await fetchOfficers();
+    };
+    fetchData();
+  }, [activeTab, fetchUsers, fetchAnnouncements, fetchCourses, fetchEvents, fetchOfficers]);
 
   const officerCounts = officers.reduce(
     (acc, officer) => {
@@ -1206,4 +1195,22 @@ export default function Admin() {
       </div>
     </div>
   );
+}
+
+export default function Admin() {
+  const { isAdmin, userProfile } = useAuth();
+  if (!isAdmin) {
+    return (
+      <div className="admin-denied">
+        <div className="denied-content">
+          <span>🔒</span>
+          <h2>Access Restricted</h2>
+          <p>This area is reserved for OHAC administrators only.</p>
+          <p>Current role: <strong>{userProfile?.role || "cadet"}</strong></p>
+        </div>
+      </div>
+    );
+  }
+
+  return <AdminContent />;
 }

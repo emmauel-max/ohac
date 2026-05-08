@@ -42,10 +42,3 @@ export function linkify(text: string): React.ReactNode {
     return <React.Fragment key={index}>{part}</React.Fragment>;
   });
 }
-
-/**
- * Component wrapper for linkified text
- */
-export function LinkifiedText({ text, className = '' }: { text: string; className?: string }) {
-  return <span className={className}>{linkify(text)}</span>;
-}
