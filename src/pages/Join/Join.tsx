@@ -136,7 +136,7 @@ export default function Join() {
                 <button
                   className={`join-faq-question ${openFaq === idx ? "join-faq-question--open" : ""}`}
                   onClick={() => setOpenFaq(openFaq === idx ? null : idx)}
-                  aria-expanded={openFaq === idx}
+                  aria-expanded={(openFaq === idx).toString()}
                 >
                   {faq.q}
                   <span className="join-faq-chevron" aria-hidden="true">{openFaq === idx ? "▲" : "▼"}</span>

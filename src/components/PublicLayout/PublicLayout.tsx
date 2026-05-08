@@ -59,7 +59,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               className="pub-navbar__hamburger"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen}
+              aria-expanded={menuOpen.toString()}
             >
               <span className={`hamburger-icon ${menuOpen ? "hamburger-icon--open" : ""}`}>
                 <span /><span /><span />
