@@ -88,7 +88,9 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
       {/* Page content */}
       <main id="main-content" tabIndex={-1}>
-        {children}
+        <div key={location.pathname} className="pub-page-transition">
+          {children}
+        </div>
       </main>
 
       {/* Footer */}
