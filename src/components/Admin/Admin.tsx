@@ -29,6 +29,7 @@ const OFFICER_RANK_LIMITS: Record<OfficerRank, number> = {
 
 function AdminContent() {
   const [activeTab, setActiveTab] = useState<AdminTab>("overview");
+  const { userProfile } = useAuth();
   const [users, setUsers] = useState<User[]>([]);
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [courses, setCourses] = useState<Course[]>([]);

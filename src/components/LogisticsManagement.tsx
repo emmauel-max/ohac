@@ -122,6 +122,21 @@ export default function LogisticsManagement() {
     }).reverse();
   }, []);
 
+  // Log entry when user accesses logistics page
+  /* eslint-disable-next-line react-hooks/exhaustive-deps */
+  useEffect(() => {
+    if (!canAccessLogistics) return;
+    logEntry();
+    fetchLogisticsLogs();
+
+    // Log exit when user leaves
+    return () => {
+      if (userSessionId) {
+        logExit(userSessionId);
+      }
+    };
+  }, [canAccessLogistics, userSessionId]);
+
   const selectedProgram = useMemo(
     () => programs.find((program) => program.id === selectedProgramId) || null,
     [programs, selectedProgramId]
@@ -195,19 +210,10 @@ export default function LogisticsManagement() {
     fetchAll();
   }, [canAccessLogistics, selectedProgramId, weekKeys]);
 
-  // Log entry when user accesses logistics page
-  useEffect(() => {
-    if (!canAccessLogistics) return;
-    logEntry();
-    fetchLogisticsLogs();
+  // Logistics logging helpers
+  
 
-    // Log exit when user leaves
-    return () => {
-      if (userSessionId) {
-        logExit(userSessionId);
-      }
-    };
-  }, [canAccessLogistics, logEntry, logExit, userSessionId, fetchLogisticsLogs]);
+  
 
   const refreshPrograms = async () => {
     const programsSnap = await getDocs(query(collection(db, "logisticsPrograms"), orderBy("createdAt", "desc")));

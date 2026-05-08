@@ -1,4 +1,4 @@
-import { linkify } from './linkify';
+import { linkify } from '../utils/linkify';
 
 /**
  * Component wrapper for linkified text

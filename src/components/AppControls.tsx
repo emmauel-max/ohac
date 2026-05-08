@@ -12,7 +12,7 @@ export default function AppControls() {
     // Listen for the browser recognizing your awesome Vite PWA config
     const handleBeforeInstallPrompt = (e: Event) => {
       e.preventDefault();
-      setDeferredPrompt(e);
+      setDeferredPrompt(e as BeforeInstallPromptEvent);
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
