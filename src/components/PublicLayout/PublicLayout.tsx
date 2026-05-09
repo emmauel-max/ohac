@@ -54,7 +54,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       setMenuOpen(false);
     } catch (err) {
       console.error("Google sign-in failed", err);
-      setAuthError("Sign-in failed. Check popup permissions and try again.");
+      setAuthError("Sign-in failed. Please try again.");
     }
   };
 
@@ -107,7 +107,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                     alt={currentUser.displayName || "User profile"}
                     className="pub-user-avatar"
                   />
-                  <span className="pub-user-name">{currentUser.displayName?.split(" ")[0] || "Profile"}</span>
+                  <span className="pub-user-name">{currentUser.displayName?.split(" ")[0] || "User"}</span>
                   <span className="pub-user-caret">▾</span>
                 </button>
 
