@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { useAuth } from "../../hooks/useAuth";
 import "./PublicLayout.css";
 
 const navLinks = [
@@ -16,8 +17,12 @@ const navLinks = [
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const { currentUser, loading, signInWithGoogle, logout, isAdmin, canAccessLogistics } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
@@ -29,7 +34,48 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const onClickOutside = (event: MouseEvent) => {
+      if (!profileMenuRef.current) return;
+      if (!profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", onClickOutside);
+    return () => window.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
+
+  const handleSignIn = async () => {
+    try {
+      setAuthError(null);
+      await signInWithGoogle();
+      setMenuOpen(false);
+    } catch (err) {
+      console.error("Google sign-in failed", err);
+      const code = typeof err === "object" && err && "code" in err ? String(err.code) : "";
+      if (code.includes("popup-blocked") || code.includes("popup-closed-by-user")) {
+        setAuthError("Sign-in popup was blocked or closed. Please allow popups and try again.");
+      } else if (code.includes("network-request-failed")) {
+        setAuthError("Network error while signing in. Check your connection and try again.");
+      } else {
+        setAuthError("Sign-in failed. Please try again.");
+      }
+    }
+  };
+
+  const handleLogout = async () => {
+    try {
+      setAuthError(null);
+      await logout();
+      setMenuOpen(false);
+      setProfileMenuOpen(false);
+    } catch (err) {
+      console.error("Sign out failed", err);
+      setAuthError("Sign out failed. Please try again.");
+    }
+  };
 
   return (
     <div className="public-layout">
@@ -55,11 +101,51 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           </nav>
 
           <div className="pub-navbar__actions">
+            {!loading && !currentUser && (
+              <button className="pub-btn-login" onClick={handleSignIn} type="button">
+                Log In
+              </button>
+            )}
+            {!loading && currentUser && (
+              <div className="pub-user-menu" ref={profileMenuRef}>
+                <button
+                  className="pub-user-trigger"
+                  type="button"
+                  onClick={() => setProfileMenuOpen((prev) => !prev)}
+                  aria-haspopup="menu"
+                  aria-expanded={profileMenuOpen}
+                >
+                  <img
+                    src={currentUser.photoURL || "/icons/icon-192.png"}
+                    alt={currentUser.displayName || "User profile"}
+                    className="pub-user-avatar"
+                  />
+                  <span className="pub-user-name">{currentUser.displayName?.split(" ")[0] || "User"}</span>
+                  <span className="pub-user-caret">▾</span>
+                </button>
+
+                {profileMenuOpen && (
+                  <div className="pub-user-dropdown" role="menu">
+                    <Link to="/profile" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Profile</Link>
+                    <Link to="/portal" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Dashboard</Link>
+                    <Link to="/courses" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Courses</Link>
+                    <Link to="/chat" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Messages</Link>
+                    {canAccessLogistics && <Link to="/logistics" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Logistics</Link>}
+                    {isAdmin && <Link to="/admin" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Admin Panel</Link>}
+                    <Link to="/privacy-policy" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Privacy Policy</Link>
+                    <Link to="/terms-of-service" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Terms of Service</Link>
+                    <Link to="/code-of-conduct" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Code of Conduct</Link>
+                    <Link to="/faq" role="menuitem" onClick={() => setProfileMenuOpen(false)}>FAQ</Link>
+                    <button type="button" onClick={handleLogout}>Sign Out</button>
+                  </div>
+                )}
+              </div>
+            )}
             <button
               className="pub-navbar__hamburger"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen.toString()}
+              aria-expanded={menuOpen}
             >
               <span className={`hamburger-icon ${menuOpen ? "hamburger-icon--open" : ""}`}>
                 <span /><span /><span />
@@ -81,9 +167,36 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {link.label}
               </Link>
             ))}
+            {!loading && !currentUser && (
+              <button className="pub-mobile-login" onClick={handleSignIn} type="button">
+                Log In with Google
+              </button>
+            )}
+            {!loading && currentUser && (
+              <>
+                <Link to="/profile" className="pub-mobile-link" onClick={closeMenu}>Profile</Link>
+                <Link to="/portal" className="pub-mobile-link" onClick={closeMenu}>Dashboard</Link>
+                <Link to="/courses" className="pub-mobile-link" onClick={closeMenu}>Courses</Link>
+                <Link to="/chat" className="pub-mobile-link" onClick={closeMenu}>Messages</Link>
+                {canAccessLogistics && (
+                  <Link to="/logistics" className="pub-mobile-link" onClick={closeMenu}>Logistics</Link>
+                )}
+                {isAdmin && (
+                  <Link to="/admin" className="pub-mobile-link" onClick={closeMenu}>Admin Panel</Link>
+                )}
+                <Link to="/privacy-policy" className="pub-mobile-link" onClick={closeMenu}>Privacy Policy</Link>
+                <Link to="/terms-of-service" className="pub-mobile-link" onClick={closeMenu}>Terms of Service</Link>
+                <Link to="/code-of-conduct" className="pub-mobile-link" onClick={closeMenu}>Code of Conduct</Link>
+                <Link to="/faq" className="pub-mobile-link" onClick={closeMenu}>FAQ</Link>
+                <button className="pub-mobile-login" onClick={handleLogout} type="button">
+                  Sign Out
+                </button>
+              </>
+            )}
 
           </nav>
         )}
+        {authError && <p className="pub-auth-error">{authError}</p>}
       </header>
 
       {/* Page content */}
