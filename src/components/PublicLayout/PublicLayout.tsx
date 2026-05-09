@@ -21,6 +21,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const [authError, setAuthError] = useState<string | null>(null);
   const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -48,11 +49,12 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
   const handleSignIn = async () => {
     try {
+      setAuthError(null);
       await signInWithGoogle();
       setMenuOpen(false);
     } catch (err) {
       console.error("Google sign-in failed", err);
-      alert("Google sign-in failed. Please try again.");
+      setAuthError("Sign-in failed. Check popup permissions and try again.");
     }
   };
 
@@ -181,6 +183,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
           </nav>
         )}
+        {authError && <p className="pub-auth-error">{authError}</p>}
       </header>
 
       {/* Page content */}

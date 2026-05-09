@@ -303,6 +303,14 @@
   background: var(--color-accent-light);
 }
 
+.pub-auth-error {
+  margin: 0;
+  padding: 0.5rem 1.25rem 0.75rem;
+  color: #ffd3d3;
+  font-size: 0.82rem;
+  text-align: right;
+}
+
 /* ── Main ────────────────────────────────────────────── */
 main#main-content {
   flex: 1;

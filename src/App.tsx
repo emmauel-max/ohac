@@ -27,7 +27,13 @@ import "./styles/public.css";
 
 function RequireAuth({ children }: { children: React.ReactNode }) {
   const { currentUser, loading } = useAuth();
-  if (loading) return null;
+  if (loading) {
+    return (
+      <PublicLayout>
+        <div style={{ padding: "2rem 1rem", textAlign: "center" }}>Checking sign-in status…</div>
+      </PublicLayout>
+    );
+  }
   return currentUser ? <>{children}</> : <Navigate to="/" replace />;
 }
 
