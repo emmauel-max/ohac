@@ -54,14 +54,27 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
       setMenuOpen(false);
     } catch (err) {
       console.error("Google sign-in failed", err);
-      setAuthError("Sign-in failed. Please try again.");
+      const code = typeof err === "object" && err && "code" in err ? String(err.code) : "";
+      if (code.includes("popup-blocked") || code.includes("popup-closed-by-user")) {
+        setAuthError("Sign-in popup was blocked or closed. Please allow popups and try again.");
+      } else if (code.includes("network-request-failed")) {
+        setAuthError("Network error while signing in. Check your connection and try again.");
+      } else {
+        setAuthError("Sign-in failed. Please try again.");
+      }
     }
   };
 
   const handleLogout = async () => {
-    await logout();
-    setMenuOpen(false);
-    setProfileMenuOpen(false);
+    try {
+      setAuthError(null);
+      await logout();
+      setMenuOpen(false);
+      setProfileMenuOpen(false);
+    } catch (err) {
+      console.error("Sign out failed", err);
+      setAuthError("Sign out failed. Please try again.");
+    }
   };
 
   return (
