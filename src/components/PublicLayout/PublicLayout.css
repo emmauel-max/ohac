@@ -109,11 +109,13 @@
   padding: 0.45rem 1rem;
   background: var(--color-accent);
   color: var(--color-primary);
+  border: none;
   border-radius: 6px;
   font-weight: 700;
   font-size: 0.875rem;
   transition: background 0.2s, transform 0.15s;
   white-space: nowrap;
+  cursor: pointer;
 }
 
 .pub-btn-login:hover {
@@ -125,6 +127,82 @@
   .pub-btn-login {
     display: inline-block;
   }
+}
+
+.pub-user-menu {
+  position: relative;
+  display: none;
+}
+
+@media (min-width: 640px) {
+  .pub-user-menu {
+    display: block;
+  }
+}
+
+.pub-user-trigger {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  background: rgba(255, 255, 255, 0.08);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+  border-radius: 999px;
+  color: #fff;
+  padding: 0.25rem 0.5rem 0.25rem 0.25rem;
+  cursor: pointer;
+}
+
+.pub-user-avatar {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+.pub-user-name {
+  font-size: 0.84rem;
+  font-weight: 600;
+}
+
+.pub-user-caret {
+  font-size: 0.82rem;
+  color: var(--color-accent);
+}
+
+.pub-user-dropdown {
+  position: absolute;
+  right: 0;
+  top: calc(100% + 0.5rem);
+  min-width: 210px;
+  display: flex;
+  flex-direction: column;
+  gap: 0.2rem;
+  background: rgba(10, 24, 10, 0.98);
+  border: 1px solid rgba(200, 168, 75, 0.25);
+  border-radius: 10px;
+  padding: 0.45rem;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.35);
+}
+
+.pub-user-dropdown a,
+.pub-user-dropdown button {
+  display: block;
+  width: 100%;
+  text-align: left;
+  padding: 0.58rem 0.65rem;
+  border-radius: 7px;
+  text-decoration: none;
+  color: rgba(255, 255, 255, 0.88);
+  font-size: 0.9rem;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+.pub-user-dropdown a:hover,
+.pub-user-dropdown button:hover {
+  background: rgba(200, 168, 75, 0.15);
+  color: var(--color-accent);
 }
 
 /* Hamburger */
@@ -212,11 +290,13 @@
   padding: 0.7rem 1.25rem;
   background: var(--color-accent);
   color: var(--color-primary);
+  border: none;
   border-radius: 6px;
   font-weight: 700;
   font-size: 0.9rem;
   text-align: center;
   transition: background 0.2s;
+  cursor: pointer;
 }
 
 .pub-mobile-login:hover {

@@ -1,6 +1,7 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { Link, useLocation } from "react-router-dom";
 import logo from "../../assets/logo.png";
+import { useAuth } from "../../hooks/useAuth";
 import "./PublicLayout.css";
 
 const navLinks = [
@@ -16,11 +17,19 @@ const navLinks = [
 
 export default function PublicLayout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const { currentUser, loading, signInWithGoogle, logout, isAdmin, canAccessLogistics } = useAuth();
   const [menuOpen, setMenuOpen] = useState(false);
   const [scrolled, setScrolled] = useState(false);
+  const [profileMenuOpen, setProfileMenuOpen] = useState(false);
+  const profileMenuRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
     window.scrollTo(0, 0);
+  }, [location.pathname]);
+
+  useEffect(() => {
+    setMenuOpen(false);
+    setProfileMenuOpen(false);
   }, [location.pathname]);
 
   useEffect(() => {
@@ -29,7 +38,34 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
     return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
+  useEffect(() => {
+    const onClickOutside = (event: MouseEvent) => {
+      if (!profileMenuRef.current) return;
+      if (!profileMenuRef.current.contains(event.target as Node)) {
+        setProfileMenuOpen(false);
+      }
+    };
+    window.addEventListener("mousedown", onClickOutside);
+    return () => window.removeEventListener("mousedown", onClickOutside);
+  }, []);
+
   const closeMenu = () => setMenuOpen(false);
+
+  const handleSignIn = async () => {
+    try {
+      await signInWithGoogle();
+      setMenuOpen(false);
+    } catch (err) {
+      console.error("Google sign-in failed", err);
+      alert("Google sign-in failed. Please try again.");
+    }
+  };
+
+  const handleLogout = async () => {
+    await logout();
+    setMenuOpen(false);
+    setProfileMenuOpen(false);
+  };
 
   return (
     <div className="public-layout">
@@ -55,6 +91,46 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
           </nav>
 
           <div className="pub-navbar__actions">
+            {!loading && !currentUser && (
+              <button className="pub-btn-login" onClick={handleSignIn} type="button">
+                Log In
+              </button>
+            )}
+            {!loading && currentUser && (
+              <div className="pub-user-menu" ref={profileMenuRef}>
+                <button
+                  className="pub-user-trigger"
+                  type="button"
+                  onClick={() => setProfileMenuOpen((prev) => !prev)}
+                  aria-haspopup="menu"
+                  aria-expanded={profileMenuOpen}
+                >
+                  <img
+                    src={currentUser.photoURL || "/icons/icon-192.png"}
+                    alt={currentUser.displayName || "User profile"}
+                    className="pub-user-avatar"
+                  />
+                  <span className="pub-user-name">{currentUser.displayName?.split(" ")[0] || "Profile"}</span>
+                  <span className="pub-user-caret">▾</span>
+                </button>
+
+                {profileMenuOpen && (
+                  <div className="pub-user-dropdown" role="menu">
+                    <Link to="/profile" role="menuitem">Profile</Link>
+                    <Link to="/portal" role="menuitem">Dashboard</Link>
+                    <Link to="/courses" role="menuitem">Courses</Link>
+                    <Link to="/chat" role="menuitem">Messages</Link>
+                    {canAccessLogistics && <Link to="/logistics" role="menuitem">Logistics</Link>}
+                    {isAdmin && <Link to="/admin" role="menuitem">Admin Panel</Link>}
+                    <Link to="/privacy-policy" role="menuitem">Privacy Policy</Link>
+                    <Link to="/terms-of-service" role="menuitem">Terms of Service</Link>
+                    <Link to="/code-of-conduct" role="menuitem">Code of Conduct</Link>
+                    <Link to="/faq" role="menuitem">FAQ</Link>
+                    <button type="button" onClick={handleLogout}>Sign Out</button>
+                  </div>
+                )}
+              </div>
+            )}
             <button
               className="pub-navbar__hamburger"
               onClick={() => setMenuOpen(!menuOpen)}
@@ -81,6 +157,32 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
                 {link.label}
               </Link>
             ))}
+            {!loading && !currentUser && (
+              <button className="pub-mobile-login" onClick={handleSignIn} type="button">
+                Log In with Google
+              </button>
+            )}
+            {!loading && currentUser && (
+              <>
+                <Link to="/profile" className="pub-mobile-link" onClick={closeMenu}>Profile</Link>
+                <Link to="/portal" className="pub-mobile-link" onClick={closeMenu}>Dashboard</Link>
+                <Link to="/courses" className="pub-mobile-link" onClick={closeMenu}>Courses</Link>
+                <Link to="/chat" className="pub-mobile-link" onClick={closeMenu}>Messages</Link>
+                {canAccessLogistics && (
+                  <Link to="/logistics" className="pub-mobile-link" onClick={closeMenu}>Logistics</Link>
+                )}
+                {isAdmin && (
+                  <Link to="/admin" className="pub-mobile-link" onClick={closeMenu}>Admin Panel</Link>
+                )}
+                <Link to="/privacy-policy" className="pub-mobile-link" onClick={closeMenu}>Privacy Policy</Link>
+                <Link to="/terms-of-service" className="pub-mobile-link" onClick={closeMenu}>Terms of Service</Link>
+                <Link to="/code-of-conduct" className="pub-mobile-link" onClick={closeMenu}>Code of Conduct</Link>
+                <Link to="/faq" className="pub-mobile-link" onClick={closeMenu}>FAQ</Link>
+                <button className="pub-mobile-login" onClick={handleLogout} type="button">
+                  Sign Out
+                </button>
+              </>
+            )}
 
           </nav>
         )}
