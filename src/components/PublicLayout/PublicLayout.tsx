@@ -28,11 +28,6 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
   }, [location.pathname]);
 
   useEffect(() => {
-    setMenuOpen(false);
-    setProfileMenuOpen(false);
-  }, [location.pathname]);
-
-  useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 20);
     window.addEventListener("scroll", onScroll);
     return () => window.removeEventListener("scroll", onScroll);
@@ -116,16 +111,16 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
 
                 {profileMenuOpen && (
                   <div className="pub-user-dropdown" role="menu">
-                    <Link to="/profile" role="menuitem">Profile</Link>
-                    <Link to="/portal" role="menuitem">Dashboard</Link>
-                    <Link to="/courses" role="menuitem">Courses</Link>
-                    <Link to="/chat" role="menuitem">Messages</Link>
-                    {canAccessLogistics && <Link to="/logistics" role="menuitem">Logistics</Link>}
-                    {isAdmin && <Link to="/admin" role="menuitem">Admin Panel</Link>}
-                    <Link to="/privacy-policy" role="menuitem">Privacy Policy</Link>
-                    <Link to="/terms-of-service" role="menuitem">Terms of Service</Link>
-                    <Link to="/code-of-conduct" role="menuitem">Code of Conduct</Link>
-                    <Link to="/faq" role="menuitem">FAQ</Link>
+                    <Link to="/profile" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Profile</Link>
+                    <Link to="/portal" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Dashboard</Link>
+                    <Link to="/courses" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Courses</Link>
+                    <Link to="/chat" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Messages</Link>
+                    {canAccessLogistics && <Link to="/logistics" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Logistics</Link>}
+                    {isAdmin && <Link to="/admin" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Admin Panel</Link>}
+                    <Link to="/privacy-policy" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Privacy Policy</Link>
+                    <Link to="/terms-of-service" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Terms of Service</Link>
+                    <Link to="/code-of-conduct" role="menuitem" onClick={() => setProfileMenuOpen(false)}>Code of Conduct</Link>
+                    <Link to="/faq" role="menuitem" onClick={() => setProfileMenuOpen(false)}>FAQ</Link>
                     <button type="button" onClick={handleLogout}>Sign Out</button>
                   </div>
                 )}
@@ -135,7 +130,7 @@ export default function PublicLayout({ children }: { children: React.ReactNode }
               className="pub-navbar__hamburger"
               onClick={() => setMenuOpen(!menuOpen)}
               aria-label={menuOpen ? "Close menu" : "Open menu"}
-              aria-expanded={menuOpen.toString()}
+              aria-expanded={menuOpen}
             >
               <span className={`hamburger-icon ${menuOpen ? "hamburger-icon--open" : ""}`}>
                 <span /><span /><span />
