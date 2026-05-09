@@ -167,41 +167,33 @@ function AppRoutes() {
       <Route
         path="/privacy-policy"
         element={
-          <RequireAuth>
-            <PublicLayout>
-              <PrivacyPolicy />
-            </PublicLayout>
-          </RequireAuth>
+          <PublicLayout>
+            <PrivacyPolicy />
+          </PublicLayout>
         }
       />
       <Route
         path="/terms-of-service"
         element={
-          <RequireAuth>
-            <PublicLayout>
-              <TermsOfService />
-            </PublicLayout>
-          </RequireAuth>
+          <PublicLayout>
+            <TermsOfService />
+          </PublicLayout>
         }
       />
       <Route
         path="/code-of-conduct"
         element={
-          <RequireAuth>
-            <PublicLayout>
-              <CodeOfConduct />
-            </PublicLayout>
-          </RequireAuth>
+          <PublicLayout>
+            <CodeOfConduct />
+          </PublicLayout>
         }
       />
       <Route
         path="/faq"
         element={
-          <RequireAuth>
-            <PublicLayout>
-              <Faq />
-            </PublicLayout>
-          </RequireAuth>
+          <PublicLayout>
+            <Faq />
+          </PublicLayout>
         }
       />
       <Route path="*" element={<Navigate to="/" replace />} />
